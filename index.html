@@ -29,6 +29,7 @@
     <nav class="tabs" role="tablist" aria-label="Módulos">
       <button class="tab" role="tab" id="tab-fab" data-view="fab" aria-selected="true">Fábrica</button>
       <button class="tab" role="tab" id="tab-insp" data-view="insp" aria-selected="false">É função?</button>
+      <button class="tab" role="tab" id="tab-game" data-view="game" aria-selected="false">Desafios</button>
     </nav>
 
     <div class="tools">
@@ -299,6 +300,58 @@
     </aside>
   </main>
 
+  <!-- ============ DESAFIOS ============ -->
+  <main class="view" id="view-game" aria-labelledby="tab-game" hidden>
+    <div class="col-main">
+      <section class="stage-wrap">
+        <div class="figbar" role="toolbar" aria-label="Escolher o desafio">
+          <div class="fb-group">
+            <div class="seg seg-sm" id="g-game" role="group" aria-label="Desafio">
+              <button data-g="rule">Adivinhe a regra</button><button data-g="rev">Que produto entrou?</button><button data-g="race">Corrida das engrenagens</button><button data-g="ex">Exercícios</button>
+            </div>
+          </div>
+          <div class="fb-group">
+            <div class="seg seg-sm" id="g-level" role="group" aria-label="Nível">
+              <button data-v="1">Nível 1</button><button data-v="2">Nível 2</button><button data-v="3">Nível 3</button>
+            </div>
+            <button class="fb" id="g-new" title="Sortear uma nova rodada">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="9" cy="9" r="1.4" fill="currentColor"/><circle cx="15" cy="15" r="1.4" fill="currentColor"/><circle cx="15" cy="9" r="1.4" fill="currentColor"/><circle cx="9" cy="15" r="1.4" fill="currentColor"/></svg>
+              <span>Nova rodada</span>
+            </button>
+          </div>
+        </div>
+        <div class="game" id="g-area" aria-live="polite"></div>
+      </section>
+    </div>
+    <aside class="side">
+      <div class="card">
+        <h2>Placar</h2>
+        <ol class="teams" id="g-teams"></ol>
+        <div class="edit-row">
+          <button class="btn btn-ghost" id="g-team-add">+ Equipe</button>
+          <button class="btn btn-ghost" id="g-team-del">− Equipe</button>
+          <button class="btn btn-ghost" id="g-team-zero">Zerar</button>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Cronômetro</h2>
+        <div class="clock" id="g-clock">1:00</div>
+        <div class="seg seg-sm" id="g-clock-len" role="group" aria-label="Duração">
+          <button data-v="30">30 s</button><button data-v="60">1 min</button><button data-v="90">1 min 30</button><button data-v="120">2 min</button><button data-v="180">3 min</button>
+        </div>
+        <div class="edit-row">
+          <button class="btn" id="g-clock-go">Iniciar</button>
+          <button class="btn btn-ghost" id="g-clock-reset">Zerar</button>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Como jogar</h2>
+        <p class="rule" id="g-help"></p>
+      </div>
+    </aside>
+    <div class="toast" id="g-toast" hidden></div>
+  </main>
+
   <!-- ============ PAINEL DO PROFESSOR ============ -->
   <div class="scrim" id="scrim" hidden></div>
   <aside class="panel" id="panel" aria-label="Painel do professor" hidden>
@@ -350,7 +403,7 @@
           <dt><kbd>B</kbd></dt><dd>caixa-preta</dd>
           <dt><kbd>O</kbd></dt><dd>prever a saída</dd>
           <dt><kbd>T</kbd> <kbd>D</kbd> <kbd>G</kbd></dt><dd>tabela, diagrama, gráfico</dd>
-          <dt><kbd>1</kbd> <kbd>2</kbd></dt><dd>Fábrica / É função?</dd>
+          <dt><kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd></dt><dd>Fábrica / É função? / Desafios</dd>
           <dt><kbd>F</kbd></dt><dd>tela cheia</dd>
           <dt><kbd>P</kbd></dt><dd>painel do professor</dd>
         </dl>
@@ -369,6 +422,7 @@
 <script src="js/factory.js"></script>
 <script src="js/reps.js"></script>
 <script src="js/inspect.js"></script>
+<script src="js/games.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

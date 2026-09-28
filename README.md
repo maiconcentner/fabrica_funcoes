@@ -87,14 +87,16 @@ Aba **É função?** (tecla `2`; a Fábrica é a tecla `1`). Cada caso chega ao 
 - **Sortear** cria diagramas e tabelas novos (com e sem função, com as pegadinhas: mesma imagem, função constante, elemento sem flecha, duas flechas).
 - **Montar o meu**: o professor escreve os elementos de A e de B e liga as flechas tocando num elemento de A e depois num de B; depois inspeciona com a turma. O diagrama vai junto no link compartilhável.
 
-## Plano das próximas fases
+## Desafios (Fase 3: jogos para a turma)
 
-### Fase 3: Desafios (jogos para a turma)
-- **Adivinhe a regra** com placar por equipes: a máquina sorteia uma lei (nível 1: `x + a`; nível 2: `ax + b`; nível 3: `x²`, `ax² + b`…), cada equipe pede um valor por vez e ganha mais pontos quem descobre a lei com menos pistas.
-- **Máquina ao contrário** em ritmo de jogo: "que produto entrou?".
-- **Corrida das engrenagens**: montar, com engrenagens, uma máquina que produza os pares dados.
-- **Gerador de exercícios** a partir das situações (números novos a cada vez), com resolução passo a passo.
-- Cronômetro e placar grandes, para projetar.
+Aba **Desafios** (tecla `3`). Três níveis de leis sorteadas (nível 1: *x* + *a*, *ax*…; nível 2: *ax* + *b*, *a*(*x* + *b*)…; nível 3: *x*² + *b*, *ax*², (*x* + *a*)², *x*³ + *b*), **placar por equipes** (2 a 4 equipes, nomes editáveis, ± pontos à mão, ★ para quem lidera) e **cronômetro** (30 s a 3 min, com aviso sonoro no fim).
+
+- **Adivinhe a regra**: a máquina esconde a lei. Na sua vez, a equipe pede **uma** pista (um valor de *x*; a pista vai para a tabela) e pode dar um palpite. Acertou: leva 5 pontos com uma pista, 4 com duas… (mínimo 1); leis equivalentes escritas de outro jeito também valem. Errou: o sistema mostra qual pista o palpite não explica e a vez passa.
+- **Que produto entrou?**: lei e saída à vista, as equipes descobrem a entrada. O professor digita a resposta e toca na equipe que respondeu (2 pontos). **Mostrar a resolução** desfaz as engrenagens de trás para frente, um passo por clique (no *x*², mostra que ± servem).
+- **Corrida das engrenagens**: três pares (*x* → *y*); a equipe monta uma máquina de engrenagens e vê na hora quais pares ela acerta. Quando acerta todos, 3 pontos. Máquinas diferentes que dão os mesmos pares também valem (e o jogo mostra isso).
+- **Exercícios**: enunciados no estilo do livro, com números novos, para cada situação (conta de luz, água, viagem, jardim, telefone, técnico, aplicativo, salário, avião) ou sem contexto no nível escolhido. Da entrada para a saída ou da saída para a entrada. A resolução aparece **um passo por clique** (setas ou passador): substituição e contas, ou desfazer as engrenagens. **Copiar enunciado** e **Abrir na Fábrica** (a mesma conta nas engrenagens).
+
+## Plano das próximas fases
 
 ### Fase 4: Minha empresa e ferramentas de aula
 - **Minha empresa** (*O que sei agora*): cada grupo monta a sua fábrica com funções de custo de produção, mão de obra (com horas extras e comissão), faturamento e crescimento; compara as retas no mesmo gráfico (quando o faturamento passa o custo).
@@ -121,5 +123,6 @@ js/core.js          estado, lei atual, formatação, link, animação
 js/factory.js       a fábrica: depósitos, máquina, esteira e os passos de cada produto
 js/reps.js          tabela, diagrama de flechas e gráfico
 js/inspect.js       É função?: diagramas, tabelas, gráficos e reta vertical
+js/games.js         Desafios: jogos, placar e cronômetro
 js/app.js           cartões laterais, caixa-preta, painel do professor, atalhos
 ```

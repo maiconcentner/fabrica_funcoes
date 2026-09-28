@@ -231,6 +231,8 @@
     const L = FF.law();
     $('view-fab').hidden = S.view !== 'fab';
     $('view-insp').hidden = S.view !== 'insp';
+    $('view-game').hidden = S.view !== 'game';
+    $('tab-game').setAttribute('aria-selected', S.view === 'game');
     $('tab-fab').setAttribute('aria-selected', S.view === 'fab');
     $('tab-insp').setAttribute('aria-selected', S.view === 'insp');
     $('btn-black').hidden = S.view !== 'fab';
@@ -325,13 +327,14 @@
       FF.reps.unmax();
       return;
     }
-    const mod = S.view === 'insp' ? FF.insp : FF.fab;
+    const mod = S.view === 'insp' ? FF.insp : S.view === 'game' ? FF.games : FF.fab;
     if (key === 'ArrowRight' || key === 'PageDown' || (key === ' ' && tag !== 'button')) { e.preventDefault(); mod.next(); return; }
     if (key === 'ArrowLeft' || key === 'PageUp') { e.preventDefault(); mod.prev(); return; }
     if (key === 'Home') { e.preventDefault(); mod.first(); return; }
     if (key === '1') { FF.set({ view: 'fab' }); return; }
     if (key === '2') { FF.set({ view: 'insp' }); return; }
-    if (S.view === 'insp' && !['f', 'p'].includes(key.toLowerCase())) return;
+    if (key === '3') { FF.set({ view: 'game' }); return; }
+    if (S.view !== 'fab' && !['f', 'p'].includes(key.toLowerCase())) return;
     switch (key.toLowerCase()) {
       case 'b': FF.set({ black: !S.black }); break;
       case 'o': FF.set({ predict: !S.predict }); break;
@@ -405,12 +408,15 @@
     document.querySelectorAll('.tab').forEach((b) => b.addEventListener('click', () => FF.set({ view: b.dataset.view })));
     FF.on((changed) => {
       if (changed.includes('view') && FF.state.view === 'insp') FF.insp.render();
+      if (changed.includes('view') && FF.state.view === 'game') FF.games.render();
       if (changed.includes('view') && FF.state.view === 'fab') { FF.fab.render(); FF.reps.render(); }
     });
     syncUI();
     FF.fab.init();
     FF.reps.init();
     FF.insp.init();
+    FF.games.init();
+    if (FF.state.view === 'game') FF.games.render();
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { syncUI(); FF.reps.render(); });
   }
 

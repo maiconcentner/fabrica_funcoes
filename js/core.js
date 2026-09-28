@@ -9,6 +9,10 @@
     iMode: 'diag',      // inspetor: 'diag' | 'tab' | 'graf'
     iCase: 0,           // caso atual do inspetor
     iCustom: '',        // diagrama montado pelo professor
+    gGame: 'rule',      // desafio: 'rule' | 'rev' | 'race' | 'ex'
+    gLevel: 1,          // nível dos desafios (1 a 3)
+    gTeams: '',         // equipes e pontos (JSON)
+    gClock: 60,         // segundos do cronômetro
     ctx: 'livre',
     law: '2x + 1',      // lei digitada (vazio quando a situação tem lei por faixas)
     dom: 'R',           // domínio: R, R+, N, {2;3;4}, (0;20)
@@ -65,7 +69,11 @@
     s.speed = clamp(Number(s.speed) || 1, 0.25, 3);
     ['black', 'predict', 'table', 'diagram', 'graph', 'calc', 'curve'].forEach((k) => { s[k] = !!s[k]; });
     if (!['auto', 'light', 'dark'].includes(s.theme)) s.theme = 'auto';
-    if (!['fab', 'insp'].includes(s.view)) s.view = 'fab';
+    if (!['fab', 'insp', 'game'].includes(s.view)) s.view = 'fab';
+    if (!['rule', 'rev', 'race', 'ex'].includes(s.gGame)) s.gGame = 'rule';
+    s.gLevel = clamp(Math.round(Number(s.gLevel) || 1), 1, 3);
+    s.gTeams = String(s.gTeams || '');
+    s.gClock = [30, 60, 90, 120, 180].includes(Number(s.gClock)) ? Number(s.gClock) : 60;
     if (!['diag', 'tab', 'graf'].includes(s.iMode)) s.iMode = 'diag';
     s.iCase = Math.max(0, Math.round(Number(s.iCase) || 0));
     s.iCustom = String(s.iCustom || '').slice(0, 400);
@@ -182,6 +190,7 @@
     const s = FF.state;
     const parts = [];
     if (s.view === 'insp') parts.push('v=insp', 'im=' + s.iMode, 'ic=' + s.iCase);
+    if (s.view === 'game') parts.push('v=game', 'gg=' + s.gGame, 'gl=' + s.gLevel);
     if (s.view === 'insp' && s.iCustom) parts.push('iu=' + encodeURIComponent(s.iCustom));
     parts.push('c=' + s.ctx);
     const c = FF.ctx();
@@ -208,6 +217,8 @@
       try { v = decodeURIComponent(v); } catch (e) { return; }
       switch (k) {
         case 'v': out.view = v; break;
+        case 'gg': out.gGame = v; break;
+        case 'gl': out.gLevel = parseInt(v, 10); break;
         case 'im': out.iMode = v; break;
         case 'ic': out.iCase = parseInt(v, 10); break;
         case 'iu': out.iCustom = v; break;
