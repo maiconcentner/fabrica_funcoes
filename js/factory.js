@@ -86,7 +86,7 @@
         check: !S.black && L.kind === 'expr' && (L.chain || L.plan) ? [X.subst(L.ast, v)] : null, checkTitle: 'Na lei, é como trocar ' + vin + ' por ' + FF.fmt(v) + ':',
         title: 'Entrou na máquina', html: 'A máquina recebe <b><i>' + vin + '</i> = ' + FF.fmt(v) + '</b>.' + (S.black ? ' Ninguém vê o que acontece lá dentro…' : '') });
       let y = null;
-      if (S.black || L.kind === 'error') {
+      if (S.black || S.predict || L.kind === 'error') {
         const r = FF.evalLaw(v, L);
         if (r.error) {
           st.push({ k: 'process', pos: { x: P.screen, y: PY }, vals: [v], kind: 'bad', bad: true,
@@ -94,8 +94,12 @@
           return run;
         }
         y = r.y;
-        st.push({ k: 'process', pos: { x: P.screen, y: PY }, vals: [y], kind: 'out',
-          title: 'Processando…', html: 'A máquina trabalhou em segredo e o produto saiu transformado.' });
+        st.push(S.predict && !S.black
+          ? { k: 'process', pos: { x: P.screen, y: PY }, vals: [y], kind: 'hid',
+            title: 'A máquina está trabalhando…',
+            html: 'Não dá para ver lá dentro. Use a <b>lei no letreiro</b> e calcule: quanto vai sair para <b><i>' + vin + '</i> = ' + FF.fmt(v) + '</b>?' }
+          : { k: 'process', pos: { x: P.screen, y: PY }, vals: [y], kind: 'out',
+            title: 'Processando…', html: 'A máquina trabalhou em segredo e o produto saiu transformado.' });
       } else if (L.kind === 'expr' && L.chain) {
         const xs = gearXs(L.chain.length);
         let cur = v;
@@ -236,7 +240,7 @@
       html: 'Sabemos a saída <b>' + (c.id === 'livre' ? 'f(x)' : out) + ' = ' + FF.fmtOut(v) + '</b>. Qual entrada produz isso? A esteira anda para trás e cada engrenagem <b>desfaz</b> o que fazia.' });
     st.push({ k: 'enter', pos: { x: P.enterR, y: PY }, vals: [v], kind: 'out', title: 'Entrou pelo fim da linha', html: 'A última engrenagem é a primeira a ser desfeita.' });
     let vals = [v];
-    if (S.black) {
+    if (S.black || S.predict) {
       try {
         vals = L.chain.slice().reverse().reduce((acc, g) => acc.flatMap((w) => [].concat(X.gearApply(g, w, true))), [v]);
       } catch (e) {
@@ -245,7 +249,8 @@
           html: e.message + ' <b>' + FF.fmt(v) + '</b> não é imagem de nenhum valor.' });
         return run;
       }
-      st.push({ k: 'process', pos: { x: P.screen, y: PY }, vals, kind: 'in', title: 'Desfazendo em segredo…', html: 'A máquina desfez as contas sem mostrar como.' });
+      st.push({ k: 'process', pos: { x: P.screen, y: PY }, vals, kind: S.black ? 'in' : 'hid', title: 'Desfazendo em segredo…',
+        html: S.black ? 'A máquina desfez as contas sem mostrar como.' : 'Não dá para ver lá dentro. Use a <b>lei no letreiro</b>: que entrada produz essa saída?' });
     } else {
       const xs = gearXs(L.chain.length);
       for (let i = L.chain.length - 1; i >= 0; i--) {
@@ -608,7 +613,7 @@
     let roof = 'M' + G.mX0 + ' ' + G.mY0;
     for (let i = 0; i < teeth; i++) roof += ' L' + (G.mX0 + i * tw) + ' ' + (G.mY0 - 26) + ' L' + (G.mX0 + (i + 1) * tw) + ' ' + G.mY0;
     s += '<path class="roof" d="' + roof + ' Z"/>';
-    const shake = S.black && stage && stage.k === 'process' && anim && anim.t < 0.9 ? r1(Math.sin(anim.t * 60) * 2.5) : 0;
+    const shake = (S.black || S.predict) && stage && stage.k === 'process' && anim && anim.t < 0.9 ? r1(Math.sin(anim.t * 60) * 2.5) : 0;
     s += '<g transform="translate(' + shake + ' 0)">';
     s += '<rect class="machine" x="' + G.mX0 + '" y="' + G.mY0 + '" width="' + (G.mX1 - G.mX0) + '" height="' + (G.mY1 - G.mY0) + '" rx="6"/>';
     s += '<rect class="window" x="' + G.wX0 + '" y="' + G.wY0 + '" width="' + (G.wX1 - G.wX0) + '" height="' + (G.belt + 20 - G.wY0) + '" rx="10"/>';
@@ -623,10 +628,10 @@
     // Esteira interna
     s += beltSVG(G.wX0 + 4, G.wX1 - 4, !!anim, prod.run && prod.run.dir === 'rev' ? -1 : 1);
 
-    if (S.black) {
+    if (S.black || S.predict) {
       s += '<rect class="cover" x="' + G.wX0 + '" y="' + G.wY0 + '" width="' + (G.wX1 - G.wX0) + '" height="' + (G.belt - 68 - G.wY0) + '" rx="10"/>' +
         '<text class="cover-q" x="' + G.cx + '" y="' + (G.wY0 + 92) + '" text-anchor="middle">?</text>' +
-        '<text class="cover-sub" x="' + G.cx + '" y="' + (G.wY0 + 124) + '" text-anchor="middle">caixa-preta</text>';
+        '<text class="cover-sub" x="' + G.cx + '" y="' + (G.wY0 + 124) + '" text-anchor="middle">' + (S.black ? 'caixa-preta' : 'faça a sua previsão') + '</text>';
     } else if (L.kind === 'expr' && L.chain) {
       const xs = gearXs(L.chain.length);
       const R = Math.min(40, (G.wX1 - G.wX0 - 20) / L.chain.length / 2 - 6);

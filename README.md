@@ -33,7 +33,7 @@ Segue os mesmos princípios do projeto *Relações Métricas Dinâmicas*:
 
 ### Gamificação
 - **Caixa-preta** (tecla `B`): esconde a lei e as engrenagens. A turma fabrica valores, olha as saídas e dá um **palpite**; o sistema diz quantos produtos o palpite acerta e reconhece leis equivalentes escritas de outro jeito (`1 + 3x` = `3x + 1`). Se o palpite acerta tudo o que foi fabricado mas não é a lei, avisa para fabricar outros valores.
-- **Prever a saída** (tecla `O`): o produto sai como **?** e só é revelado no clique seguinte, para a turma apostar antes.
+- **Prever a saída** (tecla `O`): a máquina fica **fechada** (não dá para ver as engrenagens nem as contas), só a **lei no letreiro** continua à vista. O produto sai como **?** e só é revelado no clique seguinte, para a turma calcular e apostar antes. Depois da revelação, o cartão mostra a conferência pela lei.
 
 ### Situações do livro
 Cada situação muda os nomes, as unidades, o ícone dos produtos, o domínio e traz as **perguntas do livro** prontas (para frente ▶ ou ao contrário ◀):
