@@ -28,6 +28,7 @@
   --screen: #183a33;
   --screen-ink: #d9fbe9;
   --belt: #4c5864;
+  --rail: #4c5864;
   --roller: #93a1ad;
   --sign: #1f5f7a;
   --sign-ink: #ffffff;
@@ -69,6 +70,8 @@
     --screen: #0c231e;
     --screen-ink: #c9f7df;
     --belt: #26313b;
+  --rail: #46596b;
+    --rail: #46596b;
     --roller: #6e7f8e;
     --sign: #2d6f8c;
     --sign-ink: #ffffff;
@@ -103,6 +106,7 @@
   --screen: #0c231e;
   --screen-ink: #c9f7df;
   --belt: #26313b;
+  --rail: #46596b;
   --roller: #6e7f8e;
   --sign: #2d6f8c;
   --sign-ink: #ffffff;
@@ -484,7 +488,8 @@ details summary { cursor: pointer; font-size: 0.9rem; font-weight: 700; color: v
 .gear-hole { fill: var(--window); stroke: var(--metal-ink); stroke-width: 1.2; }
 .gear.active path { fill: var(--mid); stroke: var(--mid); }
 .gear.jam path { fill: var(--bad); stroke: var(--bad); }
-.rail { fill: none; stroke: var(--metal-2); stroke-width: 3; stroke-linejoin: round; stroke-dasharray: 6 5; }
+.rail-bed { fill: none; stroke: var(--rail); stroke-width: 12; stroke-linejoin: round; stroke-linecap: round; }
+.rail-line { fill: none; stroke: var(--roller); stroke-width: 2; stroke-dasharray: 8 8; stroke-linejoin: round; }
 .gear.join path { fill: color-mix(in srgb, var(--out) 35%, var(--metal-2)); }
 .gear.join.active path { fill: var(--out); stroke: var(--out); }
 .plate.join rect { stroke: var(--out); }
