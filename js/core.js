@@ -87,6 +87,7 @@
       try {
         const ast = X.parse(src, vin);
         L = { kind: 'expr', vin, ast, chain: X.chain(ast), src };
+        if (!L.chain) L.plan = X.plan(ast);
       } catch (e) {
         L = { kind: 'error', vin, error: e.message, src };
       }

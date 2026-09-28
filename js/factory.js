@@ -9,15 +9,15 @@
   const G = {
     W: 1000, H: 470,
     belt: 352, ph: 52,
-    aX0: 14, aX1: 206, bX0: 794, bX1: 986, dY0: 60, dY1: 424,
-    mX0: 330, mX1: 690, mY0: 118, mY1: 424,
-    wX0: 350, wX1: 670, wY0: 138, wY1: 290,
+    aX0: 12, aX1: 176, bX0: 824, bX1: 988, cx: 500, dY0: 60, dY1: 424,
+    mX0: 280, mX1: 720, mY0: 118, mY1: 424,
+    wX0: 298, wX1: 702, wY0: 138, wY1: 290,
     gearY: 196, plateY: 262,
   };
   const PY = G.belt - G.ph / 2;
   const P = {
-    loadF: 266, doorF: 316, enterF: 386, screen: 510, exitF: 742, doorB: 776,
-    loadR: 742, doorR: 700, enterR: 634, exitR: 266, doorA: 226,
+    loadF: 228, doorF: 266, enterF: 336, screen: 500, exitF: 772, doorB: 806,
+    loadR: 772, doorR: 734, enterR: 664, exitR: 228, doorA: 194,
   };
 
   const prod = (FF.prod = { records: [], run: null, queue: [] });
@@ -83,6 +83,7 @@
         return run;
       }
       st.push({ k: 'enter', pos: { x: P.enterF, y: PY }, vals: [v], kind: 'in',
+        check: !S.black && L.kind === 'expr' && (L.chain || L.plan) ? [X.subst(L.ast, v)] : null, checkTitle: 'Na lei, é como trocar ' + vin + ' por ' + FF.fmt(v) + ':',
         title: 'Entrou na máquina', html: 'A máquina recebe <b><i>' + vin + '</i> = ' + FF.fmt(v) + '</b>.' + (S.black ? ' Ninguém vê o que acontece lá dentro…' : '') });
       let y = null;
       if (S.black || L.kind === 'error') {
@@ -115,6 +116,62 @@
           }
         }
         y = cur;
+      } else if (L.kind === 'expr' && L.plan) {
+        layoutPlan(L);
+        const tokens = { r: { x: P.enterF, y: PY, vals: [v], kind: 'in' } };
+        const snap = () => Object.keys(tokens).map((id) => Object.assign({ id }, tokens[id]));
+        const STOP = {};
+        const who = (id) => (id.length < 2 ? '' : id.endsWith('L') ? 'Na cópia de cima, a' : 'Na cópia de baixo, a');
+        const runPipe = (p, id, val) => {
+          p.forEach((g) => {
+            if (g.type === 'gear') {
+              let r;
+              try { r = X.gearApply(g, val, false); } catch (e) {
+                if (!(e instanceof X.DomainError)) throw e;
+                tokens[id] = { x: g.x, y: g.ty, vals: [val], kind: 'bad', tiny: true };
+                st.push({ k: 'gear', node: g, tokens: snap(), bad: true, vals: [val], kind: 'bad',
+                  title: 'A engrenagem ' + X.gearLabel(g) + ' travou!',
+                  html: e.message + ' Por isso <b><i>' + vin + '</i> = ' + FF.fmt(v) + '</b> fica <b>fora do domínio</b>: a lei não calcula nada para ele.' });
+                throw STOP;
+              }
+              tokens[id] = { x: g.x, y: g.ty, vals: [r], kind: 'mid', tiny: true };
+              const w = who(id);
+              st.push({ k: 'gear', node: g, tokens: snap(), vals: [r], kind: 'mid',
+                title: 'Engrenagem ' + X.gearLabel(g),
+                html: (w || 'A') + ' engrenagem <b>' + X.gearLabel(g) + '</b> ' + X.gearSentence(g, val, r) + '.' });
+              val = r;
+            } else {
+              delete tokens[id];
+              tokens[id + 'L'] = { x: g.sx, y: g.Lty, vals: [val], kind: 'in', tiny: true };
+              tokens[id + 'R'] = { x: g.sx, y: g.Rty, vals: [val], kind: 'in', tiny: true };
+              st.push({ k: 'split', node: g, tokens: snap(), vals: [val], kind: 'in',
+                title: 'Copiadora: duas cópias de ' + FF.fmt(val),
+                html: 'Na lei, <i>' + vin + '</i> aparece mais de uma vez. A copiadora faz <b>duas cópias</b> de <b>' + FF.fmt(val) + '</b>: cada uma segue pelo seu caminho e, no fim, a junção <b>' + X.joinLabel(g.op) + '</b> une as duas.' });
+              const a = runPipe(g.L, id + 'L', val);
+              const b = runPipe(g.R, id + 'R', val);
+              delete tokens[id + 'L']; delete tokens[id + 'R'];
+              let r;
+              try { r = X.joinApply(g.op, a, b); } catch (e) {
+                if (!(e instanceof X.DomainError)) throw e;
+                tokens[id] = { x: g.jx, y: g.jty, vals: [a, b], kind: 'bad', tiny: true };
+                st.push({ k: 'gear', node: g, tokens: snap(), bad: true, vals: [a], kind: 'bad',
+                  title: 'A junção ' + X.joinLabel(g.op) + ' travou!',
+                  html: 'A cópia de baixo chegou valendo 0. ' + e.message + ' Por isso <b><i>' + vin + '</i> = ' + FF.fmt(v) + '</b> fica <b>fora do domínio</b>.' });
+                throw STOP;
+              }
+              tokens[id] = { x: g.jx, y: g.jty, vals: [r], kind: 'mid', tiny: true };
+              st.push({ k: 'gear', node: g, tokens: snap(), vals: [r], kind: 'mid',
+                title: 'Junção ' + X.joinLabel(g.op),
+                html: (who(id) || 'A') + ' junção <b>' + X.joinLabel(g.op) + '</b> ' + X.joinSentence(g.op, a, b, r) + '.' });
+              val = r;
+            }
+          });
+          return val;
+        };
+        try { y = runPipe(L.plan, 'r', v); } catch (e) { if (e === STOP) return run; throw e; }
+        const last = st[st.length - 1];
+        if (last && last.tokens) last.tokens.forEach((t) => { t.kind = 'out'; });
+        if (last) last.kind = 'out';
       } else {
         let ast = L.ast;
         if (L.kind === 'piece') {
@@ -161,7 +218,12 @@
         (c.id !== 'livre' ? cap(c.inName) + ' de ' + FF.fmtIn(v) + ' → ' + c.outName + ' de <b>' + FF.fmtOut(y) + '</b>. ' : '') +
         'Par ordenado <b>' + pair + '</b>.';
       if (again) html += ' <br><b>Esse valor já tinha entrado antes</b> e saiu o mesmo resultado: numa função, cada entrada tem <b>uma única</b> saída.';
-      st.push({ k: 'deliver', side: 'B', vals: [y], kind: 'out', rec: [{ x: v, y }], again,
+      let check = null;
+      if (!S.black && L.kind !== 'error') {
+        const ast = L.kind === 'piece' ? L.pieces[X.findPiece(L, v)].ast : L.ast;
+        check = X.steps(ast, v).list;
+      }
+      st.push({ k: 'deliver', side: 'B', vals: [y], kind: 'out', rec: [{ x: v, y }], again, check,
         title: X.isApprox(y) ? 'Saiu o produto (≈)' : 'Saiu o produto!', html });
       run.y = y;
       return run;
@@ -434,12 +496,12 @@
   function boxSVG(cx, cy, vals, kind, opts) {
     opts = opts || {};
     const c = FF.ctx();
-    const big = !opts.small;
-    const h = big ? G.ph : 40;
-    const fs = big ? 21 : 16;
+    const big = !opts.small && !opts.tiny;
+    const h = big ? G.ph : opts.tiny ? 32 : 40;
+    const fs = big ? 21 : opts.tiny ? 15 : 16;
     const unit = !big ? '' : kind === 'in' ? c.inUnit : kind === 'out' ? (c.money ? 'R$' : c.outUnit) : '';
     const label = (v) => (kind === 'hid' ? '?' : kind === 'out' ? FF.fmtOutNum(v) : FF.fmt(v));
-    const ws = vals.map((v) => Math.max(big ? 64 : 58, FF.math.textWidth(label(v), fs) + 22));
+    const ws = vals.map((v) => Math.max(big ? 64 : opts.tiny ? 44 : 58, FF.math.textWidth(label(v), fs) + (opts.tiny ? 16 : 22)));
     const gap = 8;
     const total = ws.reduce((a, b) => a + b, 0) + gap * (vals.length - 1);
     let x = cx - total / 2;
@@ -519,24 +581,24 @@
     let inner;
     let w = 300;
     if (S.black) {
-      inner = '<text class="sign-text" x="510" y="' + 58 + '" text-anchor="middle" font-size="30">' + esc(prefix) + '?</text>';
+      inner = '<text class="sign-text" x="' + G.cx + '" y="' + 58 + '" text-anchor="middle" font-size="30">' + esc(prefix) + '?</text>';
       w = 220;
     } else if (L.kind === 'error') {
-      inner = '<text class="sign-text bad" x="510" y="56" text-anchor="middle" font-size="20">lei com erro</text>';
+      inner = '<text class="sign-text bad" x="' + G.cx + '" y="56" text-anchor="middle" font-size="20">lei com erro</text>';
     } else if (L.kind === 'piece') {
-      inner = '<text class="sign-text" x="510" y="56" text-anchor="middle" font-size="24">' + esc(prefix) + '<tspan class="sign-plain">tarifa por faixas</tspan></text>';
+      inner = '<text class="sign-text" x="' + G.cx + '" y="56" text-anchor="middle" font-size="24">' + esc(prefix) + '<tspan class="sign-plain">tarifa por faixas</tspan></text>';
       w = 360;
     } else {
       let size = 30;
-      let d = FF.math.draw(L.ast, size, L.vin, 510, 46, prefix, 'sign-math');
-      if (d.w > 400) { size = Math.max(16, size * 400 / d.w); d = FF.math.draw(L.ast, size, L.vin, 510, 46, prefix, 'sign-math'); }
-      if (d.h > 64) { size = size * 64 / d.h; d = FF.math.draw(L.ast, size, L.vin, 510, 46, prefix, 'sign-math'); }
+      let d = FF.math.draw(L.ast, size, L.vin, G.cx, 46, prefix, 'sign-math');
+      if (d.w > 400) { size = Math.max(16, size * 400 / d.w); d = FF.math.draw(L.ast, size, L.vin, G.cx, 46, prefix, 'sign-math'); }
+      if (d.h > 64) { size = size * 64 / d.h; d = FF.math.draw(L.ast, size, L.vin, G.cx, 46, prefix, 'sign-math'); }
       inner = d.svg;
       w = Math.max(200, d.w + 44);
     }
-    return '<g class="sign"><line class="sign-post" x1="' + (510 - w / 2 + 30) + '" y1="84" x2="' + (510 - w / 2 + 30) + '" y2="' + G.mY0 + '"/>' +
-      '<line class="sign-post" x1="' + (510 + w / 2 - 30) + '" y1="84" x2="' + (510 + w / 2 - 30) + '" y2="' + G.mY0 + '"/>' +
-      '<rect class="sign-board" x="' + r1(510 - w / 2) + '" y="6" width="' + r1(w) + '" height="80" rx="12"/>' + inner + '</g>';
+    return '<g class="sign"><line class="sign-post" x1="' + (G.cx - w / 2 + 30) + '" y1="84" x2="' + (G.cx - w / 2 + 30) + '" y2="' + G.mY0 + '"/>' +
+      '<line class="sign-post" x1="' + (G.cx + w / 2 - 30) + '" y1="84" x2="' + (G.cx + w / 2 - 30) + '" y2="' + G.mY0 + '"/>' +
+      '<rect class="sign-board" x="' + r1(G.cx - w / 2) + '" y="6" width="' + r1(w) + '" height="80" rx="12"/>' + inner + '</g>';
   }
 
   function machineSVG(L, S, stage, t) {
@@ -563,8 +625,8 @@
 
     if (S.black) {
       s += '<rect class="cover" x="' + G.wX0 + '" y="' + G.wY0 + '" width="' + (G.wX1 - G.wX0) + '" height="' + (G.belt - 68 - G.wY0) + '" rx="10"/>' +
-        '<text class="cover-q" x="510" y="' + (G.wY0 + 92) + '" text-anchor="middle">?</text>' +
-        '<text class="cover-sub" x="510" y="' + (G.wY0 + 124) + '" text-anchor="middle">caixa-preta</text>';
+        '<text class="cover-q" x="' + G.cx + '" y="' + (G.wY0 + 92) + '" text-anchor="middle">?</text>' +
+        '<text class="cover-sub" x="' + G.cx + '" y="' + (G.wY0 + 124) + '" text-anchor="middle">caixa-preta</text>';
     } else if (L.kind === 'expr' && L.chain) {
       const xs = gearXs(L.chain.length);
       const R = Math.min(40, (G.wX1 - G.wX0 - 20) / L.chain.length / 2 - 6);
@@ -586,6 +648,8 @@
           s += '<path class="gear-arrow" d="M' + r1(xs[i] + R + 4) + ' ' + G.gearY + ' L' + r1(xs[i + 1] - R - 4) + ' ' + G.gearY + '"/>';
         }
       });
+    } else if (L.kind === 'expr' && L.plan) {
+      s += planSVG(L, stage);
     } else if (L.kind === 'expr' || L.kind === 'piece') {
       // Tela de cálculo
       s += '<rect class="screen" x="' + (G.wX0 + 8) + '" y="' + (G.wY0 + 8) + '" width="' + (G.wX1 - G.wX0 - 16) + '" height="' + (G.belt - 80 - G.wY0) + '" rx="8"/>';
@@ -605,18 +669,18 @@
       if (node) {
         const prefix = screenPrefix(stShow && stShow.node ? stShow : null, L);
         let size = 30;
-        let d = FF.math.draw(node, size, L.vin, 510, midY, prefix, 'screen-math');
-        if (d.w > 290) { size = size * 290 / d.w; d = FF.math.draw(node, size, L.vin, 510, midY, prefix, 'screen-math'); }
-        if (d.h > 100) { size = size * 100 / d.h; d = FF.math.draw(node, size, L.vin, 510, midY, prefix, 'screen-math'); }
+        let d = FF.math.draw(node, size, L.vin, G.cx, midY, prefix, 'screen-math');
+        if (d.w > 370) { size = size * 370 / d.w; d = FF.math.draw(node, size, L.vin, G.cx, midY, prefix, 'screen-math'); }
+        if (d.h > 100) { size = size * 100 / d.h; d = FF.math.draw(node, size, L.vin, G.cx, midY, prefix, 'screen-math'); }
         s += d.svg;
       } else if (L.kind === 'piece') {
         L.pieces.forEach((p, i) => {
-          s += '<text class="screen-small" x="366" y="' + (G.wY0 + 36 + i * 24) + '">' + esc(p.label) + '</text>';
+          s += '<text class="screen-small" x="' + (G.wX0 + 16) + '" y="' + (G.wY0 + 36 + i * 24) + '">' + esc(p.label) + '</text>';
         });
       }
       if (caption) s += '<text class="screen-cap" x="' + (G.wX0 + 18) + '" y="' + (G.wY0 + 26) + '">' + esc(caption) + '</text>';
     } else {
-      s += '<text class="screen-cap bad" x="510" y="' + (G.wY0 + 80) + '" text-anchor="middle">Corrija a lei no cartão ao lado</text>';
+      s += '<text class="screen-cap bad" x="' + G.cx + '" y="' + (G.wY0 + 80) + '" text-anchor="middle">Corrija a lei no cartão ao lado</text>';
     }
     s += '</g>';
     return s;
@@ -632,11 +696,98 @@
   }
   FF.screenPrefix = screenPrefix;
 
+  /* ---------- Engrenagens com ramos: posições ---------- */
+  function planW(p) { return p.reduce((n, g) => n + (g.type === 'gear' ? 1 : 2 + Math.max(planW(g.L), planW(g.R))), 0); }
+  function planH(p) { return Math.max(1, ...p.map((g) => (g.type === 'gear' ? 1 : planH(g.L) + planH(g.R)))); }
+  function layoutPlan(L) {
+    if (L.lay) return L.lay;
+    const W = Math.max(1, planW(L.plan)), H = planH(L.plan);
+    const x0 = G.wX0 + 12, x1 = G.wX1 - 12, y0 = G.wY0 + 4, y1 = G.belt - 8;
+    const colW = (x1 - x0) / W, laneH = (y1 - y0) / H;
+    const R = Math.max(11, Math.min(26, colW * 0.3, (laneH - 56) / 2));
+    const at = (top, h) => {
+      const gy = y0 + (top + h / 2) * laneH - 1;
+      return { gy, ty: gy + R + 11, py: gy - R - 13 };
+    };
+    const assign = (p, c, top, h) => {
+      p.forEach((g) => {
+        const a = at(top, h);
+        if (g.type === 'gear') {
+          g.x = x0 + (c + 0.5) * colW; g.y = a.gy; g.ty = a.ty; g.py = a.py;
+          c += 1;
+        } else {
+          const hL = planH(g.L), hR = planH(g.R);
+          const hl = (h * hL) / (hL + hR);
+          g.sx = x0 + (c + 0.5) * colW; g.sy = a.gy;
+          const aL = at(top, hl), aR = at(top + hl, h - hl);
+          g.Lgy = aL.gy; g.Rgy = aR.gy; g.Lty = aL.ty; g.Rty = aR.ty;
+          assign(g.L, c + 1, top, hl);
+          assign(g.R, c + 1, top + hl, h - hl);
+          const inner = Math.max(planW(g.L), planW(g.R));
+          g.jx = x0 + (c + 1 + inner + 0.5) * colW; g.jy = a.gy; g.jty = a.ty; g.jpy = a.py;
+          c += inner + 2;
+        }
+      });
+    };
+    assign(L.plan, 0, 0, H);
+    L.lay = { R, colW, x0, x1 };
+    return L.lay;
+  }
+
+  function planSVG(L, stage) {
+    const lay = layoutPlan(L);
+    const R = lay.R;
+    let rails = '', nodes = '';
+    const line = (pts) => { rails += '<path class="rail" d="M' + pts.map((q) => r1(q[0]) + ' ' + r1(q[1])).join(' L') + '"/>'; };
+    const inv = false;
+    const gearNode = (x, y, py, label, active, join, bad) => {
+      let rot = 0;
+      if (active && anim) rot = 200 * FF.ease(Math.max(0, (anim.t - 0.25) / 0.75));
+      const teeth = Math.max(8, Math.round(R / 3.2));
+      let out = '<g class="gear' + (join ? ' join' : '') + (active ? ' active' : '') + (active && bad ? ' jam' : '') + '" transform="translate(' + r1(x) + ' ' + r1(y) + ') rotate(' + r1(rot) + ')">' +
+        '<path d="' + gearPath(R, teeth) + '"/><circle class="gear-hole" r="' + r1(R * 0.3) + '"/></g>';
+      const fs = Math.min(16, Math.max(11, lay.colW / Math.max(3, label.length) * 1.7));
+      const pw = Math.max(R * 1.8, FF.math.textWidth(label, fs) + 12);
+      out += '<g class="plate' + (active ? ' active' : '') + (join ? ' join' : '') + '"><rect x="' + r1(x - pw / 2) + '" y="' + r1(py - 11) + '" width="' + r1(pw) + '" height="22" rx="5"/>' +
+        '<text x="' + r1(x) + '" y="' + r1(py + 5) + '" text-anchor="middle" font-size="' + r1(fs) + '">' + esc(label) + '</text></g>';
+      return out;
+    };
+    const walk = (p, from, depth) => {
+      p.forEach((g) => {
+        const active = stage && stage.node === g;
+        if (g.type === 'gear') {
+          line([from, [g.x, g.y]]);
+          nodes += gearNode(g.x, g.y, g.py, X.gearLabel(g, inv), active && stage.k === 'gear', false, stage && stage.bad);
+          from = [g.x, g.y];
+        } else {
+          line([from, [g.sx, g.sy]]);
+          line([[g.sx, g.Lgy], [g.sx, g.Rgy]]);
+          const endL = walk(g.L, [g.sx, g.Lgy], depth + 1);
+          const endR = walk(g.R, [g.sx, g.Rgy], depth + 1);
+          line([endL, [g.jx, endL[1]], [g.jx, g.jy]]);
+          line([endR, [g.jx, endR[1]], [g.jx, g.jy]]);
+          const sa = active && stage.k === 'split';
+          nodes += '<g class="splitter' + (sa ? ' active' : '') + '"><rect x="' + r1(g.sx - 15) + '" y="' + r1(g.sy - 15) + '" width="30" height="30" rx="7"/>' +
+            '<path d="M' + r1(g.sx - 8) + ' ' + r1(g.sy) + ' h5 M' + r1(g.sx - 3) + ' ' + r1(g.sy) + ' L' + r1(g.sx + 8) + ' ' + r1(g.sy - 7) + ' M' + r1(g.sx - 3) + ' ' + r1(g.sy) + ' L' + r1(g.sx + 8) + ' ' + r1(g.sy + 7) + '"/></g>' +
+            (depth === 0 ? '<text class="splitter-cap" x="' + r1(g.sx) + '" y="' + r1(g.sy - 21) + '" text-anchor="middle">copiadora</text>' : '');
+          nodes += gearNode(g.jx, g.jy, g.jpy, X.joinLabel(g.op), active && stage.k === 'gear', true, stage && stage.bad);
+          from = [g.jx, g.jy];
+        }
+      });
+      return from;
+    };
+    const first = L.plan[0];
+    const startY = first.type === 'gear' ? first.y : first.sy;
+    const end = walk(L.plan, [G.wX0 + 4, startY], 0);
+    line([end, [G.wX1 - 4, end[1]]]);
+    return rails + nodes;
+  }
+
   function lerp(a, b, t) { return a + (b - a) * t; }
   function posOf(stage, side) {
     if (stage.k === 'deliver') {
       const p = slotOf(stage.side, stage.vals[0]);
-      return p || { x: stage.side === 'B' ? 890 : 110, y: 200 };
+      return p || { x: stage.side === 'B' ? (G.bX0 + G.bX1) / 2 : (G.aX0 + G.aX1) / 2, y: 200 };
     }
     return stage.pos;
   }
@@ -663,35 +814,59 @@
     s += signSVG(L, S);
     s += machineSVG(L, S, stage, anim ? anim.t : 1);
 
-    // Produto
+    // Produto (um ou mais "tokens": com ramos, cada cópia é um token)
     if (run && stage) {
-      let p, vals, kind;
-      if (anim) {
-        const e = FF.ease(anim.t);
-        const fromSt = anim.from >= 0 ? run.stages[anim.from] : null;
-        const a = fromSt ? posOf(fromSt) : stage.origin || stage.pos;
-        const b = posOf(run.stages[anim.to]);
-        const toSt = run.stages[anim.to];
-        const gearMove = toSt.k === 'gear' && anim.to > anim.from;
-        const te = gearMove ? FF.ease(Math.min(1, anim.t / 0.45)) : e;
-        p = { x: lerp(a.x, b.x, te), y: lerp(a.y, b.y, te) };
-        const flip = gearMove ? 0.7 : 0.55;
-        const src = anim.t < flip && fromSt ? fromSt : toSt;
-        vals = src.vals; kind = src.kind;
-        if (fromSt && anim.t < flip && toSt.k === 'guess' && anim.to < anim.from) { vals = fromSt.vals; kind = fromSt.kind; }
-      } else {
-        p = posOf(stage);
-        vals = stage.vals; kind = stage.kind;
-      }
+      const toks = (st) => st.tokens || [Object.assign({ id: 'r' }, posOf(st), { vals: st.vals, kind: st.kind })];
       const settled = stage.k === 'deliver' && !anim;
-      if (!settled) {
-        if (kind === 'bad' && stage.bad && (!anim || anim.t > 0.55)) {
-          s += boxSVG(p.x, p.y, vals, 'bad');
-          s += '<g class="xmark"><circle cx="' + r1(p.x) + '" cy="' + r1(p.y - 52) + '" r="17"/><path d="M' + r1(p.x - 7) + ' ' + r1(p.y - 59) + ' l14 14 M' + r1(p.x + 7) + ' ' + r1(p.y - 59) + ' l-14 14"/></g>';
-        } else {
-          s += boxSVG(p.x, p.y, vals, kind === 'bad' ? (run.dir === 'fwd' ? 'in' : 'out') : kind);
-        }
+      let list;
+      if (anim) {
+        const fromSt = anim.from >= 0 ? run.stages[anim.from] : null;
+        const toSt = run.stages[anim.to];
+        const fwd = anim.to > anim.from;
+        const gearMove = toSt.k === 'gear' && fwd;
+        const te = gearMove ? FF.ease(Math.min(1, anim.t / 0.45)) : FF.ease(anim.t);
+        const flip = gearMove ? 0.7 : 0.55;
+        const A = fromSt ? toks(fromSt) : [Object.assign({ id: 'r' }, stage.origin || stage.pos, { vals: stage.vals, kind: stage.kind })];
+        const B = toks(toSt);
+        const find = (arr, id) => arr.find((t) => t.id === id);
+        list = [];
+        B.forEach((b) => {
+          const a = find(A, b.id);
+          if (a) {
+            const src = anim.t < flip ? a : b;
+            list.push({ x: lerp(a.x, b.x, te), y: lerp(a.y, b.y, te), vals: src.vals, kind: src.kind, tiny: b.tiny || a.tiny, bad: b.kind === 'bad' });
+            return;
+          }
+          const parent = find(A, b.id.slice(0, -1));
+          if (parent) { // cópia saindo da copiadora
+            list.push({ x: lerp(parent.x, b.x, te), y: lerp(parent.y, b.y, te), vals: b.vals, kind: b.kind, tiny: true });
+            return;
+          }
+          if (anim.t >= flip) list.push({ x: b.x, y: b.y, vals: b.vals, kind: b.kind, tiny: b.tiny, bad: b.kind === 'bad' }); // junção pronta
+        });
+        A.forEach((a) => {
+          if (find(B, a.id)) return;
+          const target = find(B, a.id.slice(0, -1));
+          if (target && anim.t < flip) { // cópias indo para a junção
+            list.push({ x: lerp(a.x, target.x, te), y: lerp(a.y, target.y, te), vals: a.vals, kind: a.kind, tiny: true });
+          } else if (!target && find(B, a.id + 'L') == null && anim.t < 0.5) {
+            list.push(Object.assign({}, a));
+          }
+        });
+        if (fromSt && anim.t < flip && toSt.k === 'guess' && !fwd) list = A.map((a) => Object.assign({}, a));
+      } else {
+        list = settled ? [] : toks(stage).map((t) => Object.assign({}, t, { bad: t.kind === 'bad' }));
       }
+      if (settled) list = [];
+      list.forEach((t) => {
+        const showBad = t.kind === 'bad' && stage.bad && (!anim || anim.t > 0.55);
+        const kind = t.kind === 'bad' && !showBad ? (run.dir === 'fwd' ? 'in' : 'out') : t.kind;
+        s += boxSVG(t.x, t.y, t.vals, kind, { tiny: !!t.tiny });
+        if (showBad) {
+          const dy = t.tiny ? 30 : 52;
+          s += '<g class="xmark"><circle cx="' + r1(t.x) + '" cy="' + r1(t.y - dy) + '" r="15"/><path d="M' + r1(t.x - 6) + ' ' + r1(t.y - dy - 6) + ' l12 12 M' + r1(t.x + 6) + ' ' + r1(t.y - dy - 6) + ' l-12 12"/></g>';
+        }
+      });
     }
     svg.innerHTML = s;
   }
@@ -720,6 +895,13 @@
     if (st.node && (st.k === 'subst' || st.k === 'calc' || st.k === 'faixa')) {
       const L = FF.law();
       html += '<p class="mathline">' + FF.math.inline(st.node, 26, L.vin, screenPrefix(st, L), 300) + '</p>';
+    }
+    if (st.check) {
+      const L = FF.law();
+      const livre = FF.ctx().id === 'livre';
+      const pre = (livre ? 'f(' + FF.fmt(run.v) + ')' : FF.ctx().vout) + ' = ';
+      html += '<p class="note">' + (st.checkTitle || 'Conferindo pela lei, com números:') + '</p><p class="mathline wrap">' +
+        st.check.map((n, i) => FF.math.inline(n, 22, L.vin, i === 0 ? pre : '= ', 300)).join(' ') + '</p>';
     }
     body.innerHTML = html;
     dots.innerHTML = run.stages.map((s2, i) => '<button class="dot' + (i < run.i ? ' done' : '') + (i === run.i ? ' current' : '') + (s2.bad ? ' bad' : '') + '" data-i="' + i + '" aria-label="Passo ' + (i + 1) + '"></button>').join('');

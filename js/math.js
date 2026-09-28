@@ -45,9 +45,13 @@
   function parens(b, size) {
     const h = b.a + b.d;
     const tall = h > size * 1.25;
-    const pw = size * (tall ? 0.34 : 0.3);
+    if (!tall) { // parênteses comuns: usa o próprio caractere da fonte
+      const l = text('(', size), rr = text(')', size);
+      return hbox([l, b, rr], size * 0.02);
+    }
+    const pw = size * 0.34;
     return {
-      w: b.w + 2 * pw, a: b.a + (tall ? size * 0.06 : 0), d: b.d + (tall ? size * 0.06 : 0),
+      w: b.w + 2 * pw, a: b.a + size * 0.06, d: b.d + size * 0.06,
       draw(x, y) {
         const top = y - this.a, bot = y + this.d;
         const mid = (top + bot) / 2;

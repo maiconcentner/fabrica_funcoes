@@ -53,7 +53,9 @@
     if (!S.black && L.kind === 'expr') {
       gearsTxt = L.chain
         ? '<p class="note">' + (L.chain.length ? 'Engrenagens, em ordem: ' + L.chain.map((g) => '<b class="gtag">' + esc(X.gearLabel(g)) + '</b>').join(' → ') : 'Sem engrenagens: sai o mesmo valor que entra.') + '</p>'
-        : '<p class="note">A variável aparece mais de uma vez: a máquina calcula numa <b>tela</b>, trocando <i>' + L.vin + '</i> pelo valor.</p>';
+        : L.plan
+          ? '<p class="note"><i>' + L.vin + '</i> aparece mais de uma vez: uma <b>copiadora</b> divide o produto em caminhos, e cada <b>junção</b> une os resultados.</p>'
+          : '<p class="note">Esta lei é calculada numa <b>tela</b>, trocando <i>' + L.vin + '</i> pelo valor.</p>';
     }
     $('law-view').innerHTML = h + gearsTxt;
   }
@@ -62,7 +64,7 @@
     const L = FF.law();
     const list = $('gear-list');
     if (L.kind !== 'expr' || !L.chain) {
-      list.innerHTML = '<li class="note">Esta lei não é uma fila de engrenagens. Use <b>Começar do zero</b> para montar uma.</li>';
+      list.innerHTML = (L.plan ? '<li class="note">Esta lei tem caminhos que se dividem (copiadora e junção): para mudá-la, edite a lei digitada acima.</li>' : '<li class="note">Esta lei não é uma fila de engrenagens. Use <b>Começar do zero</b> para montar uma.</li>');
       return;
     }
     if (!L.chain.length) { list.innerHTML = '<li class="note">Nenhuma engrenagem ainda.</li>'; return; }

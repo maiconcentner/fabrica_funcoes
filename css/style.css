@@ -288,6 +288,7 @@ details.card[open] > summary { margin-bottom: 10px; }
 .step-card h2 { font-size: 1.25rem; margin-bottom: 8px; }
 .step-body p { margin: 0 0 10px; }
 .step-body p:last-child { margin-bottom: 0; }
+.mathline.wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 6px; line-height: 1.4; padding-block: 8px; }
 .mathline {
   display: block;
   font-family: var(--font-math); font-size: 1.3rem; line-height: 1.9;
@@ -483,6 +484,16 @@ details summary { cursor: pointer; font-size: 0.9rem; font-weight: 700; color: v
 .gear-hole { fill: var(--window); stroke: var(--metal-ink); stroke-width: 1.2; }
 .gear.active path { fill: var(--mid); stroke: var(--mid); }
 .gear.jam path { fill: var(--bad); stroke: var(--bad); }
+.rail { fill: none; stroke: var(--metal-2); stroke-width: 3; stroke-linejoin: round; stroke-dasharray: 6 5; }
+.gear.join path { fill: color-mix(in srgb, var(--out) 35%, var(--metal-2)); }
+.gear.join.active path { fill: var(--out); stroke: var(--out); }
+.plate.join rect { stroke: var(--out); }
+.plate.join.active rect { fill: var(--out); stroke: var(--out); }
+.splitter rect { fill: var(--surface); stroke: var(--in); stroke-width: 2; }
+.splitter path { fill: none; stroke: var(--in); stroke-width: 2.4; stroke-linecap: round; }
+.splitter.active rect { fill: var(--in); }
+.splitter.active path { stroke: #fff; }
+.stage .splitter-cap { font-size: 11px; font-weight: 700; fill: var(--in); letter-spacing: 0.04em; text-transform: uppercase; }
 .gear-arrow { stroke: var(--metal-2); stroke-width: 2; stroke-dasharray: 3 4; }
 .plate rect { fill: var(--surface); stroke: var(--metal-2); stroke-width: 1.5; }
 .stage .plate text { font-family: var(--font-math); font-weight: 600; fill: var(--metal-ink); }

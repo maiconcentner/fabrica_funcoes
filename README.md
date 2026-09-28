@@ -15,7 +15,9 @@ Segue os mesmos princípios do projeto *Relações Métricas Dinâmicas*:
 - **Depósito A (entrada)** com os valores para fabricar; **depósito B (saída)** recebe os resultados.
 - Toque em um valor de A, digite um número na barra (**Entrar**) ou aperte **avançar** para pegar o próximo.
 - **Engrenagens**: quando a variável aparece uma só vez, a lei vira uma fila de engrenagens (`× 0,66` → `+ 9,66`). O produto passa por uma de cada vez, a engrenagem gira e o valor muda de cor (entrada azul, no meio roxo, saída laranja). O cartão ao lado explica a conta: *"A engrenagem × 0,66 multiplica por 0,66: 236 · 0,66 = 155,76"*.
-- **Tela de cálculo**: quando *x* aparece mais de uma vez (ex.: *x*² + 2*x*), a máquina troca *x* pelo valor e resolve a expressão passo a passo, na ordem das operações, como no livro (`2² + 2 · 2 = 8`).
+- **Toda lei digitada vira engrenagens.** Quando *x* aparece mais de uma vez (ex.: *x*² + 2*x*), uma **copiadora** faz cópias do produto, cada cópia passa pelas suas engrenagens (`□²` em cima, `× 2` embaixo) e uma **junção** (`□ + □`, `□ − □`, `□ × □`, `□ ÷ □`) une os resultados. Funciona também com frações como (5*x* + 4)/(2*x* − 2) (a junção `÷` trava quando a cópia de baixo chega valendo 0) e com várias copiadoras, como *x*(*x* + 1)(*x* + 2).
+- **Resolução numérica ao lado**: ao entrar, o cartão mostra a lei com *x* trocado pelo valor (`f(3) = 3² + 2 · 3`); ao sair, confere pela lei, com números (`= 9 + 6 = 15`), para ligar as engrenagens à conta.
+- **Tela de cálculo**: fica para a conta de água (por faixas) e para leis raras em que *x* está no expoente (como 2^*x*).
 - **Tarifa por faixas** (conta de água): a máquina primeiro descobre em que faixa o consumo está e depois faz a conta daquela faixa.
 - **Máquina ao contrário**: dada a saída, a esteira anda para trás e cada engrenagem **desfaz** a sua conta (`+ 9,66` vira `− 9,66`, `× 0,66` vira `÷ 0,66`, `□³` vira `∛□`). Em *x*², o `±√□` mostra que **duas entradas** podem dar a mesma saída. Resolve as perguntas do tipo "quanto consumiu quem pagou R$ 135,06?" e a Atividade 16.
 - **Domínio**: valores fora do domínio são **barrados na porta**; divisão por zero ou raiz de negativo **travam a engrenagem** (luz vermelha) e mostram por que aquele *x* fica fora do domínio (Atividade 13, *"Domínio não dado"*).
@@ -53,7 +55,7 @@ Os números da lei podem ser trocados (ex.: a tarifa da sua cidade, como pede o 
 **Leis do livro** (sem contexto): *y* = *x* − 2 com A = {2, 3, 4, 5} e B = {0, 1, 2, 3, 4}; triplo, metade, quadrado, dobro + terça parte (Atividade 9); *x*² + 2*x* (11); 2*x* − 0,5 (12); 1/*x*, (5*x* + 4)/(2*x* − 2), 3*x*/(*x*² − 16), √(*x* − 5), √(*x* + 10) (13); *x*³ + 2 com as perguntas da Atividade 16.
 
 ### Montar a máquina
-- Digite a lei (`2x + 1`, `x² − 4`, `(40 − 2c)/2`, `raiz(x − 5)`, `1 500 + 15x`) ou use **Montar com engrenagens**: adicionar, trocar o número, mudar a ordem (e ver que `(3x − 4)²` ≠ `(3x)² − 4`) ou tirar engrenagens.
+- Digite a lei (`2x + 1`, `x² − 4`, `(40 − 2c)/2`, `raiz(x − 5)`, `1 500 + 15x`): o esquema de engrenagens aparece sozinho. Ou use **Montar com engrenagens**: adicionar, trocar o número, mudar a ordem (e ver que `(3x − 4)²` ≠ `(3x)² − 4`) ou tirar engrenagens.
 - **Domínio e contradomínio**: ℝ, *x* ≥ 0, naturais ou um conjunto {…}; B = ℝ ou um conjunto. Também dá para escolher os valores que aparecem no depósito A.
 
 ### Painel do professor (tecla `P`)

@@ -280,6 +280,63 @@
     return ops.reverse();
   };
 
+  /* ---------- Engrenagens com ramos ----------
+     Qualquer lei vira uma linha de montagem. Quando x aparece mais de uma vez, uma copiadora
+     divide o produto em dois caminhos e uma junção (+, −, ×, ÷) une os resultados.
+     Linha = lista de passos: { type: 'gear', op, kv, k } ou { type: 'join', op, L: linha, R: linha }. */
+  X.plan = function (n) {
+    function go(m) {
+      if (m.t === 'var') return [];
+      const ca = m.a ? X.countVar(m.a) : 0;
+      const cb = m.b ? X.countVar(m.b) : 0;
+      const gear = (op, kn) => (kn ? { type: 'gear', op, k: kn, kv: X.evaluate(kn, 0) } : { type: 'gear', op });
+      switch (m.t) {
+        case 'neg': case 'sqrt': case 'cbrt': {
+          const p = go(m.a);
+          return p && p.concat([gear(m.t)]);
+        }
+        case 'pow': {
+          if (cb || m.b.t !== 'num' || (m.b.v !== 2 && m.b.v !== 3)) return null;
+          const p = go(m.a);
+          return p && p.concat([gear(m.b.v === 2 ? 'sq' : 'cube')]);
+        }
+        case 'add': case 'sub': case 'mul': case 'div': {
+          if (ca && cb) {
+            const L = go(m.a), R = go(m.b);
+            return L && R ? [{ type: 'join', op: m.t, L, R }] : null;
+          }
+          if (ca) {
+            const p = go(m.a);
+            return p && p.concat([gear(m.t, m.b)]);
+          }
+          const p = go(m.b);
+          const op = { add: 'add', sub: 'rsub', mul: 'mul', div: 'rdiv' }[m.t];
+          return p && p.concat([gear(op, m.a)]);
+        }
+      }
+      return null;
+    }
+    try { return go(n); } catch (e) { return null; }
+  };
+  const JOIN = {
+    add: { sym: '+', fwd: (a, b) => a + b },
+    sub: { sym: '−', fwd: (a, b) => a - b },
+    mul: { sym: '×', fwd: (a, b) => a * b },
+    div: { sym: '÷', fwd: (a, b) => { if (b === 0) throw new DomainError('div0', MSG.div0); return a / b; } },
+  };
+  X.joinApply = function (op, a, b) { return tidy(JOIN[op].fwd(a, b)); };
+  X.joinLabel = function (op) { return '□ ' + JOIN[op].sym + ' □'; };
+  X.joinSentence = function (op, a, b, r) {
+    const f = (v) => (v < 0 ? '(' + X.fmtNum(v) + ')' : X.fmtNum(v));
+    switch (op) {
+      case 'add': return 'soma as duas cópias: ' + X.fmtNum(a) + ' + ' + f(b) + ' = ' + X.fmtNum(r);
+      case 'sub': return 'faz a cópia de cima menos a de baixo: ' + X.fmtNum(a) + ' − ' + f(b) + ' = ' + X.fmtNum(r);
+      case 'mul': return 'multiplica as duas cópias: ' + f(a) + ' · ' + f(b) + ' = ' + X.fmtNum(r);
+      case 'div': return 'divide a cópia de cima pela de baixo: ' + X.fmtNum(a) + ' ÷ ' + f(b) + ' = ' + X.fmtNum(r);
+    }
+    return '';
+  };
+
   /* Monta a árvore a partir das engrenagens (máquina de montar). */
   X.fromChain = function (ops) {
     let cur = { t: 'var' };
@@ -372,8 +429,10 @@
   };
   /* Multiplicação sem ponto: 2x, 0,66x, 3(x + 1), 2√x */
   function implicit(m) {
-    if (m.a.t !== 'num' || m.a.sub || m.a.fresh) return false;
     const b = m.b;
+    // x(x + 1), 3x(x − 2), x(x + 1)(x + 2)
+    if ((b.t === 'add' || b.t === 'sub') && (m.a.t === 'var' || (m.a.t === 'mul' && implicit(m.a)))) return true;
+    if (m.a.t !== 'num' || m.a.sub || m.a.fresh) return false;
     if (b.t === 'var' || b.t === 'sqrt' || b.t === 'cbrt') return true;
     if (b.t === 'pow' && b.a.t === 'var') return true;
     if (b.t === 'add' || b.t === 'sub') return true;
