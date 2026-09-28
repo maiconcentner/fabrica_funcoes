@@ -388,6 +388,13 @@ details summary { cursor: pointer; font-size: 0.9rem; font-weight: 700; color: v
 .ftable td.out { color: var(--out); font-weight: 600; }
 .ftable td.calc { color: var(--muted); font-size: 1rem; }
 .ftable tr.last td { background: color-mix(in srgb, var(--accent) 9%, transparent); }
+.ftable tr.rej td, .ftable tr.rej td:first-child, .ftable tr.rej td.out { color: var(--bad); background: color-mix(in srgb, var(--bad) 7%, transparent); }
+.ftable .why, .sets .why { font-family: var(--font-body); font-size: 0.78rem; font-style: normal; color: var(--bad); }
+.rej-line { color: var(--bad); }
+.rep-svg .el.rej { fill: var(--bad); font-weight: 600; }
+.pt-a.rej { fill: var(--bad); }
+.gnone { stroke: var(--bad); stroke-width: 1.4; stroke-dasharray: 5 4; opacity: 0.8; }
+.rep-svg .gnone-x { fill: var(--bad); font-size: 15px; font-weight: 700; }
 .ftable td.empty { font-family: var(--font-body); font-size: 0.85rem; color: var(--muted); padding: 18px 6px; }
 .sets { font-family: var(--font-math); font-size: 1.02rem; line-height: 1.6; padding: 2px 4px 0; overflow-x: auto; }
 .sets b { font-family: var(--font-body); }
@@ -468,6 +475,11 @@ details summary { cursor: pointer; font-size: 0.9rem; font-weight: 700; color: v
 .box-slot .box-tape { display: none; }
 .stage .box-slot .box-v, .stage .box-slot .box-u { fill: var(--muted); }
 .box.done rect { opacity: 0.55; }
+.stage .box-cross { fill: var(--bad); font-weight: 700; }
+.trash > rect { fill: var(--surface); stroke: var(--metal-2); stroke-width: 1.5; stroke-dasharray: 5 4; }
+.trash.has > rect { stroke: var(--bad); stroke-dasharray: none; fill: color-mix(in srgb, var(--bad) 8%, var(--surface)); }
+.stage .trash-cap { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; fill: var(--bad); }
+.stage .trash-empty { font-size: 12px; font-style: italic; fill: var(--muted); }
 .stage .box-check { fill: var(--ok); font-weight: 700; }
 .box.fresh rect { stroke-width: 3.5; }
 .clickable:hover .box rect { filter: brightness(0.96); stroke-width: 3; }

@@ -23,6 +23,7 @@ Segue os mesmos princípios do projeto *Relações Métricas Dinâmicas*:
 - **Máquina ao contrário**: dada a saída, a esteira anda para trás e cada engrenagem **desfaz** a sua conta (`+ 9,66` vira `− 9,66`, `× 0,66` vira `÷ 0,66`, `□³` vira `∛□`). Em *x*², o `±√□` mostra que **duas entradas** podem dar a mesma saída. Resolve as perguntas do tipo "quanto consumiu quem pagou R$ 135,06?" e a Atividade 16.
 - **Domínio**: valores fora do domínio são **barrados na porta**; divisão por zero ou raiz de negativo **travam a engrenagem** (luz vermelha) e mostram por que aquele *x* fica fora do domínio (Atividade 13, *"Domínio não dado"*).
 - **Contradomínio**: com B finito, um resultado que não está em B **não cabe no depósito** (não é função de A em B).
+- **Refugo**: todo valor que não dá para produzir fica guardado em vermelho, com o motivo (divisão por zero, raiz de número negativo, fora do domínio, resultado fora de B, "nenhum número ao quadrado dá negativo" na máquina ao contrário). Ele aparece na bandeja **REFUGO** embaixo da máquina, no depósito A (com ✗), na **tabela**, no **diagrama** (elemento de A sem flecha e a linha "Sem imagem") e no **gráfico** (linha vermelha tracejada: nenhum ponto nesse *x*). Voltar desfaz; **Limpar** esvazia; o link compartilhável leva o refugo junto.
 - Mesma entrada de novo → mesmo resultado, com o aviso: *numa função, cada entrada tem uma única saída*.
 - Botões **▶** (reproduz o produto até o fim), **Rever movimento**, **Fabricar todos** e **Limpar**.
 

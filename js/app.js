@@ -9,11 +9,11 @@
   /* ---------- Situação e lei ---------- */
   function chooseContext(id) {
     const c = FF.ctx(id);
-    FF.set({ ctx: c.id, law: typeof c.law === 'string' ? c.law : '', dom: c.dom, cd: c.cd, inputs: '', preset: -1, made: '' });
+    FF.set({ ctx: c.id, law: typeof c.law === 'string' ? c.law : '', dom: c.dom, cd: c.cd, inputs: '', preset: -1, made: '', bad: '' });
   }
   function choosePreset(i) {
     const p = FF.PRESETS[i];
-    FF.set({ ctx: 'livre', law: p.law, dom: p.dom || 'R', cd: p.cd || 'R', inputs: (p.inputs || []).join(';'), preset: i, made: '' });
+    FF.set({ ctx: 'livre', law: p.law, dom: p.dom || 'R', cd: p.cd || 'R', inputs: (p.inputs || []).join(';'), preset: i, made: '', bad: '' });
   }
   function applyLaw(src) {
     const c = FF.ctx();
@@ -29,7 +29,7 @@
     }
     $('law-msg').classList.remove('err');
     $('in-law').classList.remove('invalid');
-    FF.set({ law: src.trim(), made: '', preset: -1 });
+    FF.set({ law: src.trim(), made: '', bad: '', preset: -1 });
     return true;
   }
   function lawPrefix() {
@@ -169,22 +169,22 @@
       const v = e.target.value;
       if (v === 'set') {
         const vals = FF.inputList().slice(0, 6);
-        FF.set({ dom: '{' + (vals.length ? vals : [1, 2, 3, 4]).join(';') + '}', made: '' });
-      } else if (v !== 'iv') FF.set({ dom: v, made: '' });
+        FF.set({ dom: '{' + (vals.length ? vals : [1, 2, 3, 4]).join(';') + '}', made: '', bad: '' });
+      } else if (v !== 'iv') FF.set({ dom: v, made: '', bad: '' });
     });
     $('in-dom-set').addEventListener('change', (e) => {
       const vals = listStr(e.target.value);
-      if (vals.length) FF.set({ dom: '{' + vals.join(';') + '}', made: '' });
+      if (vals.length) FF.set({ dom: '{' + vals.join(';') + '}', made: '', bad: '' });
     });
     $('sel-cd').addEventListener('change', (e) => {
       if (e.target.value === 'set') {
         const ys = FF.prod.records.map((r) => r.y);
-        FF.set({ cd: '{' + (ys.length ? ys : [0, 1, 2, 3, 4]).join(';') + '}', made: '' });
-      } else FF.set({ cd: 'R', made: '' });
+        FF.set({ cd: '{' + (ys.length ? ys : [0, 1, 2, 3, 4]).join(';') + '}', made: '', bad: '' });
+      } else FF.set({ cd: 'R', made: '', bad: '' });
     });
     $('in-cd-set').addEventListener('change', (e) => {
       const vals = listStr(e.target.value);
-      if (vals.length) FF.set({ cd: '{' + vals.join(';') + '}', made: '' });
+      if (vals.length) FF.set({ cd: '{' + vals.join(';') + '}', made: '', bad: '' });
     });
     $('in-inputs').addEventListener('change', (e) => {
       FF.set({ inputs: listStr(e.target.value).slice(0, 12).join(';') });

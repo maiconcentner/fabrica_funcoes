@@ -13,6 +13,7 @@
     inputs: '',         // sugestões de entrada ("-2;-1;0"); vazio = as da situação
     preset: -1,         // lei pronta escolhida (para mostrar as perguntas do livro)
     made: '',           // valores já fabricados ("2;3;4"), para reabrir a produção
+    bad: '',            // refugo: valores que não deu para produzir ("f0;f1;r-4")
     black: false,       // caixa-preta: esconde a lei e as engrenagens
     predict: false,     // prever a saída antes de ver
     table: true,
@@ -52,6 +53,7 @@
     s.cd = String(s.cd || 'R');
     s.inputs = String(s.inputs || '');
     s.made = String(s.made || '');
+    s.bad = String(s.bad || '');
     s.preset = Math.round(Number(s.preset));
     if (!(s.preset >= -1 && s.preset < FF.PRESETS.length)) s.preset = -1;
     s.dec = clamp(Math.round(Number(s.dec)), 0, 4);
@@ -182,6 +184,7 @@
     parts.push('o=' + Object.keys(MODES).filter((k) => s[k]).map((k) => MODES[k]).join(''));
     parts.push('n=' + s.dec);
     if (s.made) parts.push('m=' + encodeURIComponent(s.made));
+    if (s.bad) parts.push('x=' + encodeURIComponent(s.bad));
     return parts.join('~');
   };
   FF.decodeHash = function (hash) {
@@ -203,6 +206,7 @@
         case 'q': out.preset = parseInt(v, 10); break;
         case 'n': out.dec = parseInt(v, 10); break;
         case 'm': out.made = v; break;
+        case 'x': out.bad = v; break;
         case 'k': Object.keys(FLAGS).forEach((f) => { out[f] = v.includes(FLAGS[f]); }); break;
         case 'o': Object.keys(MODES).forEach((f) => { out[f] = v.includes(MODES[f]); }); break;
       }

@@ -20,7 +20,15 @@
     loadR: 772, doorR: 734, enterR: 664, exitR: 228, doorA: 194,
   };
 
-  const prod = (FF.prod = { records: [], run: null, queue: [] });
+  const prod = (FF.prod = { records: [], rejects: [], run: null, queue: [] });
+  /* Motivo curto, para o refugo. */
+  const WHY = {
+    div0: 'divisão por zero',
+    sqrt: 'raiz de número negativo',
+    pow: 'potência que não existe',
+    pm: 'nenhum número ao quadrado dá negativo',
+    sqback: 'raiz quadrada não dá negativo',
+  };
   let anim = null;       // { from, to, t }
   let tw = null;
   let playing = false;
@@ -33,6 +41,7 @@
     const items = FF.inputList();
     if (L.dom.type !== 'set') {
       prod.records.forEach((r) => { if (!items.some((v) => same(v, r.x))) items.push(r.x); });
+      prod.rejects.forEach((r) => { if (r.dir === 'fwd' && !items.some((v) => same(v, r.v))) items.push(r.v); });
     }
     return items.slice(-12);
   }
@@ -41,6 +50,7 @@
     if (L.cd.type === 'set') return L.cd.vals.slice(0, 12);
     const ys = [];
     prod.records.forEach((r) => { if (!ys.some((v) => same(v, r.y))) ys.push(r.y); });
+    prod.rejects.forEach((r) => { if (r.dir === 'rev' && !ys.some((v) => same(v, r.v))) ys.push(r.v); });
     return ys.slice(-12);
   }
   function same(a, b) { return Math.abs(a - b) < 1e-9; }
@@ -77,7 +87,7 @@
         title: 'Produto na esteira',
         html: 'Vai entrar na fábrica <b><i>' + vin + '</i> = ' + FF.fmt(v) + '</b>' + (c.inUnit ? ' (' + (c.inName || '') + ' de ' + FF.fmtIn(v) + ')' : '') + '. Avance para a máquina trabalhar.' });
       if (!X.inSet(L.dom, v)) {
-        st.push({ k: 'door', pos: { x: P.doorF, y: PY }, vals: [v], kind: 'bad', bad: true,
+        st.push({ k: 'door', pos: { x: P.doorF, y: PY }, vals: [v], kind: 'bad', bad: true, why: 'fora do domínio',
           title: 'Barrado na entrada!',
           html: '<b>' + FF.fmt(v) + '</b> não pertence ao <b>domínio</b> (' + domTxt + '). Só entra na máquina o que está no domínio.' });
         return run;
@@ -89,7 +99,7 @@
       if (S.black || S.predict || L.kind === 'error') {
         const r = FF.evalLaw(v, L);
         if (r.error) {
-          st.push({ k: 'process', pos: { x: P.screen, y: PY }, vals: [v], kind: 'bad', bad: true,
+          st.push({ k: 'process', pos: { x: P.screen, y: PY }, vals: [v], kind: 'bad', bad: true, why: WHY[r.kind] || 'fora do domínio',
             title: 'A máquina travou!', html: r.error + ' Então <b>' + FF.fmt(v) + '</b> não pode entrar: está fora do domínio desta lei.' });
           return run;
         }
@@ -113,7 +123,7 @@
             cur = r;
           } catch (e) {
             if (!(e instanceof X.DomainError)) throw e;
-            st.push({ k: 'gear', gi: i, pos: { x: xs[i], y: PY }, vals: [cur], kind: 'bad', bad: true,
+            st.push({ k: 'gear', gi: i, pos: { x: xs[i], y: PY }, vals: [cur], kind: 'bad', bad: true, why: WHY[e.kind],
               title: 'A engrenagem ' + X.gearLabel(g) + ' travou!',
               html: e.message + ' Por isso <b><i>' + vin + '</i> = ' + FF.fmt(v) + '</b> fica <b>fora do domínio</b>: a lei não calcula nada para ele.' });
             return run;
@@ -133,7 +143,7 @@
               try { r = X.gearApply(g, val, false); } catch (e) {
                 if (!(e instanceof X.DomainError)) throw e;
                 tokens[id] = { x: g.x, y: g.y, vals: [val], kind: 'bad', tiny: true };
-                st.push({ k: 'gear', node: g, tokens: snap(), bad: true, vals: [val], kind: 'bad',
+                st.push({ k: 'gear', node: g, tokens: snap(), bad: true, why: WHY[e.kind], vals: [val], kind: 'bad',
                   title: 'A engrenagem ' + X.gearLabel(g) + ' travou!',
                   html: e.message + ' Por isso <b><i>' + vin + '</i> = ' + FF.fmt(v) + '</b> fica <b>fora do domínio</b>: a lei não calcula nada para ele.' });
                 throw STOP;
@@ -160,7 +170,7 @@
               try { r = X.joinApply(g.op, a, b); } catch (e) {
                 if (!(e instanceof X.DomainError)) throw e;
                 tokens[id] = { x: g.jx, y: g.jy, vals: [a, b], kind: 'bad', tiny: true };
-                st.push({ k: 'gear', node: g, tokens: snap(), bad: true, vals: [a], kind: 'bad',
+                st.push({ k: 'gear', node: g, tokens: snap(), bad: true, why: WHY[e.kind], vals: [a], kind: 'bad',
                   title: 'A junção ' + X.joinLabel(g.op) + ' travou!',
                   html: 'A cópia de baixo chegou valendo 0. ' + e.message + ' Por isso <b><i>' + vin + '</i> = ' + FF.fmt(v) + '</b> fica <b>fora do domínio</b>.' });
                 throw STOP;
@@ -183,7 +193,7 @@
         if (L.kind === 'piece') {
           const pi = X.findPiece(L, v);
           if (pi < 0) {
-            st.push({ k: 'process', pos: { x: P.screen, y: PY }, vals: [v], kind: 'bad', bad: true, title: 'Sem faixa', html: 'Esse valor não está em nenhuma faixa da tarifa.' });
+            st.push({ k: 'process', pos: { x: P.screen, y: PY }, vals: [v], kind: 'bad', bad: true, why: 'fora das faixas', title: 'Sem faixa', html: 'Esse valor não está em nenhuma faixa da tarifa.' });
             return run;
           }
           ast = L.pieces[pi].ast;
@@ -200,7 +210,7 @@
             title: last ? 'Resultado' : 'Calculando', html: last ? 'A conta terminou:' : 'Primeiro as potências e raízes, depois multiplicações e divisões, por fim somas e subtrações:' });
         }
         if (s.error) {
-          st.push({ k: 'calc', pos: { x: P.screen, y: PY }, vals: [v], kind: 'bad', bad: true, node: s.bad,
+          st.push({ k: 'calc', pos: { x: P.screen, y: PY }, vals: [v], kind: 'bad', bad: true, why: WHY[s.error.kind], node: s.bad,
             title: 'A máquina travou!',
             html: s.error.message + ' Por isso <b><i>' + vin + '</i> = ' + FF.fmt(v) + '</b> fica <b>fora do domínio</b>.' });
           return run;
@@ -212,7 +222,7 @@
           title: 'Qual é a saída?', html: 'Faça a sua previsão: que valor vai sair para <b><i>' + vin + '</i> = ' + FF.fmt(v) + '</b>? Avance para conferir.' });
       }
       if (!X.inSet(L.cd, y)) {
-        st.push({ k: 'cdbad', pos: { x: P.doorB, y: PY }, vals: [y], kind: 'bad', bad: true,
+        st.push({ k: 'cdbad', pos: { x: P.doorB, y: PY }, vals: [y], kind: 'bad', bad: true, why: 'saiu ' + FF.fmt(y) + ', que não está em B',
           title: 'Não cabe no depósito B!',
           html: 'Saiu <b>' + FF.fmt(y) + '</b>, que não está no <b>contradomínio</b> B = ' + X.setLabel(L.cd) + '. Com esse B, a lei não define uma função de A em B: todo elemento de A precisa ter imagem em B.' });
         return run;
@@ -247,7 +257,7 @@
         vals = L.chain.slice().reverse().reduce((acc, g) => acc.flatMap((w) => [].concat(X.gearApply(g, w, true))), [v]);
       } catch (e) {
         if (!(e instanceof X.DomainError)) throw e;
-        st.push({ k: 'process', pos: { x: P.screen, y: PY }, vals: [v], kind: 'bad', bad: true, title: 'Nenhuma entrada serve!',
+        st.push({ k: 'process', pos: { x: P.screen, y: PY }, vals: [v], kind: 'bad', bad: true, why: WHY[e.kind], title: 'Nenhuma entrada serve!',
           html: e.message + ' <b>' + FF.fmt(v) + '</b> não é imagem de nenhum valor.' });
         return run;
       }
@@ -269,7 +279,7 @@
               (vals.length > 1 ? ' <b>Dois números servem!</b> Entradas diferentes podem ter a mesma saída.' : '') });
         } catch (e) {
           if (!(e instanceof X.DomainError)) throw e;
-          st.push({ k: 'gear', gi: i, inv: true, pos: { x: xs[i], y: PY }, vals, kind: 'bad', bad: true,
+          st.push({ k: 'gear', gi: i, inv: true, pos: { x: xs[i], y: PY }, vals, kind: 'bad', bad: true, why: WHY[e.kind],
             title: 'Não dá para desfazer!',
             html: e.message + ' Então <b>' + FF.fmtOut(v) + '</b> não é imagem de nenhum valor: não pertence ao conjunto imagem.' });
           return run;
@@ -278,7 +288,7 @@
     }
     const okX = vals.filter((w) => X.inSet(L.dom, w));
     if (!okX.length) {
-      st.push({ k: 'dombad', pos: { x: P.doorA, y: PY }, vals, kind: 'bad', bad: true, title: 'Fora do domínio',
+      st.push({ k: 'dombad', pos: { x: P.doorA, y: PY }, vals, kind: 'bad', bad: true, why: 'dá ' + vals.map((w) => FF.fmt(w)).join(' ou ') + ', fora do domínio', title: 'Fora do domínio',
         html: 'A conta dá <b>' + vals.map((w) => FF.fmt(w)).join(' ou ') + '</b>, mas isso não pertence ao domínio (' + domTxt + '). Então ' + FF.fmtOut(v) + ' não é imagem de nenhum elemento do domínio.' });
       return run;
     }
@@ -297,10 +307,22 @@
 
   /* ---------- Registro da produção ---------- */
   function syncMade() {
-    FF.set({ made: prod.records.map((r) => r.x).join(';') });
+    FF.set({
+      made: prod.records.map((r) => r.x).join(';'),
+      bad: prod.rejects.map((r) => (r.dir === 'rev' ? 'r' : 'f') + r.v).join(';'),
+    });
     if (FF.reps) FF.reps.render();
   }
   function enterStage(stage) {
+    if (stage.bad) { // não deu para produzir: vai para o refugo
+      const run = prod.run;
+      if (!prod.rejects.some((r) => r.dir === run.dir && same(r.v, run.v))) {
+        stage.rejected = { v: run.v, dir: run.dir, why: stage.why || 'não foi possível' };
+        prod.rejects.push(stage.rejected);
+        syncMade();
+      }
+      return;
+    }
     if (stage.k !== 'deliver') return;
     stage.added = [];
     stage.rec.forEach((r) => {
@@ -314,6 +336,13 @@
     syncMade();
   }
   function leaveStage(stage) {
+    if (stage.rejected) {
+      const i = prod.rejects.indexOf(stage.rejected);
+      if (i >= 0) prod.rejects.splice(i, 1);
+      stage.rejected = null;
+      syncMade();
+      return;
+    }
     if (stage.k !== 'deliver' || !stage.added) return;
     stage.added.forEach((rec) => {
       const i = prod.records.indexOf(rec);
@@ -343,6 +372,17 @@
       const r = FF.evalLaw(x, L);
       if (r.error || !X.inSet(L.cd, r.y)) return;
       prod.records.push({ x, y: r.y, dir: 'fwd', calc: calcNode(x, L) });
+    });
+    // Refugo: refaz o caminho de cada valor para saber o motivo.
+    prod.rejects = [];
+    (FF.state.bad || '').split(';').forEach((tok) => {
+      const dir = tok[0] === 'r' ? 'rev' : 'fwd';
+      const v = X.parseNumber(tok.slice(1));
+      if (isNaN(v) || (dir === 'rev' && !FF.canReverse(L))) return;
+      if (prod.rejects.some((r) => r.dir === dir && same(r.v, v))) return;
+      const run = buildRun(v, dir);
+      const last = run.stages[run.stages.length - 1];
+      if (last.bad) prod.rejects.push({ v, dir, why: last.why || 'não foi possível' });
     });
   }
 
@@ -429,7 +469,7 @@
     clear() {
       stopPlay(true);
       if (tw) { tw.cancel(); tw = null; }
-      prod.records = []; prod.run = null; prod.queue = []; anim = null;
+      prod.records = []; prod.rejects = []; prod.run = null; prod.queue = []; anim = null;
       syncMade();
       draw(); narrate();
     },
@@ -521,6 +561,7 @@
         '<path class="box-tape" d="M' + r1(x + w / 2 - 6) + ' ' + r1(cy - h / 2) + ' h12 v6 h-12 Z"/>' +
         '<text class="box-v" x="' + r1(x + w / 2) + '" y="' + r1(cy + (unit ? 3 : 7)) + '" font-size="' + fs + '" text-anchor="middle">' + esc(label(v)) + '</text>' +
         (unit ? '<text class="box-u" x="' + r1(x + w / 2) + '" y="' + r1(cy + h / 2 - 6) + '" font-size="' + (big ? 12 : 10.5) + '" text-anchor="middle">' + esc(unit) + '</text>' : '') +
+        (opts.cross ? '<text class="box-cross" x="' + r1(x + w - 3) + '" y="' + r1(cy - h / 2 + 3) + '" font-size="15" text-anchor="middle">✗</text>' : '') +
         (opts.check ? '<text class="box-check" x="' + r1(x + w - 4) + '" y="' + r1(cy - h / 2 + 2) + '" font-size="15" text-anchor="middle">✓</text>' : '') +
         (big && c.icon && kind === 'in' ? '<text x="' + r1(x - 2) + '" y="' + r1(cy - h / 2 + 6) + '" font-size="17" text-anchor="middle">' + c.icon + '</text>' : '') +
         '</g>';
@@ -560,12 +601,14 @@
         return;
       }
       const isDone = done(v);
+      const isRej = prod.rejects.some((r) => r.dir === (side === 'A' ? 'fwd' : 'rev') && same(r.v, v)) && !isDone;
       let kind;
-      if (side === 'A') kind = 'in';
+      if (isRej) kind = 'bad';
+      else if (side === 'A') kind = 'in';
       else kind = set.type === 'set' && !isDone ? 'slot' : 'out';
       const fresh = prod.run && prod.run.stages[prod.run.i].k === 'deliver' && prod.run.stages[prod.run.i].vals.some((w) => same(w, v)) && prod.run.stages[prod.run.i].side === side;
       s += '<g class="clickable" data-side="' + side + '" data-v="' + v + '">' +
-        boxSVG(p.x, p.y, [v], kind, { small: true, check: side === 'A' && isDone, cls: (isDone && side === 'A' ? 'done' : '') + (fresh ? ' fresh' : '') }) + '</g>';
+        boxSVG(p.x, p.y, [v], kind, { small: true, cross: isRej, check: side === 'A' && isDone, cls: (isDone && side === 'A' ? 'done' : '') + (fresh ? ' fresh' : '') }) + '</g>';
     });
     if (set.type !== 'R') {
       s += '<text class="depot-set" x="' + cx + '" y="' + (G.dY1 - 12) + '" text-anchor="middle">' + (side === 'A' ? 'D' : 'CD') + ' = ' + esc(X.setLabel(set, L.vin).replace(/<[^>]+>/g, '')) + '</text>';
@@ -690,7 +733,33 @@
       s += '<text class="screen-cap bad" x="' + G.cx + '" y="' + (G.wY0 + 80) + '" text-anchor="middle">Corrija a lei no cartão ao lado</text>';
     }
     s += '</g>';
+    s += trashSVG();
     return s;
+  }
+
+  /* Bandeja de refugo: o que a máquina não conseguiu produzir fica guardado, em vermelho. */
+  function trashSVG() {
+    const x0 = G.mX0 + 16, x1 = G.mX1 - 16, y0 = G.belt + 26, y1 = G.mY1 - 6;
+    const list = prod.rejects;
+    let s = '<g class="trash' + (list.length ? ' has' : '') + '"><rect x="' + x0 + '" y="' + y0 + '" width="' + (x1 - x0) + '" height="' + (y1 - y0) + '" rx="8"/>' +
+      '<text class="trash-cap" x="' + (x0 + 12) + '" y="' + ((y0 + y1) / 2 + 4) + '">REFUGO</text>';
+    if (!list.length) {
+      s += '<text class="trash-empty" x="' + (x0 + 88) + '" y="' + ((y0 + y1) / 2 + 4) + '">o que não der para produzir fica aqui</text>';
+      return s + '</g>';
+    }
+    let x = x0 + 88;
+    const cy = (y0 + y1) / 2;
+    const show = list.slice(-7);
+    show.forEach((r) => {
+      const lab = (r.dir === 'rev' ? '◂ ' : '') + FF.fmt(r.v);
+      const w = Math.max(40, FF.math.textWidth(lab, 15) + 16);
+      if (x + w > x1 - 30) return;
+      s += '<g class="box box-bad"><title>' + esc(FF.fmt(r.v) + ': ' + r.why) + '</title><rect x="' + r1(x) + '" y="' + r1(cy - 14) + '" width="' + r1(w) + '" height="28" rx="6"/>' +
+        '<text class="box-v" x="' + r1(x + w / 2) + '" y="' + r1(cy + 5) + '" font-size="15" text-anchor="middle">' + esc(lab) + '</text></g>';
+      x += w + 6;
+    });
+    if (list.length > show.length) s += '<text class="trash-cap" x="' + r1(x) + '" y="' + (cy + 4) + '">+' + (list.length - show.length) + '</text>';
+    return s + '</g>';
   }
 
   /* "f(x) = " na lei, "f(3) = " depois de trocar x, "= " nas contas seguintes. */
