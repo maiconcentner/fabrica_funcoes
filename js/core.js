@@ -5,7 +5,10 @@
   const X = FF.expr;
 
   const DEFAULTS = {
-    view: 'fab',
+    view: 'fab',        // 'fab' (Fábrica) | 'insp' (É função?)
+    iMode: 'diag',      // inspetor: 'diag' | 'tab' | 'graf'
+    iCase: 0,           // caso atual do inspetor
+    iCustom: '',        // diagrama montado pelo professor
     ctx: 'livre',
     law: '2x + 1',      // lei digitada (vazio quando a situação tem lei por faixas)
     dom: 'R',           // domínio: R, R+, N, {2;3;4}, (0;20)
@@ -62,7 +65,10 @@
     s.speed = clamp(Number(s.speed) || 1, 0.25, 3);
     ['black', 'predict', 'table', 'diagram', 'graph', 'calc', 'curve'].forEach((k) => { s[k] = !!s[k]; });
     if (!['auto', 'light', 'dark'].includes(s.theme)) s.theme = 'auto';
-    if (s.view !== 'fab') s.view = 'fab';
+    if (!['fab', 'insp'].includes(s.view)) s.view = 'fab';
+    if (!['diag', 'tab', 'graf'].includes(s.iMode)) s.iMode = 'diag';
+    s.iCase = Math.max(0, Math.round(Number(s.iCase) || 0));
+    s.iCustom = String(s.iCustom || '').slice(0, 400);
   }
 
   /* ---------- Lei atual ---------- */
@@ -174,7 +180,10 @@
   const MODES = { black: 'b', predict: 'p' };
   FF.encodeHash = function () {
     const s = FF.state;
-    const parts = ['c=' + s.ctx];
+    const parts = [];
+    if (s.view === 'insp') parts.push('v=insp', 'im=' + s.iMode, 'ic=' + s.iCase);
+    if (s.view === 'insp' && s.iCustom) parts.push('iu=' + encodeURIComponent(s.iCustom));
+    parts.push('c=' + s.ctx);
     const c = FF.ctx();
     if (!(c.law && c.law.kind === 'piece' && !s.law)) parts.push('l=' + encodeURIComponent(s.law));
     parts.push('d=' + encodeURIComponent(s.dom), 'b=' + encodeURIComponent(s.cd));
@@ -198,6 +207,10 @@
       let v = tok.slice(i + 1);
       try { v = decodeURIComponent(v); } catch (e) { return; }
       switch (k) {
+        case 'v': out.view = v; break;
+        case 'im': out.iMode = v; break;
+        case 'ic': out.iCase = parseInt(v, 10); break;
+        case 'iu': out.iCustom = v; break;
         case 'c': out.ctx = v; break;
         case 'l': out.law = v; break;
         case 'd': out.dom = v; break;

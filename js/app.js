@@ -229,6 +229,12 @@
   function syncUI() {
     const S = FF.state;
     const L = FF.law();
+    $('view-fab').hidden = S.view !== 'fab';
+    $('view-insp').hidden = S.view !== 'insp';
+    $('tab-fab').setAttribute('aria-selected', S.view === 'fab');
+    $('tab-insp').setAttribute('aria-selected', S.view === 'insp');
+    $('btn-black').hidden = S.view !== 'fab';
+    $('btn-predict').hidden = S.view !== 'fab';
     $('btn-black').setAttribute('aria-pressed', S.black);
     $('btn-predict').setAttribute('aria-pressed', S.predict);
     document.querySelectorAll('[data-flag]').forEach((b) => b.setAttribute('aria-pressed', !!S[b.dataset.flag]));
@@ -319,9 +325,13 @@
       FF.reps.unmax();
       return;
     }
-    if (key === 'ArrowRight' || key === 'PageDown' || (key === ' ' && tag !== 'button')) { e.preventDefault(); FF.fab.next(); return; }
-    if (key === 'ArrowLeft' || key === 'PageUp') { e.preventDefault(); FF.fab.prev(); return; }
-    if (key === 'Home') { e.preventDefault(); FF.fab.first(); return; }
+    const mod = S.view === 'insp' ? FF.insp : FF.fab;
+    if (key === 'ArrowRight' || key === 'PageDown' || (key === ' ' && tag !== 'button')) { e.preventDefault(); mod.next(); return; }
+    if (key === 'ArrowLeft' || key === 'PageUp') { e.preventDefault(); mod.prev(); return; }
+    if (key === 'Home') { e.preventDefault(); mod.first(); return; }
+    if (key === '1') { FF.set({ view: 'fab' }); return; }
+    if (key === '2') { FF.set({ view: 'insp' }); return; }
+    if (S.view === 'insp' && !['f', 'p'].includes(key.toLowerCase())) return;
     switch (key.toLowerCase()) {
       case 'b': FF.set({ black: !S.black }); break;
       case 'o': FF.set({ predict: !S.predict }); break;
@@ -392,9 +402,15 @@
         FF.reps.render();
       }
     });
+    document.querySelectorAll('.tab').forEach((b) => b.addEventListener('click', () => FF.set({ view: b.dataset.view })));
+    FF.on((changed) => {
+      if (changed.includes('view') && FF.state.view === 'insp') FF.insp.render();
+      if (changed.includes('view') && FF.state.view === 'fab') { FF.fab.render(); FF.reps.render(); }
+    });
     syncUI();
     FF.fab.init();
     FF.reps.init();
+    FF.insp.init();
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { syncUI(); FF.reps.render(); });
   }
 

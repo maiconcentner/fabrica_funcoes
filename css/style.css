@@ -590,3 +590,100 @@ kbd {
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
+
+/* ===== É função? (inspetor) ===== */
+.case-nav { flex: 1; justify-content: center; min-width: 0; }
+.case-name { font-weight: 700; font-size: 0.9rem; text-align: center; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 34ch; }
+.fb[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+.vote-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.vote { border: 2px solid var(--line); background: var(--surface-2); border-radius: 10px; padding: 10px 8px; font-weight: 700; font-size: 1rem; }
+.vote-yes[aria-pressed="true"] { background: var(--ok); border-color: var(--ok); color: #fff; }
+.vote-no[aria-pressed="true"] { background: var(--bad); border-color: var(--bad); color: #fff; }
+#vote-score { margin-top: 10px; }
+.vote-res { font-weight: 700; }
+.vote-res.ok { color: var(--ok); }
+.vote-res.no { color: var(--bad); }
+.rule { margin: 0; font-size: 0.92rem; }
+.edit-row { display: flex; gap: 8px; justify-content: space-between; margin-top: 10px; flex-wrap: wrap; }
+.sets-line { line-height: 1.7; }
+
+#insp-svg text { font-family: var(--font-body); fill: var(--ink); }
+#insp-svg .setname { font-size: 19px; }
+#insp-svg .iel text { font-family: var(--font-math); font-size: 25px; }
+#insp-svg .iel circle { fill: var(--ink); }
+#insp-svg .iel.cur text { fill: var(--accent); font-weight: 700; }
+#insp-svg .iel.cur circle { fill: var(--accent); }
+#insp-svg .iel.okd text { fill: var(--ok); }
+#insp-svg .iel.bad text { fill: var(--bad); font-weight: 700; }
+#insp-svg .iel.bad circle { fill: var(--bad); }
+#insp-svg .iel.im text { fill: var(--out); font-weight: 700; }
+#insp-svg .iel.im circle { fill: var(--out); }
+#insp-svg .iel.spare text { fill: var(--muted); }
+#insp-svg .iel.sel text { fill: var(--accent); text-decoration: underline; }
+#insp-svg .iel .hit { fill: transparent; }
+.iarrow { fill: none; stroke: var(--ink); stroke-width: 2; }
+.iarrow.dim { opacity: 0.35; }
+.iarrow.cur { stroke: var(--accent); stroke-width: 3.4; opacity: 1; }
+.iarrow.bad { stroke: var(--bad); stroke-width: 3.4; }
+.iarrow.bad.dim { opacity: 0.6; stroke-width: 2.4; }
+.lupa circle { fill: color-mix(in srgb, var(--accent) 12%, transparent); stroke: var(--accent); stroke-width: 3; }
+.lupa line { stroke: var(--accent); stroke-width: 4; stroke-linecap: round; }
+#insp-svg .edit-hint { font-size: 14px; fill: var(--accent); font-weight: 700; }
+
+.post { fill: var(--surface-2); stroke: var(--line); stroke-width: 2; }
+#insp-svg .post-title { font-family: var(--font-display); font-weight: 700; font-size: 17px; fill: var(--muted); letter-spacing: 0.02em; }
+#insp-svg .post-wait { font-size: 17px; fill: var(--muted); }
+#insp-svg .chk-t { font-family: var(--font-math); font-size: 20px; }
+#insp-svg .chk-i { font-size: 20px; font-weight: 700; }
+#insp-svg .chk.ok .chk-i { fill: var(--ok); }
+#insp-svg .chk.no .chk-i, #insp-svg .chk.no .chk-t { fill: var(--bad); }
+#insp-svg .chk-w { font-size: 12px; font-weight: 700; fill: var(--bad); text-transform: uppercase; letter-spacing: 0.04em; }
+#insp-svg .chk.cur .chk-t { font-weight: 700; }
+@keyframes stampIn { from { transform: scale(1.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.stamp rect { fill: none; stroke-width: 5; animation: stampIn 0.35s ease-out both; transform-box: fill-box; transform-origin: center; }
+.stamp.ok rect { stroke: var(--ok); }
+.stamp.no rect { stroke: var(--bad); }
+#insp-svg .stamp text { font-family: var(--font-display); font-weight: 700; animation: stampIn 0.35s ease-out both; transform-box: fill-box; transform-origin: center; }
+#insp-svg .stamp .st1 { font-size: 30px; letter-spacing: 0.08em; }
+#insp-svg .stamp .st2 { font-size: 16px; letter-spacing: 0.06em; text-transform: uppercase; }
+#insp-svg .stamp.ok text { fill: var(--ok); }
+#insp-svg .stamp.no text { fill: var(--bad); }
+
+.tb-head { fill: var(--accent); }
+#insp-svg .tb-h { fill: var(--accent-ink); font-weight: 700; font-size: 19px; }
+.tb-row rect { fill: var(--surface); stroke: var(--line); }
+#insp-svg .tb-row text { font-family: var(--font-math); font-size: 23px; }
+.tb-row.dim { opacity: 0.4; }
+.tb-row.cur rect { fill: color-mix(in srgb, var(--accent) 16%, var(--surface)); stroke: var(--accent); stroke-width: 2; }
+.tb-row.bad rect { fill: color-mix(in srgb, var(--bad) 14%, var(--surface)); stroke: var(--bad); stroke-width: 2; }
+#insp-svg .tb-row.bad text { fill: var(--bad); font-weight: 700; }
+#insp-svg .tb-b.im { fill: var(--out); font-weight: 700; }
+.tb-mid { stroke: var(--line); stroke-width: 2; }
+
+#insp-svg .tick { font-size: 12px; fill: var(--muted); }
+#insp-svg .axname { font-family: var(--font-math); font-style: italic; font-size: 18px; font-weight: 600; }
+.icurve { fill: none; stroke: var(--mid); stroke-width: 3.2; stroke-linecap: round; }
+.strip { stroke-width: 9; stroke-linecap: butt; }
+.strip.s1 { stroke: var(--ok); }
+.strip.s2 { stroke: var(--bad); }
+.strip.s0 { stroke: var(--muted); opacity: 0.45; }
+.strip-dot { fill: var(--bad); }
+.imbar { stroke: var(--out); stroke-width: 9; opacity: 0.85; }
+.vline line { stroke: var(--bad); stroke-width: 2.4; stroke-dasharray: 7 5; }
+.vline.ok line { stroke: var(--ok); }
+.vline .vgrip { fill: transparent; cursor: ew-resize; }
+.vline .vhandle { fill: var(--bad); cursor: ew-resize; }
+.vline.ok .vhandle { fill: var(--ok); }
+.vhit { fill: var(--ok); stroke: var(--surface); stroke-width: 2; }
+.vhit.bad { fill: var(--bad); }
+#insp-svg.graf { touch-action: none; }
+#insp-svg .eq { font-family: var(--font-math); font-style: italic; font-size: 24px; }
+#insp-svg .count { font-family: var(--font-display); font-size: 30px; font-weight: 700; }
+#insp-svg .count.ok { fill: var(--ok); }
+#insp-svg .count.no { fill: var(--bad); }
+#insp-svg .count.zero { fill: var(--muted); }
+#insp-svg .legend text { font-size: 14px; fill: var(--muted); }
+@media (max-width: 700px) {
+  .case-nav { order: 3; flex-basis: 100%; }
+  .case-name { max-width: none; flex: 1; }
+}

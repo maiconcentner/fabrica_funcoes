@@ -76,14 +76,18 @@ Casas decimais, tema claro/escuro, tamanho do texto, velocidade da animação e 
 | `F` | tela cheia |
 | `P` | painel do professor |
 
-## Plano das próximas fases
+## É função? (Fase 2: o inspetor de qualidade)
 
-### Fase 2: É função? (inspetor de qualidade)
-O conteúdo de *Organizando as ideias* sobre o que é e o que não é função.
-- **Diagramas de flechas** para classificar (os quatro da Atividade 15 e outros gerados): um elemento de A com duas flechas, um elemento sem flecha, vários elementos com a mesma imagem. O inspetor carimba **Aprovado / Reprovado** e explica o motivo.
-- **Tabelas** do tipo nome → nota (Atividade 14): domínio não numérico e imagens repetidas.
-- **Gráficos** com o **teste da reta vertical**: uma reta que o aluno arrasta sobre o gráfico (círculo, "coração", parábola, retas…) e que acende quando corta em mais de um ponto.
-- D, CD e Im de cada caso, com resposta passo a passo.
+Aba **É função?** (tecla `2`; a Fábrica é a tecla `1`). Cada caso chega ao **posto de inspeção** e é conferido **um passo por clique**:
+
+- **Diagramas**: *y* = *x* − 2 do *Organizando as ideias*, os quatro diagramas da **Atividade 15** e um elemento sem flecha. A lupa passa por cada elemento de A; as flechas dele acendem (verdes se é uma só, vermelhas se são duas ou nenhuma) e o posto anota `6 → 2 e 1 ✗ duas saídas`. No fim, o carimbo **APROVADO: é função** ou **REPROVADO: não é função** e, para funções, **D**, **CD** e **Im** (com os elementos de B que sobram: Im ⊂ CD).
+- **Tabelas**: as notas da **Atividade 14** (Rafael e José com a mesma nota: pode!), a mesma tabela **ao contrário** (8,5 → Rafael e José: não pode), o avião (Atividade 10), *f*(*x*) = *x*² + 2*x* (Atividade 11), um aluno com dois esportes e uma linha repetida. **Trocar colunas** inverte qualquer tabela.
+- **Gráficos**: o **teste da reta vertical**. A reta pode ser **arrastada** a qualquer momento e mostra quantos pontos corta; depois o inspetor **varre** o gráfico da esquerda para a direita pintando o eixo *x* (verde: 1 ponto; vermelho: 2 ou mais; cinza: nenhum, fora do domínio) e para num lugar onde a reta corta dois pontos. Casos: reta, parábola, circunferência, o **coração** do GeoGebra, parábola deitada, meia circunferência, elipse, módulo, reta vertical, cúbica e seno. Para funções, **domínio** (sombra no eixo *x*) e **imagem** (sombra no eixo *y*).
+- **Votação da turma**: antes do veredito, a turma vota *é função* ou *não é função*; o veredito diz se acertou e o **placar** soma os acertos.
+- **Sortear** cria diagramas e tabelas novos (com e sem função, com as pegadinhas: mesma imagem, função constante, elemento sem flecha, duas flechas).
+- **Montar o meu**: o professor escreve os elementos de A e de B e liga as flechas tocando num elemento de A e depois num de B; depois inspeciona com a turma. O diagrama vai junto no link compartilhável.
+
+## Plano das próximas fases
 
 ### Fase 3: Desafios (jogos para a turma)
 - **Adivinhe a regra** com placar por equipes: a máquina sorteia uma lei (nível 1: `x + a`; nível 2: `ax + b`; nível 3: `x²`, `ax² + b`…), cada equipe pede um valor por vez e ganha mais pontos quem descobre a lei com menos pistas.
@@ -116,5 +120,6 @@ js/contexts.js      situações do capítulo e leis prontas
 js/core.js          estado, lei atual, formatação, link, animação
 js/factory.js       a fábrica: depósitos, máquina, esteira e os passos de cada produto
 js/reps.js          tabela, diagrama de flechas e gráfico
+js/inspect.js       É função?: diagramas, tabelas, gráficos e reta vertical
 js/app.js           cartões laterais, caixa-preta, painel do professor, atalhos
 ```

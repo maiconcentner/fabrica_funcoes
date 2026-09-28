@@ -28,6 +28,7 @@
 
     <nav class="tabs" role="tablist" aria-label="Módulos">
       <button class="tab" role="tab" id="tab-fab" data-view="fab" aria-selected="true">Fábrica</button>
+      <button class="tab" role="tab" id="tab-insp" data-view="insp" aria-selected="false">É função?</button>
     </nav>
 
     <div class="tools">
@@ -214,6 +215,90 @@
     </aside>
   </main>
 
+  <!-- ============ É FUNÇÃO? ============ -->
+  <main class="view" id="view-insp" aria-labelledby="tab-insp" hidden>
+    <div class="col-main">
+      <section class="stage-wrap">
+        <div class="figbar" role="toolbar" aria-label="Casos para inspecionar">
+          <div class="fb-group">
+            <div class="seg seg-sm" id="insp-mode" role="group" aria-label="Tipo de caso">
+              <button data-m="diag">Diagramas</button><button data-m="tab">Tabelas</button><button data-m="graf">Gráficos</button>
+            </div>
+          </div>
+          <div class="fb-group case-nav">
+            <button class="fb" id="insp-prevcase" aria-label="Caso anterior" title="Caso anterior">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <span class="case-name" id="insp-case"></span>
+            <button class="fb" id="insp-nextcase" aria-label="Próximo caso" title="Próximo caso">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+          <div class="fb-group">
+            <button class="fb" id="insp-random" title="Sortear um caso novo">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="9" cy="9" r="1.4" fill="currentColor"/><circle cx="15" cy="15" r="1.4" fill="currentColor"/><circle cx="15" cy="9" r="1.4" fill="currentColor"/><circle cx="9" cy="15" r="1.4" fill="currentColor"/></svg>
+              <span>Sortear</span>
+            </button>
+            <button class="fb" id="insp-swap" title="Trocar as colunas da tabela: a relação ao contrário">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v14m0 0-3-3m3 3 3-3M17 20V6m0 0-3 3m3-3 3 3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>Trocar colunas</span>
+            </button>
+            <button class="fb" id="insp-build" title="Montar o seu diagrama, ligando as flechas" aria-pressed="false">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14.5 4.5 5 5L9 20H4v-5L14.5 4.5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+              <span>Montar o meu</span>
+            </button>
+          </div>
+        </div>
+        <svg class="stage" id="insp-svg" viewBox="0 0 1000 470" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Relação em inspeção e posto de inspeção"></svg>
+        <div class="stepper">
+          <button class="step-btn" id="insp-prev" aria-label="Passo anterior">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="dots" id="insp-dots" aria-label="Passos da inspeção"></div>
+          <button class="step-btn step-next" id="insp-next" aria-label="Próximo passo">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </section>
+    </div>
+
+    <aside class="side">
+      <div class="card step-card" aria-live="polite">
+        <p class="eyebrow" id="insp-count"></p>
+        <h2 id="insp-title"></h2>
+        <div class="step-body" id="insp-body"></div>
+      </div>
+      <div class="card">
+        <h2>Votação da turma</h2>
+        <div class="vote-row">
+          <button class="vote vote-yes" id="vote-yes" aria-pressed="false">É função</button>
+          <button class="vote vote-no" id="vote-no" aria-pressed="false">Não é função</button>
+        </div>
+        <p class="note" id="vote-score"></p>
+      </div>
+      <div class="card" id="insp-edit" hidden>
+        <h2>Montar o meu diagrama</h2>
+        <div class="field">
+          <label for="in-edit-a">Elementos de A</label>
+          <input type="text" id="in-edit-a" placeholder="1; 2; 3">
+        </div>
+        <div class="field">
+          <label for="in-edit-b">Elementos de B</label>
+          <input type="text" id="in-edit-b" placeholder="a; b; c">
+        </div>
+        <p class="note">Toque em um elemento de A e depois em um de B para ligar a flecha (tocar de novo desliga).</p>
+        <div class="edit-row">
+          <button class="btn btn-ghost" id="insp-edit-clear">Apagar flechas</button>
+          <button class="btn" id="insp-edit-done">Pronto: inspecionar</button>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Regra do inspetor</h2>
+        <p class="rule" id="insp-rule"></p>
+      </div>
+    </aside>
+  </main>
+
   <!-- ============ PAINEL DO PROFESSOR ============ -->
   <div class="scrim" id="scrim" hidden></div>
   <aside class="panel" id="panel" aria-label="Painel do professor" hidden>
@@ -265,6 +350,7 @@
           <dt><kbd>B</kbd></dt><dd>caixa-preta</dd>
           <dt><kbd>O</kbd></dt><dd>prever a saída</dd>
           <dt><kbd>T</kbd> <kbd>D</kbd> <kbd>G</kbd></dt><dd>tabela, diagrama, gráfico</dd>
+          <dt><kbd>1</kbd> <kbd>2</kbd></dt><dd>Fábrica / É função?</dd>
           <dt><kbd>F</kbd></dt><dd>tela cheia</dd>
           <dt><kbd>P</kbd></dt><dd>painel do professor</dd>
         </dl>
@@ -282,6 +368,7 @@
 <script src="js/core.js"></script>
 <script src="js/factory.js"></script>
 <script src="js/reps.js"></script>
+<script src="js/inspect.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>
