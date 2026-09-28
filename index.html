@@ -30,6 +30,7 @@
       <button class="tab" role="tab" id="tab-fab" data-view="fab" aria-selected="true">Fábrica</button>
       <button class="tab" role="tab" id="tab-insp" data-view="insp" aria-selected="false">É função?</button>
       <button class="tab" role="tab" id="tab-game" data-view="game" aria-selected="false">Desafios</button>
+      <button class="tab" role="tab" id="tab-emp" data-view="emp" aria-selected="false">Minha empresa</button>
     </nav>
 
     <div class="tools">
@@ -40,6 +41,14 @@
       <button class="tool" id="btn-predict" title="Prever: a máquina fica fechada, só a lei aparece no letreiro; a saída sai como ? e é revelada no clique seguinte (tecla O)" aria-pressed="false">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path class="slash" d="M4 20 20 4" stroke="currentColor" stroke-width="1.8"/></svg>
         <span>Prever a saída</span>
+      </button>
+      <button class="tool" id="btn-copy-img" title="Copiar a figura como imagem, para colar em listas de exercícios (tecla C). Com um painel ampliado, copia o painel.">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="14" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M7 5V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1h-3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m5 16 4-4 3 3 2-2 3 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        <span>Copiar imagem</span>
+      </button>
+      <button class="tool" id="btn-annot" title="Anotar na tela: caneta, marca-texto e laser (tecla A)" aria-pressed="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14.5 4.5 5 5L9 20H4v-5L14.5 4.5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="m12.5 6.5 5 5" stroke="currentColor" stroke-width="1.8"/></svg>
+        <span>Anotar</span>
       </button>
       <button class="tool" id="btn-full" title="Tela cheia (tecla F)">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
@@ -352,6 +361,60 @@
     <div class="toast" id="g-toast" hidden></div>
   </main>
 
+  <!-- ============ MINHA EMPRESA ============ -->
+  <main class="view" id="view-emp" aria-labelledby="tab-emp" hidden>
+    <div class="col-main">
+      <section class="stage-wrap">
+        <div class="figbar" role="toolbar" aria-label="Gráfico da empresa">
+          <h2 class="emp-title" id="emp-title"></h2>
+          <div class="fb-group">
+            <div class="seg seg-sm" id="emp-mode" role="group" aria-label="Eixo horizontal">
+              <button data-m="qtd">Por quantidade</button><button data-m="mes">Ao longo dos meses</button>
+            </div>
+            <button class="fb" id="emp-parts" aria-pressed="false" title="Mostrar separados o custo de produção e a mão de obra"><span>Custos separados</span></button>
+          </div>
+        </div>
+        <svg class="stage" id="emp-svg" viewBox="0 0 1000 470" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Faturamento, custo total e lucro da empresa"></svg>
+        <div class="emp-slider-row">
+          <label for="emp-slider" id="emp-slider-lab"></label>
+          <input type="range" id="emp-slider" min="0" max="400" step="1">
+        </div>
+        <div class="emp-read" id="emp-read"></div>
+      </section>
+      <section class="card">
+        <h2>As funções da empresa</h2>
+        <ol class="elaws" id="emp-laws"></ol>
+      </section>
+    </div>
+    <aside class="side">
+      <div class="card">
+        <h2>Ponto de equilíbrio</h2>
+        <div id="emp-eq"></div>
+      </div>
+      <div class="card">
+        <h2>Meta de lucro</h2>
+        <div class="law-row"><label class="law-prefix" for="emp-meta">Lucro de R$</label><input type="text" id="emp-meta" inputmode="decimal"><span></span></div>
+        <div id="emp-meta-res"></div>
+      </div>
+      <div class="card">
+        <h2>Montar a empresa</h2>
+        <div class="field"><label for="emp-model">Modelo</label><select id="emp-model" class="select"></select></div>
+        <div class="field"><label for="emp-name">Nome da empresa</label><input type="text" id="emp-name"></div>
+        <div class="field"><label for="emp-unit">O que ela vende (plural)</label><input type="text" id="emp-unit"></div>
+        <div class="emp-fields">
+          <div class="field"><label for="emp-fixo">Custos fixos por mês (R$)</label><input type="text" id="emp-fixo" inputmode="decimal"></div>
+          <div class="field"><label for="emp-custo">Material por unidade (R$)</label><input type="text" id="emp-custo" inputmode="decimal"></div>
+          <div class="field"><label for="emp-salario">Salário fixo (R$)</label><input type="text" id="emp-salario" inputmode="decimal"></div>
+          <div class="field"><label for="emp-comissao">Comissão por unidade (R$)</label><input type="text" id="emp-comissao" inputmode="decimal"></div>
+          <div class="field"><label for="emp-preco">Preço de venda (R$)</label><input type="text" id="emp-preco" inputmode="decimal"></div>
+          <div class="field"><label for="emp-v0">Vendas no 1º mês</label><input type="text" id="emp-v0" inputmode="decimal"></div>
+          <div class="field"><label for="emp-cresc">Crescimento por mês</label><input type="text" id="emp-cresc" inputmode="decimal"></div>
+        </div>
+        <p class="note">O que sei agora: em grupos, montem uma empresa e criem as funções de custo, mão de obra, faturamento e crescimento.</p>
+      </div>
+    </aside>
+  </main>
+
   <!-- ============ PAINEL DO PROFESSOR ============ -->
   <div class="scrim" id="scrim" hidden></div>
   <aside class="panel" id="panel" aria-label="Painel do professor" hidden>
@@ -386,13 +449,34 @@
       </section>
       <section class="pgroup">
         <h3>Compartilhar com a turma</h3>
-        <p class="note">O link leva a situação, a lei, os conjuntos, o que está à mostra e os valores já fabricados.</p>
+        <p class="note">O link guarda a aba aberta e o que está nela: situação, lei, conjuntos, valores fabricados, caso do inspetor ou a empresa.</p>
         <div class="share-row">
-          <input type="text" id="share-url" readonly aria-label="Link compartilhável">
+          <input type="text" id="share-url" readonly aria-label="Link desta configuração">
           <button class="btn" id="share-copy">Copiar</button>
         </div>
         <p class="note" id="share-msg" aria-live="polite"></p>
+        <button class="btn" id="btn-qr">
+          Mostrar QR code para a turma
+        </button>
+        <div class="field">
+          <label for="site-base">Endereço do site</label>
+          <input type="text" id="site-base" inputmode="url" spellcheck="false">
+          <p class="note">Os alunos abrem por este endereço (o do GitHub Pages). A prévia no Claude é privada e não serve para eles.</p>
+        </div>
       </section>
+
+      <section class="pgroup">
+        <h3>Cenários salvos</h3>
+        <p class="note">Guarda tudo o que está na tela, inclusive o exercício, para abrir de novo com um clique. Fica salvo neste navegador.</p>
+        <div class="share-row">
+          <input type="text" id="sc-name" placeholder="Ex.: Aula 2 · conta de luz" aria-label="Nome do cenário">
+          <button class="btn" id="sc-save">Salvar</button>
+        </div>
+        <p class="note" id="sc-msg" aria-live="polite"></p>
+        <ul class="sc-list" id="sc-list"></ul>
+        <button class="btn btn-ghost" id="reset-all">Restaurar padrão</button>
+      </section>
+
       <section class="pgroup">
         <h3>Atalhos de teclado</h3>
         <dl class="keys">
@@ -403,16 +487,65 @@
           <dt><kbd>B</kbd></dt><dd>caixa-preta</dd>
           <dt><kbd>O</kbd></dt><dd>prever a saída</dd>
           <dt><kbd>T</kbd> <kbd>D</kbd> <kbd>G</kbd></dt><dd>tabela, diagrama, gráfico</dd>
-          <dt><kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd></dt><dd>Fábrica / É função? / Desafios</dd>
+          <dt><kbd>1</kbd> … <kbd>4</kbd></dt><dd>Fábrica / É função? / Desafios / Minha empresa</dd>
+          <dt><kbd>C</kbd></dt><dd>copiar a figura como imagem</dd>
+          <dt><kbd>A</kbd></dt><dd>anotar na tela</dd>
           <dt><kbd>F</kbd></dt><dd>tela cheia</dd>
           <dt><kbd>P</kbd></dt><dd>painel do professor</dd>
         </dl>
       </section>
-      <section class="pgroup">
-        <button class="btn btn-ghost" id="reset-all">Recomeçar tudo</button>
-      </section>
+
     </div>
   </aside>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+  <div class="img-dialog" id="img-dialog" role="dialog" aria-label="Imagem da figura" hidden>
+    <div class="panel-head">
+      <h2>Imagem da figura</h2>
+      <button class="icon-btn" id="img-close" aria-label="Fechar">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <p class="note">O navegador não deixou copiar direto. Clique com o botão direito na imagem (ou segure, no celular) e escolha <b>Copiar imagem</b>, ou baixe o arquivo.</p>
+    <img id="img-preview" alt="Figura exportada">
+    <a class="btn" id="img-download" href="#">Baixar PNG</a>
+  </div>
+  <div class="img-dialog qr-dialog" id="qr-dialog" role="dialog" aria-label="QR code para a turma" hidden>
+    <div class="panel-head">
+      <h2>Aponte a câmera do celular</h2>
+      <button class="icon-btn" id="qr-close" aria-label="Fechar">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="qr-box" id="qr-box"></div>
+    <p class="qr-url" id="qr-url"></p>
+  </div>
+  <div class="annot-bar" id="annot-bar" role="toolbar" aria-label="Anotar na tela" hidden>
+    <button class="ab" data-atool="none" title="Mouse: mexer na figura sem apagar as anotações (Esc)" aria-label="Mouse">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3l12 9-5.5 1L10 19Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+    </button>
+    <button class="ab" data-atool="pen" title="Caneta" aria-label="Caneta">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14.5 4.5 5 5L9 20H4v-5L14.5 4.5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+    </button>
+    <button class="dotc" data-acolor="red" style="--c:#e03131" aria-label="Caneta vermelha"></button>
+    <button class="dotc" data-acolor="blue" style="--c:#1c7ed6" aria-label="Caneta azul"></button>
+    <button class="dotc" data-acolor="green" style="--c:#2f9e44" aria-label="Caneta verde"></button>
+    <button class="ab" data-atool="hl" title="Marca-texto" aria-label="Marca-texto">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16" stroke="#e0b100" stroke-width="3.5" stroke-linecap="round"/><path d="m13 4 5 5-7 7H6v-5l7-7Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+    </button>
+    <button class="ab" data-atool="laser" title="Apontador laser" aria-label="Apontador laser">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.5" fill="#e03131"/><circle cx="12" cy="12" r="7.5" fill="none" stroke="#e03131" stroke-width="1.4" opacity=".6"/></svg>
+    </button>
+    <span class="chip-sep" aria-hidden="true"></span>
+    <button class="ab" id="annot-undo" title="Desfazer (Ctrl+Z)" aria-label="Desfazer">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7 4 12l5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 12h10a6 6 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" transform="translate(0 -4)"/></svg>
+    </button>
+    <button class="ab" id="annot-clear" title="Apagar tudo desta aba" aria-label="Apagar tudo">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+    </button>
+    <button class="ab" id="annot-close" title="Fechar a barra de anotação" aria-label="Fechar">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+  </div>
 </div>
 
 <script src="js/expr.js"></script>
@@ -423,6 +556,11 @@
 <script src="js/reps.js"></script>
 <script src="js/inspect.js"></script>
 <script src="js/games.js"></script>
+<script src="js/empresa.js"></script>
+<script src="js/vendor/qrcode.js"></script>
+<script src="js/annotate.js"></script>
+<script src="js/share.js"></script>
+<script src="js/export.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

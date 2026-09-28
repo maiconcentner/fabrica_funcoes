@@ -13,6 +13,7 @@
     gLevel: 1,          // nível dos desafios (1 a 3)
     gTeams: '',         // equipes e pontos (JSON)
     gClock: 60,         // segundos do cronômetro
+    emp: '',            // Minha empresa (JSON)
     ctx: 'livre',
     law: '2x + 1',      // lei digitada (vazio quando a situação tem lei por faixas)
     dom: 'R',           // domínio: R, R+, N, {2;3;4}, (0;20)
@@ -69,7 +70,8 @@
     s.speed = clamp(Number(s.speed) || 1, 0.25, 3);
     ['black', 'predict', 'table', 'diagram', 'graph', 'calc', 'curve'].forEach((k) => { s[k] = !!s[k]; });
     if (!['auto', 'light', 'dark'].includes(s.theme)) s.theme = 'auto';
-    if (!['fab', 'insp', 'game'].includes(s.view)) s.view = 'fab';
+    if (!['fab', 'insp', 'game', 'emp'].includes(s.view)) s.view = 'fab';
+    s.emp = String(s.emp || '');
     if (!['rule', 'rev', 'race', 'ex'].includes(s.gGame)) s.gGame = 'rule';
     s.gLevel = clamp(Math.round(Number(s.gLevel) || 1), 1, 3);
     s.gTeams = String(s.gTeams || '');
@@ -189,8 +191,10 @@
   FF.encodeHash = function () {
     const s = FF.state;
     const parts = [];
+    if (s.view === 'fab') parts.push('v=fab');
     if (s.view === 'insp') parts.push('v=insp', 'im=' + s.iMode, 'ic=' + s.iCase);
     if (s.view === 'game') parts.push('v=game', 'gg=' + s.gGame, 'gl=' + s.gLevel);
+    if (s.view === 'emp') parts.push('v=emp', 'e=' + encodeURIComponent(s.emp));
     if (s.view === 'insp' && s.iCustom) parts.push('iu=' + encodeURIComponent(s.iCustom));
     parts.push('c=' + s.ctx);
     const c = FF.ctx();
@@ -219,6 +223,7 @@
         case 'v': out.view = v; break;
         case 'gg': out.gGame = v; break;
         case 'gl': out.gLevel = parseInt(v, 10); break;
+        case 'e': out.emp = v; break;
         case 'im': out.iMode = v; break;
         case 'ic': out.iCase = parseInt(v, 10); break;
         case 'iu': out.iCustom = v; break;

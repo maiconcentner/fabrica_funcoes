@@ -232,6 +232,8 @@
     $('view-fab').hidden = S.view !== 'fab';
     $('view-insp').hidden = S.view !== 'insp';
     $('view-game').hidden = S.view !== 'game';
+    $('view-emp').hidden = S.view !== 'emp';
+    $('tab-emp').setAttribute('aria-selected', S.view === 'emp');
     $('tab-game').setAttribute('aria-selected', S.view === 'game');
     $('tab-fab').setAttribute('aria-selected', S.view === 'fab');
     $('tab-insp').setAttribute('aria-selected', S.view === 'insp');
@@ -274,8 +276,8 @@
     });
   }
   function shareUrl() {
-    const base = location.href.split('#')[0];
-    return base + '#' + FF.encodeHash();
+    if (FF.share) return FF.share.url();
+    return location.href.split('#')[0] + '#' + FF.encodeHash();
   }
 
   /* ---------- Painel ---------- */
@@ -283,7 +285,7 @@
     $('panel').hidden = !open;
     $('scrim').hidden = !open;
     $('btn-panel').setAttribute('aria-expanded', open);
-    if (open) $('panel-close').focus();
+    if (open) { if (FF.share) FF.share.refresh(); $('panel-close').focus(); }
   }
   function bindPanel() {
     $('btn-panel').addEventListener('click', () => openPanel($('panel').hidden));
@@ -327,13 +329,16 @@
       FF.reps.unmax();
       return;
     }
-    const mod = S.view === 'insp' ? FF.insp : S.view === 'game' ? FF.games : FF.fab;
+    const mod = S.view === 'insp' ? FF.insp : S.view === 'game' ? FF.games : S.view === 'emp' ? FF.emp : FF.fab;
     if (key === 'ArrowRight' || key === 'PageDown' || (key === ' ' && tag !== 'button')) { e.preventDefault(); mod.next(); return; }
     if (key === 'ArrowLeft' || key === 'PageUp') { e.preventDefault(); mod.prev(); return; }
     if (key === 'Home') { e.preventDefault(); mod.first(); return; }
     if (key === '1') { FF.set({ view: 'fab' }); return; }
     if (key === '2') { FF.set({ view: 'insp' }); return; }
     if (key === '3') { FF.set({ view: 'game' }); return; }
+    if (key === '4') { FF.set({ view: 'emp' }); return; }
+    if (key.toLowerCase() === 'c') { FF.exportFig.copyFigure(); return; }
+    if (key.toLowerCase() === 'a') { FF.annot.toggle(); return; }
     if (S.view !== 'fab' && !['f', 'p'].includes(key.toLowerCase())) return;
     switch (key.toLowerCase()) {
       case 'b': FF.set({ black: !S.black }); break;
@@ -410,13 +415,22 @@
       if (changed.includes('view') && FF.state.view === 'insp') FF.insp.render();
       if (changed.includes('view') && FF.state.view === 'game') FF.games.render();
       if (changed.includes('view') && FF.state.view === 'fab') { FF.fab.render(); FF.reps.render(); }
+      if (changed.includes('view') && FF.state.view === 'emp') FF.emp.render();
+      // cenário salvo ou link aberto com a aba já visível
+      if (!changed.includes('view') && FF.state.view === 'insp' && changed.some((k) => ['iMode', 'iCase', 'iCustom'].includes(k))) FF.insp.render();
+      if (!changed.includes('view') && FF.state.view === 'game' && changed.some((k) => ['gGame', 'gLevel'].includes(k))) FF.games.render();
     });
     syncUI();
     FF.fab.init();
     FF.reps.init();
     FF.insp.init();
     FF.games.init();
+    FF.emp.init();
+    FF.annot.init();
+    FF.share.init();
+    FF.exportFig.init();
     if (FF.state.view === 'game') FF.games.render();
+    if (FF.state.view === 'emp') FF.emp.render();
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { syncUI(); FF.reps.render(); });
   }
 

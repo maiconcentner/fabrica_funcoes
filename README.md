@@ -96,11 +96,30 @@ Aba **Desafios** (tecla `3`). Três níveis de leis sorteadas (nível 1: *x* + *
 - **Corrida das engrenagens**: três pares (*x* → *y*); a equipe monta uma máquina de engrenagens e vê na hora quais pares ela acerta. Quando acerta todos, 3 pontos. Máquinas diferentes que dão os mesmos pares também valem (e o jogo mostra isso).
 - **Exercícios**: enunciados no estilo do livro, com números novos, para cada situação (conta de luz, água, viagem, jardim, telefone, técnico, aplicativo, salário, avião) ou sem contexto no nível escolhido. Da entrada para a saída ou da saída para a entrada. A resolução aparece **um passo por clique** (setas ou passador): substituição e contas, ou desfazer as engrenagens. **Copiar enunciado** e **Abrir na Fábrica** (a mesma conta nas engrenagens).
 
-## Plano das próximas fases
+## Minha empresa (Fase 4: O que sei agora)
 
-### Fase 4: Minha empresa e ferramentas de aula
-- **Minha empresa** (*O que sei agora*): cada grupo monta a sua fábrica com funções de custo de produção, mão de obra (com horas extras e comissão), faturamento e crescimento; compara as retas no mesmo gráfico (quando o faturamento passa o custo).
-- **Anotar na tela** (caneta, marca-texto, laser), **Copiar imagem** (para listas de exercícios), **cenários salvos** e **QR code** para a turma, trazidos do projeto de Relações Métricas.
+Aba **Minha empresa** (tecla `4`), para a proposta do *O que sei agora*: em grupos, montar uma empresa e criar as funções.
+
+- Modelos sugeridos pelo livro (**doces caseiros**, **camisetas**, **artesanato**) ou uma empresa própria, com nome e produto editáveis.
+- As funções aparecem escritas e prontas para **Abrir na Fábrica** (cada uma vira engrenagens):
+  - custo de produção *C*(*x*) = custos fixos + material·*x*;
+  - mão de obra *M*(*x*) = salário fixo + comissão·*x* (como na Atividade 8);
+  - faturamento *F*(*x*) = preço·*x*;
+  - lucro *L*(*x*) = *F* − *C* − *M*;
+  - crescimento das vendas *V*(*t*) = vendas do 1º mês + crescimento·*t*.
+- **Gráfico** de faturamento, custo total e lucro, com a região de **lucro** (verde) e de **prejuízo** (vermelha) e o **ponto de equilíbrio** marcado. Arrastar no gráfico (ou o controle deslizante) escolhe a quantidade e mostra faturamento, custo e lucro. **Ao longo dos meses** troca o eixo por *t* (perspectiva de faturamento e de crescimento). **Custos separados** mostra produção e mão de obra.
+- **Meta de lucro**: quantas unidades vender para lucrar R$ 500, resolvido desfazendo as engrenagens do lucro.
+
+## Ferramentas de aula (Fase 4)
+
+Trazidas do projeto de Relações Métricas, valem em todas as abas:
+
+- **Copiar imagem** (tecla `C`): a figura da aba como PNG, com fundo branco e cores claras, pronta para colar em listas. Com um painel ampliado na Fábrica (diagrama ou gráfico), copia o painel.
+- **Anotar** (tecla `A`): caneta (três cores), marca-texto, laser, desfazer (Ctrl+Z) e apagar; cada aba tem as suas anotações.
+- **Cenários salvos** (painel do professor): guardam a aba e tudo o que está nela, para abrir com um clique.
+- **QR code** para a turma abrir no celular, com o endereço do GitHub Pages (editável no painel).
+
+As quatro fases do plano estão concluídas.
 
 ## Como publicar (GitHub Pages, gratuito)
 
@@ -124,5 +143,10 @@ js/factory.js       a fábrica: depósitos, máquina, esteira e os passos de cad
 js/reps.js          tabela, diagrama de flechas e gráfico
 js/inspect.js       É função?: diagramas, tabelas, gráficos e reta vertical
 js/games.js         Desafios: jogos, placar e cronômetro
+js/empresa.js       Minha empresa: custos, faturamento, lucro e crescimento
+js/annotate.js      caneta, marca-texto e laser por cima da figura
+js/export.js        copiar a figura como imagem PNG
+js/share.js         link, cenários salvos e QR code
+js/vendor/qrcode.js gerador de QR code (qrcode-generator, licença MIT)
 js/app.js           cartões laterais, caixa-preta, painel do professor, atalhos
 ```
