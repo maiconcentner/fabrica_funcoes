@@ -496,5 +496,19 @@
     next() { if (FF.state.gGame === 'ex') g4Act('g4-step'); else if (FF.state.gGame === 'rev') g2Act('g2-step'); },
     prev() { if (FF.state.gGame === 'ex') g4Act('g4-back'); },
     first() {},
+    newRound() { game().make(); render(); },
+    atEnd() {
+      if (FF.state.gGame === 'ex') return !G4.ex || G4.shown >= g4Steps().length;
+      if (FF.state.gGame === 'rev') return !G2.law || G2.shown >= g2Steps().length;
+      return true;
+    },
+    hasBack() { return FF.state.gGame === 'ex' && G4.shown > 0; },
+    /* Abre um jogo num nível, com rodada nova (aulas). Em Exercícios, a situação pode vir junto. */
+    open(g, level, ctx) {
+      FF.set({ gGame: g, gLevel: level || FF.state.gLevel });
+      if (g === 'ex' && ctx) G4.ctx = ctx;
+      game().make();
+      render();
+    },
   };
 })();

@@ -894,3 +894,106 @@ canvas.annot {
 }
 .fb-group { min-width: 0; max-width: 100%; }
 @media (max-width: 1000px) { .stage-wrap, .card { max-width: 100%; } }
+
+/* ===== Aulas ===== */
+.lesson-bar {
+  position: sticky; top: 0; z-index: 15;
+  margin: 0 0 12px; padding: 8px 12px;
+  background: var(--surface); border: 2px solid var(--accent); border-radius: var(--radius);
+  box-shadow: 0 6px 18px rgba(8, 16, 24, 0.10);
+  display: flex; flex-direction: column; gap: 4px;
+}
+.lb-top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.lb-where { font-size: 0.8rem; color: var(--accent); white-space: nowrap; }
+.lb-title { font-family: var(--font-display); font-weight: 700; font-size: 1.05rem; flex: 1; min-width: 140px; }
+.lb-dots { display: flex; gap: 4px; flex-wrap: wrap; max-width: 46%; }
+.ldot { width: 13px; height: 13px; padding: 0; border-radius: 4px; border: 2px solid var(--muted); background: transparent; }
+.ldot.k-slide { border-radius: 50%; }
+.ldot.done { background: var(--muted); }
+.ldot.current { background: var(--accent); border-color: var(--accent); transform: scale(1.25); }
+.lb-btns { display: flex; align-items: center; gap: 6px; }
+.step-btn.sm { width: 38px; height: 38px; }
+.step-btn.sm svg { width: 20px; height: 20px; }
+.lb-prompt { margin: 0; font-size: 0.98rem; }
+.lb-prompt .mx-inline { vertical-align: middle; }
+@keyframes pulseNext { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 45%, transparent); } 50% { box-shadow: 0 0 0 7px transparent; } }
+#lb-next.pulse { animation: pulseNext 1.6s ease-in-out infinite; }
+
+.aula-wrap { padding: 22px 26px 26px; min-height: 480px; }
+.aula-intro h2 { font-size: 1.8rem; margin-bottom: 8px; }
+.aula-intro p { max-width: 70ch; }
+.lesson-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; margin-top: 16px; }
+.lesson-card { border: 1px solid var(--line); border-top: 5px solid var(--accent); border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px; background: var(--surface-2); }
+.lesson-card h3 { font-size: 1.1rem; }
+.lc-num { margin: 0; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+.lc-sub { margin: 0; font-size: 0.9rem; }
+.lc-meta { margin: 0; font-size: 0.78rem; color: var(--muted); flex: 1; }
+.lc-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.howto { margin: 0; padding-left: 1.3em; display: flex; flex-direction: column; gap: 6px; font-size: 0.92rem; }
+
+.slide h2 { font-size: 2rem; margin-bottom: 14px; }
+.slide .eyebrow { font-size: 0.85rem; }
+.slide-body { font-size: 1.3rem; line-height: 1.55; }
+.slide-body p { margin: 0 0 12px; max-width: 60ch; }
+.slide-body .big { font-size: 1.45rem; border-left: 5px solid var(--accent); padding-left: 14px; }
+.reveal { margin: 14px 0 0; padding-left: 1.6em; display: flex; flex-direction: column; gap: 12px; font-size: 1.35rem; line-height: 1.5; }
+.reveal li.hid { visibility: hidden; }
+.reveal li.shown { animation: fadeUp 0.45s ease-out both; }
+.reveal li.last { color: var(--ink); }
+.reveal li::marker { color: var(--accent); font-weight: 700; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.slide-more { margin: 16px 0 0; font-size: 0.85rem; color: var(--muted); }
+.lmath { display: inline-block; vertical-align: middle; }
+.tnote { margin-top: 18px; font-size: 0.9rem; color: var(--muted); }
+.tnote summary { font-size: 0.85rem; }
+.goals { margin: 8px 0; padding-left: 1.2em; font-size: 0.92rem; }
+.done-slide .goals { font-size: 1.15rem; }
+.ltable { border-collapse: collapse; margin: 6px 0 10px; font-variant-numeric: tabular-nums; }
+.ltable th, .ltable td { border: 1px solid var(--line); padding: 6px 12px; text-align: center; }
+.ltable th { background: var(--surface-2); }
+.bill { max-width: 420px; border: 2px solid var(--ink); border-radius: 10px; overflow: hidden; font-size: 1.05rem; margin-bottom: 8px; }
+.bill-h { background: var(--ink); color: var(--surface); font-weight: 700; padding: 8px 12px; display: flex; justify-content: space-between; letter-spacing: 0.04em; }
+.bill-r { display: flex; justify-content: space-between; padding: 6px 12px; border-top: 1px solid var(--line); }
+.bill-r.total { background: var(--out-fill); font-size: 1.2rem; }
+.bill-r.total b { color: var(--out); }
+.outline { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; max-height: 60vh; overflow-y: auto; }
+.ol-item button { width: 100%; text-align: left; border: 1px solid var(--line); background: var(--surface-2); border-radius: 8px; padding: 6px 10px; display: grid; grid-template-columns: auto 1fr; gap: 0 8px; align-items: baseline; }
+.ol-kind { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); grid-row: span 2; min-width: 7.5em; }
+.ol-title { font-weight: 700; font-size: 0.9rem; }
+.ol-kick { grid-column: 2; font-size: 0.75rem; color: var(--muted); }
+.ol-item.k-fab .ol-kind { color: var(--in); }
+.ol-item.k-insp .ol-kind { color: var(--ok); }
+.ol-item.k-game .ol-kind { color: var(--out); }
+.ol-item.k-emp .ol-kind { color: var(--mid); }
+.ol-item.done button { opacity: 0.6; }
+.ol-item.current button { border-color: var(--accent); outline: 2px solid var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--surface)); }
+.aula-print { display: none; }
+@media (max-width: 700px) {
+  .lb-dots { max-width: 100%; order: 3; flex-basis: 100%; }
+  .slide h2 { font-size: 1.5rem; }
+  .slide-body, .reveal { font-size: 1.1rem; }
+  .aula-wrap { padding: 14px; }
+}
+
+/* ===== Impressão: roteiro da aula e ficha da empresa ===== */
+@media print {
+  body.print-aula .app > *:not(.aula-print) { display: none !important; }
+  body.print-aula .aula-print { display: block; color: #000; font-size: 11pt; }
+  body.print-aula .aula-print h1 { font-size: 18pt; }
+  body.print-aula .aula-print h2 { font-size: 13pt; margin-top: 12pt; }
+  body.print-aula .aula-print li { margin-bottom: 6pt; }
+  body.print-aula .aula-print .pn { font-style: italic; color: #444; }
+  body.print-aula, body.print-emp { background: #fff; }
+  body.print-emp .topbar, body.print-emp .lesson-bar, body.print-emp .view:not(#view-emp),
+  body.print-emp #view-emp .side .card:not(.print-keep), body.print-emp .figbar .fb-group,
+  body.print-emp .emp-slider-row, body.print-emp .elaw .btn, body.print-emp .toast, body.print-emp .annot-bar { display: none !important; }
+  body.print-emp #view-emp { display: block !important; }
+  body.print-emp .stage { max-height: none; }
+}
+.bill-h span { margin-left: 12px; opacity: 0.8; }
+/* Com cinco abas, os botões do topo ficam só com o ícone em telas médias */
+@media (max-width: 1600px) {
+  .tools .tool:not(.tool-primary) span { display: none; }
+  .tools .tool { padding: 7px 9px; }
+}
+.lb-btns .fb span { display: inline !important; }

@@ -483,12 +483,30 @@
     },
     render() { draw(); narrate(); },
     isPlaying() { return playing; },
+    /* Para as aulas e o link: onde a produção está. */
+    status() {
+      const run = prod.run;
+      const pending = FF.inputList().filter((v) => !prod.records.some((r) => same(r.x, v)) && !prod.rejects.some((r) => r.dir === 'fwd' && same(r.v, v))).length;
+      return { run: !!run, atEnd: !run || run.i === run.stages.length - 1, i: run ? run.i : -1, dir: run ? run.dir : '', v: run ? run.v : null, pending };
+    },
+    /* Reabre um produto já num passo (link compartilhado), sem animação. */
+    restoreRun(v, dir, i) {
+      const L = FF.law();
+      if (L.kind === 'error' || (dir === 'rev' && !FF.canReverse(L))) return;
+      stopPlay(true);
+      prod.run = buildRun(v, dir);
+      const to = Math.max(0, Math.min(prod.run.stages.length - 1, i));
+      for (let k = 1; k <= to; k++) { prod.run.i = k; enterStage(prod.run.stages[k]); }
+      prod.run.i = to;
+      anim = null;
+      draw(); narrate();
+    },
     init,
   };
 
   function nextInput() {
     const list = FF.inputList();
-    const done = (v) => prod.records.some((r) => same(r.x, v));
+    const done = (v) => prod.records.some((r) => same(r.x, v)) || prod.rejects.some((r) => r.dir === 'fwd' && same(r.v, v));
     const cur = prod.run ? prod.run.v : null;
     let start = 0;
     if (cur != null && prod.run.dir === 'fwd') {

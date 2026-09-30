@@ -27,7 +27,8 @@
     </div>
 
     <nav class="tabs" role="tablist" aria-label="Módulos">
-      <button class="tab" role="tab" id="tab-fab" data-view="fab" aria-selected="true">Fábrica</button>
+      <button class="tab" role="tab" id="tab-aula" data-view="aula" aria-selected="true">Aulas</button>
+      <button class="tab" role="tab" id="tab-fab" data-view="fab" aria-selected="false">Fábrica</button>
       <button class="tab" role="tab" id="tab-insp" data-view="insp" aria-selected="false">É função?</button>
       <button class="tab" role="tab" id="tab-game" data-view="game" aria-selected="false">Desafios</button>
       <button class="tab" role="tab" id="tab-emp" data-view="emp" aria-selected="false">Minha empresa</button>
@@ -61,8 +62,32 @@
     </div>
   </header>
 
+  <!-- ============ BARRA DA AULA (aparece em qualquer aba durante uma aula) ============ -->
+  <div class="lesson-bar" id="lesson-bar" role="region" aria-label="Aula em andamento" hidden>
+    <div class="lb-top">
+      <span class="lb-where" id="lb-where"></span>
+      <span class="lb-title" id="lb-title"></span>
+      <div class="lb-dots" id="lb-dots" aria-label="Momentos da aula"></div>
+      <div class="lb-btns">
+        <button class="btn" id="lb-back" hidden title="Voltar para o momento da aula">Voltar à aula</button>
+        <button class="step-btn sm" id="lb-prev" aria-label="Voltar na aula"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <button class="step-btn step-next sm" id="lb-next" aria-label="Avançar na aula"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <button class="fb" id="lb-outline" title="Ver o roteiro da aula"><span>Roteiro</span></button>
+        <button class="icon-btn" id="lb-stop" aria-label="Sair da aula" title="Sair da aula"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+      </div>
+    </div>
+    <p class="lb-prompt" id="lb-prompt" hidden></p>
+  </div>
+
+  <!-- ============ AULAS ============ -->
+  <main class="view" id="view-aula" aria-labelledby="tab-aula" hidden>
+    <div class="col-main"><section class="stage-wrap aula-wrap" id="aula-main"></section></div>
+    <aside class="side" id="aula-side"></aside>
+  </main>
+  <div class="aula-print" id="aula-print"></div>
+
   <!-- ============ FÁBRICA ============ -->
-  <main class="view" id="view-fab" aria-labelledby="tab-fab">
+  <main class="view" id="view-fab" aria-labelledby="tab-fab" hidden>
     <div class="col-main">
       <section class="stage-wrap">
         <div class="figbar" role="toolbar" aria-label="Colocar um valor na fábrica">
@@ -372,6 +397,7 @@
               <button data-m="qtd">Por quantidade</button><button data-m="mes">Ao longo dos meses</button>
             </div>
             <button class="fb" id="emp-parts" aria-pressed="false" title="Mostrar separados o custo de produção e a mão de obra"><span>Custos separados</span></button>
+            <button class="fb" id="emp-print" title="Imprimir a ficha da empresa: gráfico, funções e resultados"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 9V3h10v6M7 17H4v-7h16v7h-3M7 14h10v7H7Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><span>Imprimir a ficha</span></button>
           </div>
         </div>
         <svg class="stage" id="emp-svg" viewBox="0 0 1000 470" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Faturamento, custo total e lucro da empresa"></svg>
@@ -387,11 +413,11 @@
       </section>
     </div>
     <aside class="side">
-      <div class="card">
+      <div class="card print-keep">
         <h2>Ponto de equilíbrio</h2>
         <div id="emp-eq"></div>
       </div>
-      <div class="card">
+      <div class="card print-keep">
         <h2>Meta de lucro</h2>
         <div class="law-row"><label class="law-prefix" for="emp-meta">Lucro de R$</label><input type="text" id="emp-meta" inputmode="decimal"><span></span></div>
         <div id="emp-meta-res"></div>
@@ -436,7 +462,7 @@
         <h3>Apresentação</h3>
         <div class="field-inline">
           <span class="flabel">Tema</span>
-          <div class="seg seg-sm" id="seg-theme"><button data-v="auto">Auto</button><button data-v="light">Claro</button><button data-v="dark">Escuro</button></div>
+          <div class="seg seg-sm" id="seg-theme"><button data-v="light">Claro</button><button data-v="dark">Escuro</button><button data-v="auto">Auto</button></div>
         </div>
         <div class="field">
           <label for="rg-font">Tamanho do texto</label>
@@ -487,7 +513,9 @@
           <dt><kbd>B</kbd></dt><dd>caixa-preta</dd>
           <dt><kbd>O</kbd></dt><dd>prever a saída</dd>
           <dt><kbd>T</kbd> <kbd>D</kbd> <kbd>G</kbd></dt><dd>tabela, diagrama, gráfico</dd>
-          <dt><kbd>1</kbd> … <kbd>4</kbd></dt><dd>Fábrica / É função? / Desafios / Minha empresa</dd>
+          <dt><kbd>1</kbd> … <kbd>5</kbd></dt><dd>Aulas / Fábrica / É função? / Desafios / Minha empresa</dd>
+          <dt><kbd>R</kbd></dt><dd>rever o movimento</dd>
+          <dt><kbd>N</kbd></dt><dd>nova rodada (Desafios) ou caso sorteado (É função?)</dd>
           <dt><kbd>C</kbd></dt><dd>copiar a figura como imagem</dd>
           <dt><kbd>A</kbd></dt><dd>anotar na tela</dd>
           <dt><kbd>F</kbd></dt><dd>tela cheia</dd>
@@ -561,6 +589,7 @@
 <script src="js/annotate.js"></script>
 <script src="js/share.js"></script>
 <script src="js/export.js"></script>
+<script src="js/lessons.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

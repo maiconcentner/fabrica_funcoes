@@ -2,12 +2,38 @@
 
 Material interativo para ensinar **funções** (Capítulo 8, "Uma variável pode mudar tudo", 9º ano) com uma metáfora de fábrica: **entra um produto** (o valor de *x*), **a máquina processa** (a lei de formação) e **sai o produto transformado** (a imagem *f*(*x*)). Feito para projetar em sala e para os alunos abrirem no celular.
 
-Segue os mesmos princípios do projeto *Relações Métricas Dinâmicas*:
+Segue os mesmos princípios dos projetos *Relações Métricas Dinâmicas* e *Geometria Espacial*:
 
-- **Nada começa sozinho**: cada movimento espera o clique em avançar (setas, espaço ou passador de slides). Voltar desfaz com animação.
+- **Nada começa sozinho**: cada movimento espera o clique em avançar (setas, espaço ou passador de slides). Voltar desfaz com animação; **Rever movimento** (tecla `R`) refaz o passo atual.
+- Tema claro por padrão (escuro ou automático no painel do professor).
 - **Um movimento por clique**: o produto passa por uma engrenagem de cada vez.
 - A mesma ideia em várias representações ao mesmo tempo, sempre sincronizadas.
 - HTML, CSS e JavaScript puros, sem etapa de build; funciona sem internet.
+
+## Aulas (o capítulo em sequência)
+
+A aba **Aulas** (primeira aba, tecla `1`) traz o capítulo 8 dividido em **sete aulas prontas**, na ordem do livro. Cada aula é uma lista de **momentos**:
+
+- **Telas** de conversa e explicação (Trocando ideias, Organizando as ideias, enunciados das atividades): as perguntas, as respostas e as contas aparecem **um item por clique**, com as leis desenhadas (frações, potências). Cada tela pode ter uma nota **Para o professor**.
+- **Ferramentas já configuradas no momento certo**: a Fábrica com a situação, a lei, os conjuntos e o produto na esteira (por exemplo, 236 kWh na conta de luz, ou 135,06 ao contrário); o inspetor no caso do livro (Diagrama 3, a tabela de notas, o coração); um desafio no nível certo; a empresa de doces.
+
+O **passador de slides conduz a aula inteira**: primeiro avança dentro da ferramenta (engrenagem por engrenagem, elemento por elemento) e, quando ela termina, passa para o próximo momento. Voltar faz o caminho inverso, e um momento já feito volta como terminou.
+
+- A **barra da aula** fica visível em qualquer aba: aula e momento, o que fazer agora, bolinhas para pular para qualquer momento, **Roteiro** e **Sair**. Se o professor abrir outra aba no meio da aula, o passador passa a comandar aquela aba e **Voltar à aula** retoma de onde parou.
+- **Imprimir roteiro**: objetivos, momentos, perguntas, respostas e notas da aula, para o professor.
+- A aula em andamento fica salva no navegador e vai no link compartilhável.
+
+| Aula | Conteúdo | Livro |
+|---|---|---|
+| 1. Uma variável pode mudar tudo | Trocando ideias; Atividade 1 (conta de luz: lei, 236 kWh, R$ 135,06, tabela, média) | p. 226 a 228 |
+| 2. Função: entra x, sai y | definição e *f*: A → B; *y* = *x* − 2; Atividade 2 (água por faixas); Atividade 3 (*d* = 80*t*) | p. 229 a 234 |
+| 3. Funções no dia a dia | Atividades 4 a 8 (jardim, telefone, técnico, aplicativo, salário); Adivinhe a regra | p. 234 a 239 |
+| 4. Lei de formação, domínio e imagem | Atividade 9 (com a copiadora); D, CD e Im; Atividades 10, 11 e 12 | p. 240 a 243 |
+| 5. Domínio não dado e É função? | 1/*x* e o refugo; Atividade 13; Atividades 14 e 15 no inspetor; Atividade 16 | p. 243 a 246 |
+| 6. Gráfico de uma função | pontos que viram gráfico; teste da reta vertical (reta, parábola, circunferência, coração…); Corrida das engrenagens | p. 246 a 248 |
+| 7. O que sei agora: minha empresa | a empresa de doces; perguntas para os grupos; exercícios de revisão; fechamento | p. 248 |
+
+As outras abas continuam livres para usar sozinhas, sem aula.
 
 ## O que já existe (Fase 1: a Fábrica)
 
@@ -69,6 +95,10 @@ Casas decimais, tema claro/escuro, tamanho do texto, velocidade da animação e 
 | `→` `Espaço` `PageDown` | próximo passo (funciona com passador de slides) |
 | `←` `PageUp` | passo anterior |
 | `Home` | volta ao começo do produto |
+| `R` | rever o movimento do passo atual |
+| `N` | nova rodada (Desafios) ou caso sorteado (É função?) |
+| `1` … `5` | Aulas / Fábrica / É função? / Desafios / Minha empresa |
+| `C` / `A` | copiar a figura como imagem / anotar na tela |
 | `V` | digitar um valor (`Enter` entra, `Shift+Enter` ao contrário) |
 | `B` | caixa-preta |
 | `O` | prever a saída |
@@ -78,7 +108,7 @@ Casas decimais, tema claro/escuro, tamanho do texto, velocidade da animação e 
 
 ## É função? (Fase 2: o inspetor de qualidade)
 
-Aba **É função?** (tecla `2`; a Fábrica é a tecla `1`). Cada caso chega ao **posto de inspeção** e é conferido **um passo por clique**:
+Aba **É função?** (tecla `3`). Cada caso chega ao **posto de inspeção** e é conferido **um passo por clique**:
 
 - **Diagramas**: *y* = *x* − 2 do *Organizando as ideias*, os quatro diagramas da **Atividade 15** e um elemento sem flecha. A lupa passa por cada elemento de A; as flechas dele acendem (verdes se é uma só, vermelhas se são duas ou nenhuma) e o posto anota `6 → 2 e 1 ✗ duas saídas`. No fim, o carimbo **APROVADO: é função** ou **REPROVADO: não é função** e, para funções, **D**, **CD** e **Im** (com os elementos de B que sobram: Im ⊂ CD).
 - **Tabelas**: as notas da **Atividade 14** (Rafael e José com a mesma nota: pode!), a mesma tabela **ao contrário** (8,5 → Rafael e José: não pode), o avião (Atividade 10), *f*(*x*) = *x*² + 2*x* (Atividade 11), um aluno com dois esportes e uma linha repetida. **Trocar colunas** inverte qualquer tabela.
@@ -89,7 +119,7 @@ Aba **É função?** (tecla `2`; a Fábrica é a tecla `1`). Cada caso chega ao 
 
 ## Desafios (Fase 3: jogos para a turma)
 
-Aba **Desafios** (tecla `3`). Três níveis de leis sorteadas (nível 1: *x* + *a*, *ax*…; nível 2: *ax* + *b*, *a*(*x* + *b*)…; nível 3: *x*² + *b*, *ax*², (*x* + *a*)², *x*³ + *b*), **placar por equipes** (2 a 4 equipes, nomes editáveis, ± pontos à mão, ★ para quem lidera) e **cronômetro** (30 s a 3 min, com aviso sonoro no fim).
+Aba **Desafios** (tecla `4`). Três níveis de leis sorteadas (nível 1: *x* + *a*, *ax*…; nível 2: *ax* + *b*, *a*(*x* + *b*)…; nível 3: *x*² + *b*, *ax*², (*x* + *a*)², *x*³ + *b*), **placar por equipes** (2 a 4 equipes, nomes editáveis, ± pontos à mão, ★ para quem lidera) e **cronômetro** (30 s a 3 min, com aviso sonoro no fim).
 
 - **Adivinhe a regra**: a máquina esconde a lei. Na sua vez, a equipe pede **uma** pista (um valor de *x*; a pista vai para a tabela) e pode dar um palpite. Acertou: leva 5 pontos com uma pista, 4 com duas… (mínimo 1); leis equivalentes escritas de outro jeito também valem. Errou: o sistema mostra qual pista o palpite não explica e a vez passa.
 - **Que produto entrou?**: lei e saída à vista, as equipes descobrem a entrada. O professor digita a resposta e toca na equipe que respondeu (2 pontos). **Mostrar a resolução** desfaz as engrenagens de trás para frente, um passo por clique (no *x*², mostra que ± servem).
@@ -98,7 +128,7 @@ Aba **Desafios** (tecla `3`). Três níveis de leis sorteadas (nível 1: *x* + *
 
 ## Minha empresa (Fase 4: O que sei agora)
 
-Aba **Minha empresa** (tecla `4`), para a proposta do *O que sei agora*: em grupos, montar uma empresa e criar as funções.
+Aba **Minha empresa** (tecla `5`), para a proposta do *O que sei agora*: em grupos, montar uma empresa e criar as funções.
 
 - Modelos sugeridos pelo livro (**doces caseiros**, **camisetas**, **artesanato**) ou uma empresa própria, com nome e produto editáveis.
 - As funções aparecem escritas e prontas para **Abrir na Fábrica** (cada uma vira engrenagens):
@@ -109,6 +139,7 @@ Aba **Minha empresa** (tecla `4`), para a proposta do *O que sei agora*: em grup
   - crescimento das vendas *V*(*t*) = vendas do 1º mês + crescimento·*t*.
 - **Gráfico** de faturamento, custo total e lucro, com a região de **lucro** (verde) e de **prejuízo** (vermelha) e o **ponto de equilíbrio** marcado. Arrastar no gráfico (ou o controle deslizante) escolhe a quantidade e mostra faturamento, custo e lucro. **Ao longo dos meses** troca o eixo por *t* (perspectiva de faturamento e de crescimento). **Custos separados** mostra produção e mão de obra.
 - **Meta de lucro**: quantas unidades vender para lucrar R$ 500, resolvido desfazendo as engrenagens do lucro.
+- **Imprimir a ficha**: gráfico, resultados, funções, ponto de equilíbrio e meta, sem os botões.
 
 ## Ferramentas de aula (Fase 4)
 
@@ -117,6 +148,7 @@ Trazidas do projeto de Relações Métricas, valem em todas as abas:
 - **Copiar imagem** (tecla `C`): a figura da aba como PNG, com fundo branco e cores claras, pronta para colar em listas. Com um painel ampliado na Fábrica (diagrama ou gráfico), copia o painel.
 - **Anotar** (tecla `A`): caneta (três cores), marca-texto, laser, desfazer (Ctrl+Z) e apagar; cada aba tem as suas anotações.
 - **Cenários salvos** (painel do professor): guardam a aba e tudo o que está nela, para abrir com um clique.
+- O **link compartilhável** leva também o passo: o produto que está na esteira (e em que engrenagem) ou o passo da inspeção.
 - **QR code** para a turma abrir no celular, com o endereço do GitHub Pages (editável no painel).
 
 As quatro fases do plano estão concluídas.
@@ -148,5 +180,6 @@ js/annotate.js      caneta, marca-texto e laser por cima da figura
 js/export.js        copiar a figura como imagem PNG
 js/share.js         link, cenários salvos e QR code
 js/vendor/qrcode.js gerador de QR code (qrcode-generator, licença MIT)
+js/lessons.js       Aulas: o roteiro das sete aulas e o controle do passador
 js/app.js           cartões laterais, caixa-preta, painel do professor, atalhos
 ```

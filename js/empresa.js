@@ -214,6 +214,12 @@
     });
     document.querySelectorAll('#emp-mode button').forEach((b) => b.addEventListener('click', () => save({ mode: b.dataset.m })));
     $('emp-parts').addEventListener('click', () => save({ parts: !data().parts }));
+    $('emp-print').addEventListener('click', () => {
+      document.body.classList.add('print-emp');
+      const done = () => { document.body.classList.remove('print-emp'); window.removeEventListener('afterprint', done); };
+      window.addEventListener('afterprint', done);
+      window.print();
+    });
     $('emp-laws').addEventListener('click', (e) => { const b = e.target.closest('[data-fab]'); if (b) openInFactory(b.dataset.fab); });
     // Arrastar no gráfico escolhe a quantidade (ou o mês)
     const svg = $('emp-svg');
@@ -232,5 +238,10 @@
     svg.addEventListener('pointerup', () => { drag = false; });
   }
 
-  FF.emp = { init: bind, render, next() {}, prev() {}, first() {} };
+  FF.emp = {
+    init: bind, render, next() {}, prev() {}, first() {},
+    atEnd() { return true; },
+    /* Abre um modelo pronto (aulas). */
+    open(model) { const m = MODELS[model] || MODELS.doces; FF.set({ emp: JSON.stringify(Object.assign({}, m, { model, q: m.v0, t: 0, mode: 'qtd', meta: 500 })) }); render(); },
+  };
 })();

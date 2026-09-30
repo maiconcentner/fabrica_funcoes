@@ -229,6 +229,8 @@
   function syncUI() {
     const S = FF.state;
     const L = FF.law();
+    $('view-aula').hidden = S.view !== 'aula';
+    $('tab-aula').setAttribute('aria-selected', S.view === 'aula');
     $('view-fab').hidden = S.view !== 'fab';
     $('view-insp').hidden = S.view !== 'insp';
     $('view-game').hidden = S.view !== 'game';
@@ -329,14 +331,16 @@
       FF.reps.unmax();
       return;
     }
-    const mod = S.view === 'insp' ? FF.insp : S.view === 'game' ? FF.games : S.view === 'emp' ? FF.emp : FF.fab;
+    const MODS = { fab: FF.fab, insp: FF.insp, game: FF.games, emp: FF.emp, aula: FF.aula };
+    // Durante uma aula, na aba do momento, o passador comanda a aula (que comanda a ferramenta)
+    const mod = FF.aula.active() && FF.aula.inControl() ? FF.aula : MODS[S.view];
     if (key === 'ArrowRight' || key === 'PageDown' || (key === ' ' && tag !== 'button')) { e.preventDefault(); mod.next(); return; }
     if (key === 'ArrowLeft' || key === 'PageUp') { e.preventDefault(); mod.prev(); return; }
-    if (key === 'Home') { e.preventDefault(); mod.first(); return; }
-    if (key === '1') { FF.set({ view: 'fab' }); return; }
-    if (key === '2') { FF.set({ view: 'insp' }); return; }
-    if (key === '3') { FF.set({ view: 'game' }); return; }
-    if (key === '4') { FF.set({ view: 'emp' }); return; }
+    if (key === 'Home') { e.preventDefault(); (MODS[S.view].first || (() => {}))(); return; }
+    const TABS = ['aula', 'fab', 'insp', 'game', 'emp'];
+    if (/^[1-5]$/.test(key)) { FF.set({ view: TABS[Number(key) - 1] }); return; }
+    if (key.toLowerCase() === 'r') { const m = MODS[S.view]; if (m && m.replay) m.replay(); return; }
+    if (key.toLowerCase() === 'n') { const m = MODS[S.view]; if (m && m.newRound) m.newRound(); return; }
     if (key.toLowerCase() === 'c') { FF.exportFig.copyFigure(); return; }
     if (key.toLowerCase() === 'a') { FF.annot.toggle(); return; }
     if (S.view !== 'fab' && !['f', 'p'].includes(key.toLowerCase())) return;
@@ -357,7 +361,12 @@
   function init() {
     FF.loadSaved();
     const fromHash = FF.decodeHash(location.hash);
-    if (fromHash) Object.assign(FF.state, fromHash);
+    let linkRun = null, linkStep = null;
+    if (fromHash) {
+      linkRun = fromHash._run || null; linkStep = fromHash._istep;
+      delete fromHash._run; delete fromHash._istep;
+      Object.assign(FF.state, fromHash);
+    }
     FF.set({}, { force: true });
 
     $('sel-ctx').innerHTML = FF.CONTEXTS.map((c) => '<option value="' + c.id + '">' + (c.icon ? c.icon + ' ' : '') + esc(c.name) + (c.book ? ' · ' + esc(c.book) : '') + '</option>').join('');
@@ -393,7 +402,7 @@
     document.addEventListener('keydown', onKey);
     window.addEventListener('hashchange', () => {
       const h = FF.decodeHash(location.hash);
-      if (h) FF.set(h);
+      if (h) { delete h._run; delete h._istep; FF.set(h); }
     });
 
     FF.on(syncUI);
@@ -426,6 +435,13 @@
     FF.insp.init();
     FF.games.init();
     FF.emp.init();
+    FF.aula.init();
+    // Link com o passo: produto na esteira ou passo do inspetor
+    if (linkRun && FF.state.view === 'fab') {
+      const m = linkRun.match(/^([fr])(-?[\d.]+):(\d+)$/);
+      if (m) FF.fab.restoreRun(Number(m[2]), m[1] === 'r' ? 'rev' : 'fwd', Number(m[3]));
+    }
+    if (linkStep != null && FF.state.view === 'insp') FF.insp.goStep(linkStep);
     FF.annot.init();
     FF.share.init();
     FF.exportFig.init();

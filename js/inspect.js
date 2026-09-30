@@ -683,7 +683,7 @@
 
   FF.insp = {
     init() { bind(); syncBar(); resetCase(); },
-    render() { syncBar(); draw(); narrate(); },
+    render() { step = Math.min(step, stages().length - 1); syncBar(); draw(); narrate(); },
     next() {
       const st = stages();
       if (step < st.length - 1) go(step + 1);
@@ -691,5 +691,19 @@
     },
     prev() { if (step > 0) go(step - 1); },
     first() { go(0); },
+    replay() { const s = step; if (s > 0) { go(s - 1); go(s); } },
+    newRound() { if (FF.state.iMode !== 'graf') $('insp-random').click(); },
+    atEnd() { return step === stages().length - 1; },
+    hasBack() { return step > 0; },
+    step() { return step; },
+    goStep(i) { go(i); },
+    /* Abre um caso pelo título (usado pelas aulas). */
+    open(mode, title) {
+      editing = false;
+      FF.set({ iMode: mode });
+      const i = Math.max(0, cases().findIndex((c) => c.title === title));
+      FF.set({ iCase: i });
+      resetCase();
+    },
   };
 })();
