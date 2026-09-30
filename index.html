@@ -51,6 +51,10 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14.5 4.5 5 5L9 20H4v-5L14.5 4.5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="m12.5 6.5 5 5" stroke="currentColor" stroke-width="1.8"/></svg>
         <span>Anotar</span>
       </button>
+      <button class="tool" id="btn-proj" title="Modo projetor: figura grande, narração em legenda e cores mais fortes (tecla M)" aria-pressed="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="8" width="19" height="9" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="16" cy="12.5" r="2.3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M6 12.5h4M7 17v2.5M17 17v2.5M9 8l2-3h2l2 3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Projetor</span>
+      </button>
       <button class="tool" id="btn-full" title="Tela cheia (tecla F)">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
         <span>Tela cheia</span>
@@ -441,6 +445,17 @@
     </aside>
   </main>
 
+  <!-- ============ MODO PROJETOR: gaveta lateral e cortina ============ -->
+  <button class="drawer-tab" id="btn-drawer" title="Mostrar os controles da lateral: situação, lei, votação, roteiro (tecla L)" aria-expanded="false" hidden>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span>Controles</span>
+  </button>
+  <div class="scrim" id="drawer-scrim" hidden></div>
+  <div class="curtain" id="curtain" role="button" tabindex="-1" aria-label="Tela pausada: toque ou aperte uma tecla para voltar" hidden>
+    <svg viewBox="0 0 40 32" aria-hidden="true"><path d="M3 29V13l8 5v-5l8 5v-5l8 5V5h6v24Z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><circle cx="16" cy="23" r="3" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M24 23h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    <small>tecla <kbd>.</kbd>, clique ou passador para voltar</small>
+  </div>
+
   <!-- ============ PAINEL DO PROFESSOR ============ -->
   <div class="scrim" id="scrim" hidden></div>
   <aside class="panel" id="panel" aria-label="Painel do professor" hidden>
@@ -460,6 +475,11 @@
       </section>
       <section class="pgroup">
         <h3>Apresentação</h3>
+        <div class="field-inline">
+          <span class="flabel">Modo projetor</span>
+          <div class="seg seg-sm" id="seg-proj"><button data-v="0">Desligado</button><button data-v="1">Ligado</button></div>
+        </div>
+        <p class="note">Para a sala de aula: figura na largura toda, narração em legenda grande logo abaixo, cores e traços mais fortes. Os controles da lateral ficam numa gaveta (tecla <kbd>L</kbd>).</p>
         <div class="field-inline">
           <span class="flabel">Tema</span>
           <div class="seg seg-sm" id="seg-theme"><button data-v="light">Claro</button><button data-v="dark">Escuro</button><button data-v="auto">Auto</button></div>
@@ -519,6 +539,9 @@
           <dt><kbd>C</kbd></dt><dd>copiar a figura como imagem</dd>
           <dt><kbd>A</kbd></dt><dd>anotar na tela</dd>
           <dt><kbd>F</kbd></dt><dd>tela cheia</dd>
+          <dt><kbd>M</kbd></dt><dd>modo projetor</dd>
+          <dt><kbd>L</kbd></dt><dd>gaveta com os controles (no modo projetor)</dd>
+          <dt><kbd>.</kbd></dt><dd>cortina: apaga a tela para a turma olhar para você</dd>
           <dt><kbd>P</kbd></dt><dd>painel do professor</dd>
         </dl>
       </section>

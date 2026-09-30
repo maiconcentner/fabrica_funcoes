@@ -370,6 +370,9 @@
         (steps.length ? '<ol class="reveal">' + steps.map((s, k) => '<li class="' + (k < FF.state.ls ? 'shown' : 'hid') + (k === FF.state.ls - 1 ? ' last' : '') + '">' + rich(s, 30) + '</li>').join('') + '</ol>' : '') +
         (steps.length && FF.state.ls < steps.length ? '<p class="slide-more">Avance para revelar (' + FF.state.ls + '/' + steps.length + ')</p>' : '') +
         (mo.note ? '<details class="tnote"><summary>Para o professor</summary><p>' + esc(mo.note) + '</p></details>' : '') + '</div>';
+      // o item que acabou de aparecer nunca fica abaixo da tela (projetor com pouca altura)
+      const last = main.querySelector('.reveal li.last');
+      if (last) last.scrollIntoView({ block: 'nearest' });
     } else {
       main.innerHTML = '<div class="slide"><p class="eyebrow">' + KIND_NAME[mo.kind] + '</p><h2>' + esc(mo.title) + '</h2><p>' + rich(mo.prompt || '', 24) + '</p><button class="btn" data-back="1">Abrir este momento</button></div>';
     }
@@ -391,6 +394,7 @@
     const l = LS.find((x) => x.id === id);
     $('aula-side').innerHTML = '<div class="card"><p class="eyebrow">Roteiro · ' + esc(l.book) + '</p><h2>' + esc(l.title) + '</h2><ul class="goals">' + l.goals.map((g) => '<li>' + esc(g) + '</li>').join('') + '</ul>' + outline(l, false) +
       '<div class="lc-actions"><button class="btn" data-start="' + l.id + '">Começar</button><button class="btn btn-ghost" data-print-id="' + l.id + '">Imprimir roteiro</button></div></div>';
+    if (FF.ui) FF.ui.openDrawer(true);
   }
   function doPrint() {
     document.body.classList.add('print-aula');
@@ -421,7 +425,8 @@
     $('lb-prev').addEventListener('click', prev);
     // Voltar à aula: só troca para a aba do momento, sem mexer no que está nela
     $('lb-back').addEventListener('click', () => { const mo = moment(); FF.set({ view: mo ? TOOL_VIEW[mo.kind] : 'aula' }); renderBar(); });
-    $('lb-outline').addEventListener('click', () => FF.set({ view: 'aula' }));
+    // No modo projetor o roteiro fica na gaveta: abre a gaveta junto
+    $('lb-outline').addEventListener('click', () => { FF.set({ view: 'aula' }); if (FF.ui) FF.ui.openDrawer(true); });
     $('lb-stop').addEventListener('click', stop);
     FF.on((changed) => { if (changed.includes('view') || changed.includes('lesson')) render(); });
   }

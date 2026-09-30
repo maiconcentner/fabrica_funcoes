@@ -267,6 +267,7 @@
     if (S.theme === 'auto') document.documentElement.removeAttribute('data-theme');
     else document.documentElement.setAttribute('data-theme', S.theme);
     $('share-url').value = shareUrl();
+    syncProj();
   }
   function segSync(id, val) {
     Array.from($(id).querySelectorAll('button')).forEach((b) => b.setAttribute('aria-pressed', b.dataset.v === val));
@@ -280,6 +281,68 @@
   function shareUrl() {
     if (FF.share) return FF.share.url();
     return location.href.split('#')[0] + '#' + FF.encodeHash();
+  }
+
+  /* ---------- Modo projetor ----------
+     A narração sai da lateral e vira legenda embaixo da figura; o resto da lateral
+     vira uma gaveta. Desafios e Minha empresa mantêm a lateral (placar, cronômetro,
+     ponto de equilíbrio), só com letras e cores mais fortes. */
+  const DRAWER_VIEWS = ['aula', 'fab', 'insp'];
+  let projWas = null;
+  function syncProj() {
+    const S = FF.state;
+    const root = document.documentElement;
+    root.classList.toggle('proj', S.proj);
+    $('btn-proj').setAttribute('aria-pressed', S.proj);
+    segSync('seg-proj', S.proj ? '1' : '0');
+    const drawer = S.proj && DRAWER_VIEWS.includes(S.view);
+    root.classList.toggle('proj-drawer', drawer);
+    $('btn-drawer').hidden = !drawer;
+    if (!drawer) openDrawer(false);
+    if (projWas === S.proj) return;
+    projWas = S.proj;
+    // legenda: o cartão de narração muda de lugar (os ids continuam os mesmos)
+    ['view-fab', 'view-insp'].forEach((vid) => {
+      const view = $(vid);
+      const card = view.querySelector('.step-card');
+      const stepper = view.querySelector('.stepper');
+      const side = view.querySelector('.side');
+      if (S.proj) { card.classList.add('caption'); stepper.insertBefore(card, stepper.children[1]); }
+      else { card.classList.remove('caption'); side.insertBefore(card, side.firstChild); }
+    });
+    // figuras e anotações se ajustam ao novo tamanho
+    window.dispatchEvent(new Event('resize'));
+    idleCursor();
+  }
+  function openDrawer(open) {
+    const root = document.documentElement;
+    if (open === undefined) open = !root.classList.contains('drawer-open');
+    if (open && !root.classList.contains('proj-drawer')) open = false;
+    root.classList.toggle('drawer-open', open);
+    $('drawer-scrim').hidden = !open;
+    $('btn-drawer').setAttribute('aria-expanded', open);
+  }
+  function curtain(on) {
+    const c = $('curtain');
+    if (on === undefined) on = c.hidden;
+    c.hidden = !on;
+    if (on) c.focus();
+  }
+  // No projetor, a setinha do mouse some quando fica parada
+  let idleT = 0;
+  function idleCursor() {
+    document.documentElement.classList.remove('idle');
+    clearTimeout(idleT);
+    if (FF.state.proj) idleT = setTimeout(() => document.documentElement.classList.add('idle'), 2500);
+  }
+  FF.ui = { openDrawer };
+  function bindProj() {
+    $('btn-proj').addEventListener('click', () => FF.set({ proj: !FF.state.proj }));
+    segBind('seg-proj', (v) => FF.set({ proj: v === '1' }));
+    $('btn-drawer').addEventListener('click', () => openDrawer());
+    $('drawer-scrim').addEventListener('click', () => openDrawer(false));
+    $('curtain').addEventListener('click', () => curtain(false));
+    ['mousemove', 'pointerdown'].forEach((ev) => document.addEventListener(ev, idleCursor, { passive: true }));
   }
 
   /* ---------- Painel ---------- */
@@ -326,8 +389,12 @@
     if (tag === 'input' || tag === 'textarea' || tag === 'select' || e.ctrlKey || e.metaKey || e.altKey) return;
     const key = e.key;
     const S = FF.state;
+    // Cortina: qualquer tecla (ou o passador) só tira a cortina
+    if (!$('curtain').hidden) { e.preventDefault(); curtain(false); return; }
+    if (key === '.') { curtain(true); return; }
     if (key === 'Escape') {
       if (!$('panel').hidden) { openPanel(false); return; }
+      if (document.documentElement.classList.contains('drawer-open')) { openDrawer(false); return; }
       FF.reps.unmax();
       return;
     }
@@ -343,6 +410,8 @@
     if (key.toLowerCase() === 'n') { const m = MODS[S.view]; if (m && m.newRound) m.newRound(); return; }
     if (key.toLowerCase() === 'c') { FF.exportFig.copyFigure(); return; }
     if (key.toLowerCase() === 'a') { FF.annot.toggle(); return; }
+    if (key.toLowerCase() === 'm') { FF.set({ proj: !S.proj }); return; }
+    if (key.toLowerCase() === 'l') { openDrawer(); return; }
     if (S.view !== 'fab' && !['f', 'p'].includes(key.toLowerCase())) return;
     switch (key.toLowerCase()) {
       case 'b': FF.set({ black: !S.black }); break;
@@ -399,12 +468,14 @@
     bindGearEditor();
     bindSetsCard();
     bindPanel();
+    bindProj();
     document.addEventListener('keydown', onKey);
     window.addEventListener('hashchange', () => {
       const h = FF.decodeHash(location.hash);
       if (h) { delete h._run; delete h._istep; FF.set(h); }
     });
 
+    FF.on((changed) => { if (changed.some((k) => ['view', 'lesson', 'lm'].includes(k))) openDrawer(false); });
     FF.on(syncUI);
     FF.on((changed) => {
       if (changed.some((k) => ['law', 'ctx', 'dom', 'cd'].includes(k))) {

@@ -997,3 +997,197 @@ canvas.annot {
   .tools .tool { padding: 7px 9px; }
 }
 .lb-btns .fb span { display: inline !important; }
+
+/* ===== Modo projetor (tecla M) =====
+   Tudo cabe numa tela só, sem rolar: a figura ocupa o espaço que sobra, a narração
+   vira legenda junto dos botões de passo e a lateral vira gaveta (tecla L).
+   Cores e traços mais fortes, porque o projetor desbota o que é claro. */
+html.proj[data-theme="light"] {
+  --bg: #e6ebf0;
+  --muted: #3b4854;
+  --line: #afbcc8;
+  --grid: #d0d9e1;
+  --in-fill: #d5e6fa;
+  --mid-fill: #e5d9fa;
+  --out-fill: #fde0c3;
+  --bad-fill: #f9d4d3;
+  --metal: #b7c3ce;
+  --metal-2: #8797a6;
+  --roof: #718090;
+  --window: #e1e8ee;
+  --floor: #cfd8e0;
+  --roller: #7f8e9b;
+}
+html.proj[data-theme="dark"] {
+  --muted: #b4c4d2;
+  --line: #3d5263;
+  --grid: #2a3d4d;
+}
+html.proj .app { height: 100vh; height: 100dvh; padding-block: 0 10px; }
+html.proj .view { min-height: 0; overflow-y: auto; }
+html.proj .topbar { padding-block: 6px; gap: 6px 14px; }
+html.proj .brand-sub { display: none; }
+html.proj .brand h1 { font-size: 1.02rem; }
+html.proj .tab { padding: 6px 14px; }
+html.proj .tools .tool:not(.tool-primary) span { display: none; }
+html.proj .tools .tool { padding: 6px 8px; }
+@media (max-width: 1300px) { html.proj .brand h1 { display: none; } }
+@media (max-width: 1180px) {
+  html.proj .tools .tool-primary span { display: none; }
+  html.proj .tab { padding: 6px 11px; }
+  html.proj .tools { gap: 6px; }
+}
+
+/* barra da aula: título e pedido maiores, sem ficar grudada no topo */
+html.proj .lesson-bar { position: static; margin-bottom: 8px; padding: 6px 12px 8px; }
+html.proj .lb-title { font-size: 1.3rem; }
+html.proj .lb-where { font-size: 0.9rem; }
+html.proj .lb-prompt { font-size: 1.15rem; line-height: 1.35; font-weight: 700; }
+html.proj .ldot { width: 15px; height: 15px; }
+
+/* Fábrica e É função?: figura + legenda ocupam a altura toda */
+html.proj-drawer .view { display: flex; flex-direction: column; align-items: stretch; overflow: hidden; }
+html.proj-drawer .view > .col-main { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); gap: 12px; }
+html.proj-drawer #view-fab > .col-main { grid-template-columns: minmax(0, 1fr) clamp(230px, 25vw, 420px); }
+html.proj-drawer #view-fab > .col-main:has(#reps[hidden]) { grid-template-columns: minmax(0, 1fr); }
+html.proj-drawer #view-fab .stage-wrap,
+html.proj-drawer #view-insp .stage-wrap {
+  display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto;
+  min-height: 0;
+}
+html.proj-drawer #view-fab .layerbar { justify-content: flex-end; }
+html.proj-drawer #view-fab .stage-wrap > .stage,
+html.proj-drawer #view-insp .stage-wrap > .stage,
+html.proj-drawer .stage-wrap > .stepper,
+html.proj-drawer #view-insp .figbar { grid-column: 1 / -1; }
+html.proj-drawer #view-fab .stage,
+html.proj-drawer #view-insp .stage { width: 100%; height: 100%; max-height: none; min-height: 0; }
+html.proj-drawer #view-fab .figbar { border-bottom: 1px solid var(--line); }
+html.proj-drawer #view-fab .layerbar { border-bottom: 1px solid var(--line); padding-block: 8px; }
+html.proj-drawer #view-fab .layerbar .fb-label,
+html.proj-drawer #view-fab .figbar .fb-label,
+html.proj-drawer #view-fab .figbar .fb:not(.fb-go) span,
+html.proj-drawer #view-insp .figbar .fb span { display: none; }
+html.proj .chip { font-size: 0.86rem; padding: 4px 12px; }
+
+/* representações empilhadas numa coluna à direita da fábrica */
+html.proj-drawer #view-fab .reps { display: flex; flex-direction: column; gap: 10px; overflow-y: auto; min-height: 0; }
+html.proj-drawer #view-fab .rep { flex: none; }
+html.proj .rep-head h2 { font-size: 1.05rem; }
+html.proj .ftable td, html.proj .ftable thead th { font-size: 1.3rem; }
+html.proj .ftable td.calc { font-size: 1.1rem; color: var(--ink); }
+html.proj .ftable td.empty { font-size: 0.95rem; }
+
+/* legenda: o cartão de narração dentro da barra de passos */
+html.proj .stepper {
+  display: grid; align-items: center; gap: 2px 14px; padding: 8px 12px;
+  grid-template-columns: auto minmax(0, 1fr) auto auto auto;
+  grid-template-areas: "prev cap replay play next" "prev dots replay play next";
+}
+html.proj .stepper > .step-btn:first-child { grid-area: prev; }
+html.proj #fab-replay { grid-area: replay; }
+html.proj #fab-play { grid-area: play; }
+html.proj #fab-next, html.proj #insp-next { grid-area: next; }
+html.proj .stepper > .dots { grid-area: dots; justify-content: flex-start; gap: 7px; }
+html.proj .stepper .step-btn { width: 50px; height: 50px; }
+@media (max-width: 1180px) {
+  html.proj .stepper { gap: 2px 8px; padding-inline: 8px; }
+  html.proj .stepper .step-btn:not(.step-next):not(:first-child) { width: 42px; height: 42px; }
+  .caption h2 { font-size: 1.25rem; }
+  .caption .step-body { font-size: 1.08rem; }
+  html.proj .chip { font-size: 0.8rem; padding: 3px 9px; }
+  html.proj-drawer #view-fab .layerbar { gap: 4px; padding-inline: 6px; }
+}
+html.proj .stepper .step-btn svg { width: 26px; height: 26px; }
+.caption {
+  grid-area: cap; border: 0; background: none; padding: 0; border-radius: 0; min-width: 0;
+  min-height: 5.4em;
+}
+.caption .eyebrow { display: inline; margin: 0 10px 0 0; font-size: 0.85rem; }
+.caption h2 { display: inline; font-size: 1.4rem; margin: 0; }
+.caption .step-body { font-size: 1.18rem; line-height: 1.4; margin-top: 2px; }
+.caption .step-body p { margin: 0 0 4px; }
+.caption .mathline { font-size: 1.35rem; margin: 2px 0; padding: 0 12px; line-height: 1.6; }
+
+/* gaveta com o resto da lateral */
+html.proj-drawer .view > .side {
+  position: fixed; top: 0; right: 0; bottom: 0; z-index: 21;
+  display: flex; width: min(400px, 92vw); padding: 14px; overflow-y: auto;
+  background: var(--bg); box-shadow: -14px 0 34px rgba(8, 16, 24, 0.25);
+  transform: translateX(110%); visibility: hidden;
+  transition: transform 0.25s ease, visibility 0s linear 0.25s;
+}
+html.drawer-open.proj-drawer .view > .side { transform: none; visibility: visible; transition: transform 0.25s ease; }
+html.proj-drawer .view > .side > .card { order: 0; width: auto; }
+.drawer-tab {
+  position: fixed; right: 0; top: 50%; transform: translateY(-50%); z-index: 19;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  padding: 12px 6px; border: 1px solid var(--line); border-right: 0; border-radius: 10px 0 0 10px;
+  background: var(--surface); color: var(--accent); font-weight: 700; font-size: 0.8rem;
+  box-shadow: -4px 4px 14px rgba(8, 16, 24, 0.12); transition: opacity 0.3s;
+}
+.drawer-tab svg { width: 20px; height: 20px; }
+.drawer-tab span { writing-mode: vertical-rl; transform: rotate(180deg); letter-spacing: 0.04em; }
+html.drawer-open .drawer-tab svg { transform: scaleX(-1); }
+html.idle .drawer-tab { opacity: 0.3; }
+html.proj.idle, html.proj.idle * { cursor: none !important; }
+
+/* Aulas: slide centrado e grande */
+html.proj-drawer #view-aula .col-main { display: block; overflow-y: auto; }
+html.proj .aula-wrap { padding: 26px 44px 30px; min-height: 100%; }
+html.proj .slide { max-width: 1180px; margin-inline: auto; }
+html.proj .slide .eyebrow { font-size: 1rem; }
+html.proj .slide h2 { font-size: 2.6rem; }
+html.proj .slide-body { font-size: 1.6rem; }
+html.proj .slide-body p { max-width: 52ch; }
+html.proj .slide-body .big { font-size: 1.75rem; }
+html.proj .reveal { font-size: 1.6rem; gap: 14px; }
+html.proj .bill { font-size: 1.3rem; max-width: 520px; }
+html.proj .ltable { font-size: 1.35rem; }
+html.proj .slide-more { font-size: 1rem; }
+html.proj .lesson-grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+html.proj .lesson-card h3 { font-size: 1.3rem; }
+
+/* Desafios e Minha empresa: mesmo layout, letras maiores */
+html.proj .game-head h2 { font-size: 1.9rem; }
+html.proj .ex-text { font-size: 1.55rem; }
+html.proj .mini-box { font-size: 2.2rem; }
+html.proj .ftable.big td, html.proj .ftable.big th { font-size: 1.8rem; }
+html.proj .game .solve { font-size: 1.3rem; }
+html.proj .g-row input[type="text"] { font-size: 1.3rem; }
+html.proj .team-pts { font-size: 2rem; }
+html.proj .clock { font-size: 4.2rem; }
+html.proj .kpi b { font-size: 1.9rem; }
+html.proj .kpi span { font-size: 0.85rem; }
+html.proj .step-card h2 { font-size: 1.4rem; }
+
+/* Traços e letras das figuras mais firmes */
+html.proj .farrow { stroke-width: 2; opacity: 0.9; }
+html.proj .axis { stroke-width: 2; }
+html.proj .rep-svg .tick, html.proj #insp-svg .tick, html.proj #emp-svg .tick { font-weight: 700; }
+html.proj .box rect { stroke-width: 2.8; }
+html.proj .stage .depot-sub, html.proj .stage .depot-set { font-weight: 700; }
+html.proj .dot { width: 14px; height: 14px; border-width: 2.5px; }
+
+/* Telas estreitas: volta a rolar a página normalmente */
+@media (max-width: 800px) {
+  html.proj .app { height: auto; }
+  html.proj-drawer .view { overflow: visible; }
+  html.proj-drawer #view-fab > .col-main { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto; }
+  html.proj-drawer #view-fab .stage, html.proj-drawer #view-insp .stage { height: auto; }
+  html.proj-drawer #view-fab .stage-wrap, html.proj-drawer #view-insp .stage-wrap { grid-template-columns: minmax(0, 1fr); }
+  html.proj-drawer #view-fab .layerbar { justify-content: flex-start; }
+  html.proj .stepper { grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: "cap cap cap" "prev dots next"; }
+  html.proj #fab-replay, html.proj #fab-play { display: none; }
+  .caption { height: auto; }
+}
+
+/* Cortina (tecla .): tela apagada para a turma olhar para o professor */
+.curtain {
+  position: fixed; inset: 0; z-index: 40; background: #000; color: #56636f;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+  cursor: pointer;
+}
+.curtain svg { width: 90px; height: 72px; opacity: 0.5; }
+.curtain small { font-size: 0.85rem; opacity: 0.7; }
+.curtain kbd { background: transparent; border-color: #333; color: inherit; }

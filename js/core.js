@@ -37,6 +37,7 @@
     themeV: 2,          // versão da preferência de tema salva
     font: 1,
     speed: 1,
+    proj: false,        // modo projetor (preferência deste computador; não vai no link)
   };
   const STORE_KEY = 'fabrica-funcoes:v1';
   const listeners = [];
@@ -72,7 +73,7 @@
     if (isNaN(s.dec)) s.dec = 2;
     s.font = clamp(Number(s.font) || 1, 0.85, 1.6);
     s.speed = clamp(Number(s.speed) || 1, 0.25, 3);
-    ['black', 'predict', 'table', 'diagram', 'graph', 'calc', 'curve'].forEach((k) => { s[k] = !!s[k]; });
+    ['black', 'predict', 'table', 'diagram', 'graph', 'calc', 'curve', 'proj'].forEach((k) => { s[k] = !!s[k]; });
     if (!['auto', 'light', 'dark'].includes(s.theme)) s.theme = 'light';
     if (!['aula', 'fab', 'insp', 'game', 'emp'].includes(s.view)) s.view = 'aula';
     s.lesson = String(s.lesson || '');

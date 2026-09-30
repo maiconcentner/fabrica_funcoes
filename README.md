@@ -87,7 +87,7 @@ Os números da lei podem ser trocados (ex.: a tarifa da sua cidade, como pede o 
 - **Domínio e contradomínio**: ℝ, *x* ≥ 0, naturais ou um conjunto {…}; B = ℝ ou um conjunto. Também dá para escolher os valores que aparecem no depósito A.
 
 ### Painel do professor (tecla `P`)
-Casas decimais, tema claro/escuro, tamanho do texto, velocidade da animação e **link compartilhável** (leva situação, lei, conjuntos, o que está à mostra e os valores já fabricados).
+Casas decimais, modo projetor, tema claro/escuro, tamanho do texto, velocidade da animação e **link compartilhável** (leva situação, lei, conjuntos, o que está à mostra e os valores já fabricados).
 
 ### Atalhos
 | Tecla | Ação |
@@ -104,6 +104,9 @@ Casas decimais, tema claro/escuro, tamanho do texto, velocidade da animação e 
 | `O` | prever a saída |
 | `T` / `D` / `G` | tabela / diagrama / gráfico |
 | `F` | tela cheia |
+| `M` | modo projetor |
+| `L` | gaveta com os controles da lateral (no modo projetor) |
+| `.` | cortina: apaga a tela (qualquer tecla ou clique volta) |
 | `P` | painel do professor |
 
 ## É função? (Fase 2: o inspetor de qualidade)
@@ -150,6 +153,20 @@ Trazidas do projeto de Relações Métricas, valem em todas as abas:
 - **Cenários salvos** (painel do professor): guardam a aba e tudo o que está nela, para abrir com um clique.
 - O **link compartilhável** leva também o passo: o produto que está na esteira (e em que engrenagem) ou o passo da inspeção.
 - **QR code** para a turma abrir no celular, com o endereço do GitHub Pages (editável no painel).
+
+## Modo projetor (tecla `M`)
+
+Para projetar a aula na sala. Liga no botão **Projetor** do topo, na tecla `M` ou no painel do professor, e fica guardado neste computador (não vai no link).
+
+- **Tudo numa tela só, sem rolar**: topo e barra da aula mais baixos e a figura ocupando a altura que sobra, de 1024×768 a telas largas.
+- **Narração como legenda**: o texto do passo sai da lateral e fica logo abaixo da figura, entre os botões de voltar e avançar, com letras maiores. O pedido da barra da aula também fica maior.
+- **Fábrica maior**: tabela, diagrama e gráfico ficam numa coluna à direita. Desligando os três (`T`, `D`, `G`), a fábrica ocupa a largura toda.
+- **Gaveta** (tecla `L` ou a aba **Controles** na borda direita): situação, lei, conjuntos, votação e roteiro da aula saem da frente e continuam a um toque. **Roteiro** e **Ver roteiro** já abrem a gaveta.
+- **Slides maiores e centrados**. Quando um item é revelado, a tela desce até ele se for preciso.
+- **Cores e traços mais fortes**: cinzas mais escuros, bordas, grade e metal mais marcados e fundos coloridos mais saturados, porque o projetor desbota o que é claro. Vale para o tema claro e para o escuro (use o escuro em sala com pouca luz).
+- **Desafios e Minha empresa** mantêm placar, cronômetro e ponto de equilíbrio ao lado, com números maiores.
+- **Cortina** (tecla `.`, a mesma do botão "tela preta" de muitos passadores): apaga a tela para a turma olhar para você.
+- A **setinha do mouse some** quando fica parada.
 
 As quatro fases do plano estão concluídas.
 
