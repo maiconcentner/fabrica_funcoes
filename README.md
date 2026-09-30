@@ -96,7 +96,7 @@ Casas decimais, modo projetor, tema claro/escuro, tamanho do texto, velocidade d
 | `←` `PageUp` | passo anterior |
 | `Home` | volta ao começo do produto |
 | `R` | rever o movimento do passo atual |
-| `N` | nova rodada (Desafios) ou caso sorteado (É função?) |
+| `N` | nova rodada (Desafios), outra pergunta (Placas A–E) ou caso sorteado (É função?) |
 | `1` … `5` | Aulas / Fábrica / É função? / Desafios / Minha empresa |
 | `C` / `A` | copiar a figura como imagem / anotar na tela |
 | `V` | digitar um valor (`Enter` entra, `Shift+Enter` ao contrário) |
@@ -128,6 +128,23 @@ Aba **Desafios** (tecla `4`). Três níveis de leis sorteadas (nível 1: *x* + *
 - **Que produto entrou?**: lei e saída à vista, as equipes descobrem a entrada. O professor digita a resposta e toca na equipe que respondeu (2 pontos). **Mostrar a resolução** desfaz as engrenagens de trás para frente, um passo por clique (no *x*², mostra que ± servem).
 - **Corrida das engrenagens**: três pares (*x* → *y*); a equipe monta uma máquina de engrenagens e vê na hora quais pares ela acerta. Quando acerta todos, 3 pontos. Máquinas diferentes que dão os mesmos pares também valem (e o jogo mostra isso).
 - **Exercícios**: enunciados no estilo do livro, com números novos, para cada situação (conta de luz, água, viagem, jardim, telefone, técnico, aplicativo, salário, avião) ou sem contexto no nível escolhido. Da entrada para a saída ou da saída para a entrada. A resolução aparece **um passo por clique** (setas ou passador): substituição e contas, ou desfazer as engrenagens. **Copiar enunciado** e **Abrir na Fábrica** (a mesma conta nas engrenagens).
+
+### Placas A–E (perguntas-dobradiça)
+
+Quinto jogo dos Desafios e momentos das aulas. Cada pergunta imita um item real do **Banco de Itens do 9º ano** (pré-Avalia+), sempre com **números e situação novos** (itens já vistos pelos alunos só voltam alterados). Cada alternativa errada corresponde a um **erro típico com nome**.
+
+| Modelo | Descritor | Baseado em | Erros das alternativas |
+|---|---|---|---|
+| Da saída para a entrada | D22 | PA·011 | dividiu sem tirar a parte fixa · somou em vez de tirar · esqueceu de dividir · fez a conta de ida |
+| Qual é a lei? | D12 | PA·055 | trocou fixo e variável · trocou o sinal · juntou tudo e multiplicou · esqueceu o valor inicial |
+| Qual é o gráfico? | D25 | PA·041 | trocou os planos · retas paralelas · reta saindo do zero · cruzamento no lugar errado |
+| Termo de uma sequência | C09 | PA·040 | um mês a mais · um mês a menos · só multiplicou · multiplicou o primeiro termo |
+| Qual é a imagem? | D11 | autoral (o banco não tinha item) | deu o domínio · deu o contradomínio · (−2)² = −4 · esqueceu de somar |
+| Conta com decimais | C20 / D22 | causa raiz do PAE | vírgula deslocada · esqueceu a vírgula · somou em vez de multiplicar · esqueceu a taxa |
+
+Um clique por vez: **tempo para pensar** (anel de 25 s, sem placa) → **placas para cima** (toque nas letras para contar os votos, opcional) → **revelar** (a certa em verde; em cada errada, o erro por trás dela; com votos, a porcentagem e o erro mais escolhido) → **resolução passo a passo** → **Ver na Fábrica**. Os votos ficam guardados neste navegador, por descritor, para o resumo da turma.
+
+**Nas aulas:** todas começam com um **aquecimento** de 2 ou 3 perguntas de aulas anteriores, misturadas (evocar e intercalar os tipos de problema), e têm perguntas-dobradiça logo depois de cada ideia: da saída para a entrada (aula 1 e 3), qual é a lei (aula 3), sequência (aula 3), imagem (aula 4) e gráfico (aulas 6 e 7). No modo projetor, a pergunta ocupa a largura toda, e o placar e o cronômetro ficam na gaveta.
 
 ## Minha empresa (Fase 4: O que sei agora)
 
@@ -191,6 +208,7 @@ js/core.js          estado, lei atual, formatação, link, animação
 js/factory.js       a fábrica: depósitos, máquina, esteira e os passos de cada produto
 js/reps.js          tabela, diagrama de flechas e gráfico
 js/inspect.js       É função?: diagramas, tabelas, gráficos e reta vertical
+js/hinge.js         Placas A–E: perguntas-dobradiça e aquecimento (itens do Banco, erros com nome)
 js/games.js         Desafios: jogos, placar e cronômetro
 js/empresa.js       Minha empresa: custos, faturamento, lucro e crescimento
 js/annotate.js      caneta, marca-texto e laser por cima da figura

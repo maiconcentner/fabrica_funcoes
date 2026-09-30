@@ -80,7 +80,7 @@
     s.lm = Math.max(0, Math.round(Number(s.lm) || 0));
     s.ls = Math.max(0, Math.round(Number(s.ls) || 0));
     s.emp = String(s.emp || '');
-    if (!['rule', 'rev', 'race', 'ex'].includes(s.gGame)) s.gGame = 'rule';
+    if (!['rule', 'rev', 'race', 'ex', 'hinge'].includes(s.gGame)) s.gGame = 'rule';
     s.gLevel = clamp(Math.round(Number(s.gLevel) || 1), 1, 3);
     s.gTeams = String(s.gTeams || '');
     s.gClock = [30, 60, 90, 120, 180].includes(Number(s.gClock)) ? Number(s.gClock) : 60;

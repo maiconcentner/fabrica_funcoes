@@ -19,6 +19,12 @@
     return Object.assign({ ctx: 'livre', law: p.law, dom: p.dom || 'R', cd: p.cd || 'R', inputs: (p.inputs || []).join(';'), preset: i }, extra || {});
   };
   const law = (src, extra) => Object.assign({ ctx: 'livre', law: src, dom: 'R', cd: 'R', inputs: '' }, extra || {});
+  /* Placas A–E (js/hinge.js): aquecimento no começo da aula (aulas anteriores, misturadas)
+     e perguntas-dobradiça no ponto em que a ideia é ensinada. */
+  const warm = (items, title) => ({ kind: 'game', game: 'hinge', warm: true, items, title: title || 'Aquecimento',
+    prompt: 'Aulas anteriores, misturadas: pensar sozinho → placas para cima → resposta.' });
+  const hinge = (items, title, prompt) => ({ kind: 'game', game: 'hinge', items, title,
+    prompt: prompt || 'Pergunta no formato da AvaliaSESI. Tempo para pensar, placas para cima, revelar e resolver.' });
 
   /* ---------- As aulas ---------- */
   FF.LESSONS = [
@@ -27,6 +33,7 @@
       book: 'Livro, p. 226 a 228', dur: '2 aulas de 50 min',
       goals: ['Perceber que o valor de uma conta depende do consumo (uma grandeza varia em função da outra).', 'Escrever a lei P = 9,66 + 0,66x e usá-la nos dois sentidos.', 'Organizar os valores numa tabela e calcular a média do consumo.'],
       moments: [
+        warm(['decimal', 'decimal'], 'Aquecimento: contas com decimais'),
         { kind: 'slide', kicker: 'Trocando ideias · roda de conversa', title: 'De que depende a conta de luz?',
           body: '<div class="bill"><div class="bill-h">CONTA DE ENERGIA ELÉTRICA <span>mar/2024</span></div><div class="bill-r"><span>Consumo do mês</span><b>236 kWh</b></div><div class="bill-r"><span>Tarifa</span><b>R$ 0,66 por kWh</b></div><div class="bill-r"><span>Iluminação pública (Cosip)</span><b>R$ 9,66</b></div><div class="bill-r total"><span>TOTAL A PAGAR</span><b>R$ ?</b></div></div>',
           steps: ['Você conhece esse tipo de fatura? Já observou uma conta dessas em casa?', 'Você sabe estimar o gasto mensal de água, energia elétrica e telefone da sua casa?', 'De que dependem esses gastos?', 'Que cálculo deve ser feito para determinar o valor mensal de cada conta?'],
@@ -39,6 +46,7 @@
           prompt: 'A lei vira uma máquina: <b>× 0,66</b> (cada kWh) e depois <b>+ 9,66</b> (a taxa fixa). Avance para fabricar 236 kWh.' },
         { kind: 'fab', title: 'Item c: quem pagou R$ 135,06?', setup: ctx('luz'), run: [135.06, 'rev'], until: 'run',
           prompt: 'Agora ao contrário: a conta foi R$ 135,06. A máquina desfaz as engrenagens de trás para a frente.' },
+        hinge(['volta'], 'Pergunta-dobradiça: da saída para a entrada', 'Mesma ideia do item c, em outra situação. Qual alternativa esquece a parte fixa?'),
         { kind: 'fab', title: 'Item d: o histórico de consumo', setup: ctx('luz'), until: 'all',
           prompt: 'Cada mês da tabela passa pela máquina. Acompanhe a tabela, o diagrama e o gráfico se completando.' },
         { kind: 'slide', kicker: 'Atividade 1 · item e', title: 'Consumo médio nos seis meses',
@@ -56,6 +64,7 @@
       book: 'Livro, p. 229 a 234', dur: '2 aulas de 50 min',
       goals: ['Definir função como relação em que cada x tem um único y.', 'Usar a notação f: A → B e a lei de formação.', 'Calcular a conta de água por faixas e reconhecer a proporcionalidade d = 80t.'],
       moments: [
+        warm(['decimal', 'volta', 'lei']),
         { kind: 'slide', kicker: 'Organizando as ideias', title: 'Função',
           body: '<p>Em Matemática, <b>função</b> é uma relação entre duas grandezas: quando o valor de uma varia, o da outra também varia.</p><p class="big">Uma função é uma lei que faz <b>cada</b> elemento <i>x</i> de um conjunto A corresponder a <b>um único</b> elemento <i>y</i> de um conjunto B.</p>',
           steps: ['Notação: <b><i>f</i>: A → B</b> (função <i>f</i> de A em B).', 'Lei de formação, por exemplo: {{y = |x − 2|x}}', 'Na fábrica: A é o depósito de entrada, B o de saída e a lei é a máquina.'] },
@@ -83,6 +92,7 @@
       book: 'Livro, p. 234 a 239', dur: '2 aulas de 50 min',
       goals: ['Modelar situações com uma parte fixa e uma parte que depende de x.', 'Resolver problemas nos dois sentidos (achar y e achar x).', 'Perceber limites do domínio no contexto (o comprimento do jardim).'],
       moments: [
+        warm(['lei', 'volta', 'decimal']),
         { kind: 'slide', kicker: 'Atividade 4', title: 'A cerca do jardim',
           body: '<p>Um jardineiro tem <b>40 m de tela</b> para cercar um jardim retangular.</p>',
           steps: ['<b>a e b.</b> Alguns jardins: 1 × 19, 2 × 18, 5 × 15, 10 × 10 … (comprimento + largura = 20).', '<b>c.</b> {{L = |(40 − 2c)/2|c}}', 'que também pode ser escrita {{L = |20 − c|c}}'] },
@@ -99,10 +109,12 @@
         { kind: 'slide', kicker: 'Atividades 6, 7 e 8', title: 'Mesma ideia, outras situações',
           body: '<p>Em todas há uma <b>parte fixa</b> e uma <b>parte que depende de x</b>.</p>',
           steps: ['Visita técnica: {{P = |50 + 30h|h}}', 'Aplicativo de viagem: {{P = |5 + 1,55x|x}}', 'Salário com comissão: {{S = |1500 + 15x|x}}'] },
+        hinge(['lei'], 'Pergunta-dobradiça: qual é a lei?', 'Parte fixa ou parte que depende de x? Cada alternativa errada troca uma coisa pela outra.'),
         { kind: 'fab', title: 'Atividade 6: serviço de 2 h 30 min', setup: ctx('tecnico'), run: [2.5, 'fwd'], until: 'run', prompt: '2 horas e 30 minutos = 2,5 horas.' },
         { kind: 'fab', title: 'Atividade 6: pagou R$ 140,00', setup: ctx('tecnico'), run: [140, 'rev'], until: 'run', prompt: 'Quanto tempo durou o serviço?' },
         { kind: 'fab', title: 'Atividade 7: corrida de R$ 27,50', setup: ctx('app'), run: [27.5, 'rev'], until: 'run', prompt: 'Quantos km? O resultado não é exato: arredonde (≈ 14,5 km).' },
         { kind: 'fab', title: 'Atividade 8: salário de R$ 2 460,00', setup: ctx('salario'), run: [2460, 'rev'], until: 'run', prompt: 'Quantas vendas o funcionário fez?' },
+        hinge(['volta', 'seq'], 'Pergunta-dobradiça: voltar e prever', 'Duas perguntas: achar a entrada a partir da saída e o termo de uma sequência (a posição conta!).'),
         { kind: 'game', title: 'Desafio: Adivinhe a regra', game: 'rule', level: 2,
           prompt: 'Em equipes: a máquina esconde uma lei do tipo <i>ax</i> + <i>b</i>. Cada equipe pede uma pista por vez.' },
       ],
@@ -112,6 +124,7 @@
       book: 'Livro, p. 240 a 243', dur: '2 aulas de 50 min',
       goals: ['Escrever leis de formação a partir de frases.', 'Identificar domínio, contradomínio e imagem.', 'Calcular imagens como f(5), f(10) − f(5).'],
       moments: [
+        warm(['volta', 'seq', 'lei']),
         { kind: 'slide', kicker: 'Atividade 9', title: 'Da frase para a lei',
           body: '<p>Escreva a lei da função que relaciona um número real <i>x</i> com…</p>',
           steps: ['<b>a.</b> o seu triplo: {{f(x) = |3x|x}}', '<b>b.</b> a sua metade: {{f(x) = |x/2|x}}', '<b>c.</b> o seu quadrado: {{f(x) = |x²|x}}', '<b>d.</b> o seu dobro adicionado à sua terça parte: {{f(x) = |2x + x/3|x}}'] },
@@ -122,6 +135,7 @@
           steps: ['<b>Domínio (D)</b>: todos os elementos de A. D = {2, 3, 4, 5}', '<b>Contradomínio (CD)</b>: todos os elementos de B. CD = {0, 1, 2, 3, 4}', '<b>Imagem (Im)</b>: os elementos de B que recebem flecha. Im = {0, 1, 2, 3}', 'Im ⊂ CD. E todo elemento do domínio tem <b>uma, e só uma</b>, imagem.'] },
         { kind: 'insp', title: 'Inspecionando y = x − 2', mode: 'diag', case: 'y = x − 2',
           prompt: 'O inspetor confere cada elemento de A e, no fim, mostra D, CD e Im.' },
+        hinge(['imagem'], 'Pergunta-dobradiça: qual é a imagem?', 'Domínio, contradomínio ou imagem? Duas alternativas erradas são os outros conjuntos.'),
         { kind: 'fab', title: 'Atividade 10: o avião', setup: ctx('aviao', { dom: '{1;2;3;4;5}' }), until: 'all',
           prompt: '<b>a.</b> <i>d</i> = 600<i>t</i>. Fabrique os tempos da tabela: <b>b.</b> D = {1, 2, 3, 4, 5}; <b>c.</b> Im = {600, 1 200, 1 800, 2 400, 3 000}.' },
         { kind: 'fab', title: 'Atividade 10 d: depois de 8 horas', setup: ctx('aviao'), run: [8, 'fwd'], until: 'run',
@@ -139,6 +153,7 @@
       book: 'Livro, p. 243 a 246', dur: '2 aulas de 50 min',
       goals: ['Encontrar o domínio quando ele não é dado (divisão por zero, raiz de negativo).', 'Reconhecer, em tabelas e diagramas, quando uma relação é função.', 'Achar o x a partir da imagem (f(x) = x³ + 2).'],
       moments: [
+        warm(['imagem', 'lei', 'volta']),
         { kind: 'slide', kicker: 'Organizando as ideias', title: 'Domínio não dado',
           body: '<p>Quando o domínio não é dado, ele é o conjunto dos números reais (ℝ), <b>tirando</b> os valores para os quais as operações não fazem sentido.</p>',
           steps: ['{{f(x) = |1/x|x}} não aceita <i>x</i> = 0: D = ℝ*.', 'Denominador nunca pode ser <b>zero</b>.', 'Raiz quadrada: o que está dentro não pode ser <b>negativo</b>.'] },
@@ -168,11 +183,13 @@
       book: 'Livro, p. 246 a 248', dur: '1 a 2 aulas de 50 min',
       goals: ['Entender o gráfico como o conjunto dos pares (x, f(x)).', 'Usar o teste da reta vertical para decidir se um gráfico é de função.', 'Ler domínio e imagem no gráfico.'],
       moments: [
+        warm(['imagem', 'volta', 'seq']),
         { kind: 'slide', kicker: 'Organizando as ideias', title: 'O gráfico de uma função',
           body: '<p>O gráfico de uma função é o conjunto dos pares ordenados (<i>x</i>, <i>y</i>) com <i>x</i> no domínio e <i>y</i> = <i>f</i>(<i>x</i>).</p>',
           steps: ['Cada produto que sai da fábrica é um <b>ponto</b> do gráfico.', 'Para saber se um gráfico é de função, trace uma <b>reta perpendicular ao eixo x</b>.', 'Se ela cortar o gráfico em <b>um único ponto</b> (em qualquer lugar), é gráfico de função.'] },
         { kind: 'fab', title: 'Pontos que viram gráfico', setup: law('2x + 1', { inputs: '-2;-1;0;1;2;3', curve: true }), until: 'all',
           prompt: 'Cada par (<i>x</i>; <i>f</i>(<i>x</i>)) marca um ponto. Com todos, a curva mostra a reta inteira.' },
+        hinge(['grafico'], 'Pergunta-dobradiça: qual é o gráfico?', 'Onde cada reta começa? Qual sobe mais rápido? Onde se cruzam?'),
         { kind: 'insp', title: 'Reta', mode: 'graf', case: 'Reta', prompt: 'Votem, arrastem a reta vermelha e deixem o inspetor varrer.' },
         { kind: 'insp', title: 'Parábola', mode: 'graf', case: 'Parábola', prompt: 'E a parábola?' },
         { kind: 'insp', title: 'Circunferência', mode: 'graf', case: 'Circunferência', prompt: 'Uma das formas sugeridas para o GeoGebra.' },
@@ -188,12 +205,14 @@
       book: 'Livro, p. 248', dur: '2 aulas de 50 min',
       goals: ['Criar funções para uma empresa fictícia.', 'Comparar faturamento e custo no gráfico: lucro, prejuízo e ponto de equilíbrio.', 'Revisar o capítulo com exercícios.'],
       moments: [
+        warm(['imagem', 'seq', 'lei']),
         { kind: 'slide', kicker: 'O que sei agora', title: 'Montem uma empresa',
           body: '<p>Em grupos de quatro, montem uma empresa fictícia (doces caseiros, camisetas, artesanato…) e criem funções para:</p>',
           steps: ['os <b>custos</b> para fabricar um produto;', 'o custo com <b>mão de obra</b>, com acréscimos como horas extras e comissão;', 'a perspectiva de <b>faturamento</b> ao longo do tempo;', 'a perspectiva de <b>crescimento</b> ao longo do tempo.'],
           note: 'Proponha produtos simples; a atividade trabalha empreendedorismo.' },
         { kind: 'emp', title: 'A empresa de doces', model: 'doces',
           prompt: 'Arrastem no gráfico: onde o faturamento passa o custo? Troquem os números da empresa no cartão ao lado.' },
+        hinge(['grafico'], 'Pergunta-dobradiça: onde as retas se cruzam', 'Como o ponto de equilíbrio: duas retas que empatam. Qual gráfico é o certo?'),
         { kind: 'slide', kicker: 'Para os grupos', title: 'Perguntas sobre a empresa',
           steps: ['Qual é o <b>ponto de equilíbrio</b>? O que ele significa?', 'Quantas unidades vender para <b>lucrar R$ 500</b>?', 'Em que <b>mês</b> a empresa começa a lucrar?', 'O que acontece se o preço aumentar R$ 0,50?'] },
         { kind: 'game', title: 'Revisão: exercícios', game: 'ex', level: 2, ctx: 'luz',
@@ -206,7 +225,8 @@
 
   const LS = FF.LESSONS;
   const TOOL_VIEW = { slide: 'aula', fab: 'fab', insp: 'insp', game: 'game', emp: 'emp' };
-  const KIND_NAME = { slide: 'Tela', fab: 'Fábrica', insp: 'É função?', game: 'Desafio', emp: 'Minha empresa' };
+  const KIND_NAME = { slide: 'Tela', fab: 'Fábrica', insp: 'É função?', game: 'Desafio', emp: 'Minha empresa', hinge: 'Placas A–E' };
+  const kindName = (m) => KIND_NAME[m.game === 'hinge' ? 'hinge' : m.kind];
 
   function lesson() { return LS.find((l) => l.id === FF.state.lesson) || null; }
   function moment() { const l = lesson(); return l ? l.moments[FF.state.lm] || null : null; }
@@ -246,7 +266,7 @@
       FF.insp.open(mo.mode, mo.case);
     } else if (mo.kind === 'game') {
       FF.set({ view: 'game' });
-      FF.games.open(mo.game, mo.level, mo.ctx);
+      FF.games.open(mo.game, mo.level, mo.ctx, mo);
     } else if (mo.kind === 'emp') {
       FF.set({ view: 'emp' });
       FF.emp.open(mo.model);
@@ -328,7 +348,7 @@
     $('lb-back').hidden = inControl();
     $('lb-prev').disabled = FF.state.lm === 0 && FF.state.ls === 0 && !(mo && mo.kind !== 'slide' && ((mo.kind === 'fab' && FF.fab.status().i > 0) || (mo.kind === 'insp' && FF.insp.hasBack())));
     $('lb-next').disabled = !mo;
-    const dots = l.moments.map((m, i) => '<button class="ldot k-' + m.kind + (i < FF.state.lm ? ' done' : '') + (i === FF.state.lm ? ' current' : '') + '" data-m="' + i + '" title="' + esc((i + 1) + '. ' + KIND_NAME[m.kind] + ': ' + (m.title || '')) + '"></button>').join('');
+    const dots = l.moments.map((m, i) => '<button class="ldot k-' + m.kind + (i < FF.state.lm ? ' done' : '') + (i === FF.state.lm ? ' current' : '') + '" data-m="' + i + '" title="' + esc((i + 1) + '. ' + kindName(m) + ': ' + (m.title || '')) + '"></button>').join('');
     $('lb-dots').innerHTML = dots;
     const nextHint = mo && (mo.kind === 'slide' ? FF.state.ls >= (mo.steps || []).length : toolDone(mo));
     $('lb-next').classList.toggle('pulse', !!nextHint && FF.state.lm < n - 1);
@@ -337,7 +357,7 @@
   function outline(l, current) {
     return '<ol class="outline">' + l.moments.map((m, i) =>
       '<li class="ol-item k-' + m.kind + (current && i === FF.state.lm ? ' current' : '') + (current && i < FF.state.lm ? ' done' : '') + '"><button data-go="' + i + '">' +
-      '<span class="ol-kind">' + KIND_NAME[m.kind] + '</span><span class="ol-title">' + esc(m.title || '') + '</span>' +
+      '<span class="ol-kind">' + kindName(m) + '</span><span class="ol-title">' + esc(m.title || '') + '</span>' +
       (m.kicker ? '<span class="ol-kick">' + esc(m.kicker) + '</span>' : '') + '</button></li>').join('') + '</ol>';
   }
 
@@ -374,7 +394,7 @@
       const last = main.querySelector('.reveal li.last');
       if (last) last.scrollIntoView({ block: 'nearest' });
     } else {
-      main.innerHTML = '<div class="slide"><p class="eyebrow">' + KIND_NAME[mo.kind] + '</p><h2>' + esc(mo.title) + '</h2><p>' + rich(mo.prompt || '', 24) + '</p><button class="btn" data-back="1">Abrir este momento</button></div>';
+      main.innerHTML = '<div class="slide"><p class="eyebrow">' + kindName(mo) + '</p><h2>' + esc(mo.title) + '</h2><p>' + rich(mo.prompt || '', 24) + '</p><button class="btn" data-back="1">Abrir este momento</button></div>';
     }
     side.innerHTML = '<div class="card"><p class="eyebrow">Aula ' + (LS.indexOf(l) + 1) + ' · ' + esc(l.book) + '</p><h2>' + esc(l.title) + '</h2>' + outline(l, true) +
       '<div class="lc-actions"><button class="btn btn-ghost" data-print="1">Imprimir roteiro</button><button class="btn btn-ghost" data-stop="1">Sair da aula</button></div></div>';
@@ -385,7 +405,7 @@
   function printSheet(l) {
     $('aula-print').innerHTML = '<h1>Aula ' + (LS.indexOf(l) + 1) + ': ' + esc(l.title) + '</h1><p>' + esc(l.sub) + ' · ' + esc(l.book) + ' · ' + esc(l.dur) + '</p>' +
       '<h2>Objetivos</h2><ul>' + l.goals.map((g) => '<li>' + esc(g) + '</li>').join('') + '</ul><h2>Roteiro</h2><ol>' +
-      l.moments.map((m) => '<li><b>' + KIND_NAME[m.kind] + ': ' + esc(m.title || '') + '</b>' + (m.kicker ? ' <i>(' + esc(m.kicker) + ')</i>' : '') +
+      l.moments.map((m) => '<li><b>' + kindName(m) + ': ' + esc(m.title || '') + '</b>' + (m.kicker ? ' <i>(' + esc(m.kicker) + ')</i>' : '') +
         (m.prompt ? '<p>' + rich(m.prompt, 16) + '</p>' : '') + (m.body ? '<div>' + rich(m.body, 16) + '</div>' : '') +
         (m.steps ? '<ul>' + m.steps.map((s) => '<li>' + rich(s, 16) + '</li>').join('') + '</ul>' : '') +
         (m.note ? '<p class="pn">Nota: ' + esc(m.note) + '</p>' : '') + '</li>').join('') + '</ol>';

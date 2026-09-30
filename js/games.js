@@ -422,6 +422,15 @@
     render();
   }
 
+  /* ---------- 5. Placas A–E (perguntas-dobradiça, js/hinge.js) ---------- */
+  const G5 = { tpl: 'mix' };
+  function g5Render() {
+    return '<div class="g-row"><label for="h-tpl">Tipo de pergunta</label><select id="h-tpl" class="select">' +
+      '<option value="mix"' + (G5.tpl === 'mix' ? ' selected' : '') + '>Todos os tipos (sorteado)</option>' +
+      FF.hinge.TEMPLATES.map((t) => '<option value="' + t.id + '"' + (t.id === G5.tpl ? ' selected' : '') + '>' + esc(t.code + ' · ' + t.name) + '</option>').join('') +
+      '</select></div><div id="h-host"></div>';
+  }
+
   /* ---------- Geral ---------- */
   const GAMES = {
     rule: { make: g1New, draw: g1Render, act: g1Act, has: () => G1.law,
@@ -430,6 +439,8 @@
       help: 'A lei e a saída estão à vista. As equipes calculam a entrada (desfazendo as engrenagens de trás para frente). Use o cronômetro; a primeira equipe que acertar leva 2 pontos.' },
     race: { make: g3New, draw: g3Render, act: g3Act, has: () => G3.law,
       help: 'Com os pares dados, cada equipe monta uma máquina de engrenagens que produza todos eles. Quando funcionar para todos, a equipe leva 3 pontos. Máquinas diferentes podem dar certo!' },
+    hinge: { make: () => FF.hinge.single(G5.tpl), draw: g5Render, act: (a, el) => FF.hinge.act(a, el), has: FF.hinge.has,
+      help: 'Uma pergunta no formato da AvaliaSESI, com alternativas A a E. Cada alternativa errada é um erro típico. <b>1.</b> Tempo para pensar sozinho. <b>2.</b> Placas para cima: toque nas letras para contar. <b>3.</b> Revelar: aparece o erro por trás de cada alternativa. <b>4.</b> A resolução, passo a passo. Os resultados ficam guardados neste computador.' },
     ex: { make: g4New, draw: g4Render, act: g4Act, has: () => G4.ex,
       help: 'Exercícios no estilo do livro, com números novos. Projete o enunciado, deixe a turma resolver e revele a resolução passo a passo. "Abrir na Fábrica" mostra a mesma conta nas engrenagens.' },
   };
@@ -441,6 +452,12 @@
     document.querySelectorAll('#g-game button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.g === FF.state.gGame));
     document.querySelectorAll('#g-level button').forEach((b) => b.setAttribute('aria-pressed', Number(b.dataset.v) === FF.state.gLevel));
     $('g-area').innerHTML = G.draw();
+    if (FF.state.gGame === 'hinge') FF.hinge.mount($('h-host')); else FF.hinge.stop();
+    $('g-level').hidden = FF.state.gGame === 'hinge';
+    // Placas A–E numa aula: só a pergunta (sem escolher jogo nem tipo)
+    const lessonHinge = FF.state.gGame === 'hinge' && FF.hinge.inLesson() && !!FF.state.lesson;
+    $('view-game').querySelector('.figbar').hidden = lessonHinge;
+    const tr = $('h-tpl'); if (tr) tr.closest('.g-row').hidden = lessonHinge;
     $('g-help').innerHTML = G.help;
     renderTeams();
     clockDraw();
@@ -467,6 +484,7 @@
     });
     $('g-area').addEventListener('change', (e) => {
       if (e.target.id === 'g4-ctx') { G4.ctx = e.target.value; g4New(); render(); }
+      if (e.target.id === 'h-tpl') { G5.tpl = e.target.value; FF.hinge.single(G5.tpl); render(); }
     });
     $('g-teams').addEventListener('click', (e) => {
       const inc = e.target.closest('[data-inc]'), dec = e.target.closest('[data-dec]');
@@ -493,21 +511,24 @@
   FF.games = {
     init() { bind(); clock.left = FF.state.gClock; },
     render,
-    next() { if (FF.state.gGame === 'ex') g4Act('g4-step'); else if (FF.state.gGame === 'rev') g2Act('g2-step'); },
-    prev() { if (FF.state.gGame === 'ex') g4Act('g4-back'); },
+    next() { if (FF.state.gGame === 'ex') g4Act('g4-step'); else if (FF.state.gGame === 'rev') g2Act('g2-step'); else if (FF.state.gGame === 'hinge') FF.hinge.next(); },
+    prev() { if (FF.state.gGame === 'ex') g4Act('g4-back'); else if (FF.state.gGame === 'hinge') FF.hinge.prev(); },
     first() {},
-    newRound() { game().make(); render(); },
+    newRound() { if (FF.state.gGame === 'hinge') { FF.hinge.act('h-new'); return; } game().make(); render(); },
     atEnd() {
+      if (FF.state.gGame === 'hinge') return FF.hinge.atEnd();
       if (FF.state.gGame === 'ex') return !G4.ex || G4.shown >= g4Steps().length;
       if (FF.state.gGame === 'rev') return !G2.law || G2.shown >= g2Steps().length;
       return true;
     },
-    hasBack() { return FF.state.gGame === 'ex' && G4.shown > 0; },
+    hasBack() { return (FF.state.gGame === 'ex' && G4.shown > 0) || (FF.state.gGame === 'hinge' && FF.hinge.hasBack()); },
     /* Abre um jogo num nível, com rodada nova (aulas). Em Exercícios, a situação pode vir junto. */
-    open(g, level, ctx) {
+    open(g, level, ctx, mo) {
       FF.set({ gGame: g, gLevel: level || FF.state.gLevel });
       if (g === 'ex' && ctx) G4.ctx = ctx;
-      game().make();
+      // Placas A–E numa aula: a lista de perguntas vem do momento (aquecimento ou pergunta-dobradiça)
+      if (g === 'hinge' && mo && mo.items) FF.hinge.start(mo.items, { warm: mo.warm, title: mo.title });
+      else game().make();
       render();
     },
   };

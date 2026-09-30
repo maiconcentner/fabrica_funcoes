@@ -295,7 +295,8 @@
     root.classList.toggle('proj', S.proj);
     $('btn-proj').setAttribute('aria-pressed', S.proj);
     segSync('seg-proj', S.proj ? '1' : '0');
-    const drawer = S.proj && DRAWER_VIEWS.includes(S.view);
+    // Placas A–E também ganham a largura toda (placar e cronômetro ficam na gaveta)
+    const drawer = S.proj && (DRAWER_VIEWS.includes(S.view) || (S.view === 'game' && S.gGame === 'hinge'));
     root.classList.toggle('proj-drawer', drawer);
     $('btn-drawer').hidden = !drawer;
     if (!drawer) openDrawer(false);
