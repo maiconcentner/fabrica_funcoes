@@ -484,6 +484,7 @@
     });
     $('g-area').addEventListener('change', (e) => {
       if (e.target.id === 'g4-ctx') { G4.ctx = e.target.value; g4New(); render(); }
+      if (e.target.id === 'h-turma') FF.set({ turma: e.target.value.trim().slice(0, 20) });
       if (e.target.id === 'h-tpl') { G5.tpl = e.target.value; FF.hinge.single(G5.tpl); render(); }
     });
     $('g-teams').addEventListener('click', (e) => {

@@ -146,6 +146,18 @@ Um clique por vez: **tempo para pensar** (anel de 25 s, sem placa) → **placas 
 
 **Nas aulas:** todas começam com um **aquecimento** de 2 ou 3 perguntas de aulas anteriores, misturadas (evocar e intercalar os tipos de problema), e têm perguntas-dobradiça logo depois de cada ideia: da saída para a entrada (aula 1 e 3), qual é a lei (aula 3), sequência (aula 3), imagem (aula 4) e gráfico (aulas 6 e 7). No modo projetor, a pergunta ocupa a largura toda, e o placar e o cronômetro ficam na gaveta.
 
+### Resumo da turma (para o relatório do PAE)
+
+Cada pergunta com votos contados fica guardada neste navegador, com a **turma** (escrita no alto da pergunta: 9º A, 9º B…), a data, a aula e o **nome do erro** de cada alternativa. O botão **Resumo da turma** (no alto das Placas A–E ou no painel do professor) mostra:
+
+- filtros por **turma** e **período** (hoje, 7 dias, 30 dias, tudo);
+- **perguntas, respostas e acerto geral**;
+- **por descritor**, do menor para o maior acerto, com o erro mais escolhido e a situação (**Retomar** abaixo de 50%, **Consolidar** de 50% a 69%, **Adequado** a partir de 70%);
+- **erros mais frequentes** somando todas as perguntas: o mesmo erro (por exemplo, "esqueceu a parte fixa") aparece em descritores diferentes, e o resumo junta tudo;
+- **comparação entre turmas** e a lista das **perguntas aplicadas** (com os votos A–E; dá para apagar uma pergunta contada por engano).
+
+Botões: **Copiar texto para o relatório** (parágrafo pronto, no formato do relatório do PAE, com os encaminhamentos), **Baixar planilha** (CSV com uma linha por pergunta, abre no Excel e no Google Planilhas), **Imprimir** e **Apagar estes resultados** (pede confirmação).
+
 ## Minha empresa (Fase 4: O que sei agora)
 
 Aba **Minha empresa** (tecla `5`), para a proposta do *O que sei agora*: em grupos, montar uma empresa e criar as funções.
@@ -224,6 +236,7 @@ js/reps.js          tabela, diagrama de flechas e gráfico
 js/inspect.js       É função?: diagramas, tabelas, gráficos e reta vertical
 js/hinge.js         Placas A–E: perguntas-dobradiça e aquecimento (itens do Banco, erros com nome)
 js/games.js         Desafios: jogos, placar e cronômetro
+js/resumo.js        Resumo da turma: acertos por descritor, erros mais escolhidos, texto e planilha
 js/empresa.js       Minha empresa: custos, faturamento, lucro e crescimento
 js/annotate.js      caneta, marca-texto e laser por cima da figura
 js/export.js        copiar a figura como imagem PNG

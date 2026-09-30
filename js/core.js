@@ -38,6 +38,7 @@
     font: 1,
     speed: 1,
     proj: false,        // modo projetor (preferência deste computador; não vai no link)
+    turma: '',          // turma atual (Placas A–E): vai junto de cada resultado
   };
   const STORE_KEY = 'fabrica-funcoes:v1';
   const listeners = [];
@@ -80,6 +81,7 @@
     s.lm = Math.max(0, Math.round(Number(s.lm) || 0));
     s.ls = Math.max(0, Math.round(Number(s.ls) || 0));
     s.emp = String(s.emp || '');
+    s.turma = String(s.turma || '').slice(0, 20);
     if (!['rule', 'rev', 'race', 'ex', 'hinge'].includes(s.gGame)) s.gGame = 'rule';
     s.gLevel = clamp(Math.round(Number(s.gLevel) || 1), 1, 3);
     s.gTeams = String(s.gTeams || '');

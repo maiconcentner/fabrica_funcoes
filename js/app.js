@@ -515,6 +515,7 @@
       if (m) FF.fab.restoreRun(Number(m[2]), m[1] === 'r' ? 'rev' : 'fwd', Number(m[3]));
     }
     if (linkStep != null && FF.state.view === 'insp') FF.insp.goStep(linkStep);
+    FF.resumo.init();
     FF.annot.init();
     FF.share.init();
     FF.exportFig.init();

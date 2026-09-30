@@ -60,10 +60,10 @@
         stem: '<p>' + esc(C.txt(a, b)) + ' ' + mathHTML(law, C.v, pre) + '.</p><p class="h-q">' + esc(C.q(Tt)) + '</p>',
         alts: [
           { t: u(d), ok: true, why: 'Tirou a parte fixa e depois dividiu: (' + num(Tt) + ' − ' + num(b) + ') ÷ ' + num(a) + ' = ' + num(d) + '.' },
-          { t: u(Tt / a), why: 'Dividiu ' + num(Tt) + ' por ' + num(a) + ' sem tirar a parte fixa de ' + brl(b) + '.' },
-          { t: u((Tt + b) / a), why: 'Somou a parte fixa em vez de tirar.' },
-          { t: u(Tt - b), why: 'Tirou a parte fixa, mas esqueceu de desfazer o × ' + num(a) + '.' },
-          { t: u(a * Tt + b), why: 'Fez a conta de ida: calculou ' + C.P + '(' + num(Tt) + ') em vez de voltar.' },
+          { t: u(Tt / a), e: 'dividiu sem tirar a parte fixa', why: 'Dividiu ' + num(Tt) + ' por ' + num(a) + ' sem tirar a parte fixa de ' + brl(b) + '.' },
+          { t: u((Tt + b) / a), e: 'somou a parte fixa em vez de tirar', why: 'Somou a parte fixa em vez de tirar.' },
+          { t: u(Tt - b), e: 'não desfez a multiplicação', why: 'Tirou a parte fixa, mas esqueceu de desfazer o × ' + num(a) + '.' },
+          { t: u(a * Tt + b), e: 'fez a conta de ida em vez de voltar', why: 'Fez a conta de ida: calculou ' + C.P + '(' + num(Tt) + ') em vez de voltar.' },
         ],
         solve: [
           'Trocar ' + C.P + ' por ' + num(Tt) + ': ' + mathHTML(law, C.v, num(Tt) + ' = ', 22),
@@ -95,10 +95,10 @@
         stem: '<p>' + esc(C.txt(V, r)) + '</p><p class="h-q">' + esc(C.q) + '</p>',
         alts: [
           { h: m(law), ok: true, why: 'Parte fixa ' + num(V) + ' (vale quando x = 0) e ' + num(r) + ' a cada unidade de x.' },
-          { h: m(V + 'x' + op + r), why: 'Trocou a parte fixa com a parte que muda: ' + num(V) + ' não é multiplicado por x.' },
-          { h: m(V + opp + r + 'x'), why: C.s > 0 ? 'Trocou o sinal: o valor aumenta, então é + ' + num(r) + 'x.' : 'Trocou o sinal: o carro perde valor, então é − ' + num(r) + 'x.' },
-          { h: m('(' + V + op + r + ')x'), why: 'Juntou tudo e multiplicou por x: a parte fixa não depende de x.' },
-          { h: m(r + 'x'), why: 'Esqueceu o valor inicial: em x = 0 o valor é ' + num(V) + ', e não 0.' },
+          { h: m(V + 'x' + op + r), e: 'trocou parte fixa e parte variável', why: 'Trocou a parte fixa com a parte que muda: ' + num(V) + ' não é multiplicado por x.' },
+          { h: m(V + opp + r + 'x'), e: 'trocou o sinal', why: C.s > 0 ? 'Trocou o sinal: o valor aumenta, então é + ' + num(r) + 'x.' : 'Trocou o sinal: o carro perde valor, então é − ' + num(r) + 'x.' },
+          { h: m('(' + V + op + r + ')x'), e: 'juntou tudo e multiplicou por x', why: 'Juntou tudo e multiplicou por x: a parte fixa não depende de x.' },
+          { h: m(r + 'x'), e: 'esqueceu a parte fixa', why: 'Esqueceu o valor inicial: em x = 0 o valor é ' + num(V) + ', e não 0.' },
         ],
         solve: [
           'O que é <b>fixo</b>? ' + num(V) + ': é o valor quando x = 0.',
@@ -152,10 +152,10 @@
         stem: '<p>' + esc(C.what) + ': o <b>Plano I</b> tem ' + esc(C.a) + ' de ' + brl(f1) + ' e cobra ' + brl(p1) + ' ' + esc(C.per) + '; o <b>Plano II</b> tem ' + esc(C.a) + ' de ' + brl(f2) + ' e cobra ' + brl(p2) + ' ' + esc(C.per) + '.</p><p class="h-q">Qual gráfico representa o valor a pagar (em reais) de cada plano em função dos ' + esc(C.u) + '?</p>',
         alts: [
           { h: g([{ f: f1, p: p1, n: 'I' }, { f: f2, p: p2, n: 'II' }], Xc), ok: true, why: 'I começa em ' + num(f1) + ' e sobe mais rápido; II começa em ' + num(f2) + '. Empatam em ' + num(Xc) + ' ' + C.u + '.' },
-          { h: g([{ f: f2, p: p2, n: 'I' }, { f: f1, p: p1, n: 'II' }], Xc), why: 'Trocou os planos: quem começa em ' + num(f1) + ' é o Plano I.' },
-          { h: g([{ f: f1, p: p2, n: 'I' }, { f: f2, p: p2, n: 'II' }], null), why: 'Usou o mesmo preço ' + C.per + ' nos dois: as retas ficaram paralelas.' },
-          { h: g([{ f: 0, p: p1, n: 'I' }, { f: 0, p: p2, n: 'II' }], null), why: 'Esqueceu a parte fixa: com 0 ' + C.u + ' já se paga a ' + C.a + ', a reta não sai do zero.' },
-          { h: g([{ f: f1, p: p1b, n: 'I' }, { f: f2, p: p2, n: 'II' }], Xc / 2), why: 'Inclinação errada: as retas se cruzam em ' + num(Xc / 2) + ' ' + C.u + ', mas os planos empatam em ' + num(Xc) + '.' },
+          { h: g([{ f: f2, p: p2, n: 'I' }, { f: f1, p: p1, n: 'II' }], Xc), e: 'trocou os planos', why: 'Trocou os planos: quem começa em ' + num(f1) + ' é o Plano I.' },
+          { h: g([{ f: f1, p: p2, n: 'I' }, { f: f2, p: p2, n: 'II' }], null), e: 'mesmo preço por unidade nos dois', why: 'Usou o mesmo preço ' + C.per + ' nos dois: as retas ficaram paralelas.' },
+          { h: g([{ f: 0, p: p1, n: 'I' }, { f: 0, p: p2, n: 'II' }], null), e: 'esqueceu a parte fixa', why: 'Esqueceu a parte fixa: com 0 ' + C.u + ' já se paga a ' + C.a + ', a reta não sai do zero.' },
+          { h: g([{ f: f1, p: p1b, n: 'I' }, { f: f2, p: p2, n: 'II' }], Xc / 2), e: 'inclinação errada', why: 'Inclinação errada: as retas se cruzam em ' + num(Xc / 2) + ' ' + C.u + ', mas os planos empatam em ' + num(Xc) + '.' },
         ],
         solve: [
           'Onde cada reta <b>começa</b> (0 ' + esc(C.u) + '): Plano I em ' + brl(f1) + ', Plano II em ' + brl(f2) + '.',
@@ -186,10 +186,10 @@
         stem: '<p>' + esc(C.txt(a, r)) + '</p><p class="h-q">' + esc(C.q(mes)) + '</p>',
         alts: [
           { t: num(vals[0]), ok: true, why: mes + ' é o ' + k + 'º mês: ' + a + ' + ' + (k - 1) + ' · ' + r + ' = ' + vals[0] + '.' },
-          { t: num(vals[1]), why: 'Contou um mês a mais: somou ' + k + ' vezes ' + r + ', mas de janeiro a ' + mes + ' são ' + (k - 1) + ' aumentos.' },
-          { t: num(vals[2]), why: 'Contou um mês a menos.' },
-          { t: num(vals[3]), why: 'Só multiplicou o mês pelo aumento (' + k + ' · ' + r + '), esquecendo o valor de janeiro.' },
-          { t: num(vals[4]), why: 'Multiplicou o valor de janeiro pelo número do mês.' },
+          { t: num(vals[1]), e: 'contou um termo a mais', why: 'Contou um mês a mais: somou ' + k + ' vezes ' + r + ', mas de janeiro a ' + mes + ' são ' + (k - 1) + ' aumentos.' },
+          { t: num(vals[2]), e: 'contou um termo a menos', why: 'Contou um mês a menos.' },
+          { t: num(vals[3]), e: 'esqueceu o primeiro termo', why: 'Só multiplicou o mês pelo aumento (' + k + ' · ' + r + '), esquecendo o valor de janeiro.' },
+          { t: num(vals[4]), e: 'multiplicou o 1º termo pela posição', why: 'Multiplicou o valor de janeiro pelo número do mês.' },
         ],
         solve: [
           'De um mês para o outro, soma <b>' + r + '</b>.',
@@ -215,10 +215,10 @@
         Bset = Array.from(new Set(im.concat([b - 1, b + 2, b + 6]))).sort((p, q) => p - q);
         alts = [
           { t: setTxt(im), ok: true, why: 'As imagens dos elementos de A, sem repetir: ' + setTxt(im) + '.' },
-          { t: setTxt(A), why: 'Deu o domínio (o conjunto A), não a imagem.' },
-          { t: setTxt(Bset), why: 'Deu o contradomínio: nem todo elemento de B recebe flecha.' },
-          { t: setTxt(A.map((x) => (x < 0 ? -x * x : x * x) + b)), why: 'Errou o sinal: (−2)² = 4, e não −4.' },
-          { t: setTxt(A.map((x) => x * x)), why: 'Esqueceu de somar ' + b + '.' },
+          { t: setTxt(A), e: 'deu o domínio', why: 'Deu o domínio (o conjunto A), não a imagem.' },
+          { t: setTxt(Bset), e: 'deu o contradomínio', why: 'Deu o contradomínio: nem todo elemento de B recebe flecha.' },
+          { t: setTxt(A.map((x) => (x < 0 ? -x * x : x * x) + b)), e: 'errou o sinal da potência', why: 'Errou o sinal: (−2)² = 4, e não −4.' },
+          { t: setTxt(A.map((x) => x * x)), e: 'esqueceu de somar', why: 'Esqueceu de somar ' + b + '.' },
         ];
         solve = A.map((x) => 'f(' + num(x) + ') = (' + num(x) + ')² + ' + b + ' = ' + num(fx(x))).concat(['Sem repetir: <b>Im = ' + setTxt(im) + '</b>. Im ⊂ CD.']);
       } else {
@@ -228,10 +228,10 @@
         Bset = Array.from(new Set(im.concat([b + 1, 3 * a + b + 2]))).sort((p, q) => p - q);
         alts = [
           { t: setTxt(im), ok: true, why: 'Multiplica por ' + a + ' e soma ' + b + ': ' + setTxt(im) + '.' },
-          { t: setTxt(A), why: 'Deu o domínio (o conjunto A), não a imagem.' },
-          { t: setTxt(Bset), why: 'Deu o contradomínio: nem todo elemento de B recebe flecha.' },
-          { t: setTxt(A.map((x) => a * (x + b))), why: 'Somou antes de multiplicar: a lei é ' + a + '·x + ' + b + ', e não ' + a + '·(x + ' + b + ').' },
-          { t: setTxt(A.map((x) => a * x)), why: 'Esqueceu de somar ' + b + '.' },
+          { t: setTxt(A), e: 'deu o domínio', why: 'Deu o domínio (o conjunto A), não a imagem.' },
+          { t: setTxt(Bset), e: 'deu o contradomínio', why: 'Deu o contradomínio: nem todo elemento de B recebe flecha.' },
+          { t: setTxt(A.map((x) => a * (x + b))), e: 'somou antes de multiplicar', why: 'Somou antes de multiplicar: a lei é ' + a + '·x + ' + b + ', e não ' + a + '·(x + ' + b + ').' },
+          { t: setTxt(A.map((x) => a * x)), e: 'esqueceu de somar', why: 'Esqueceu de somar ' + b + '.' },
         ];
         solve = A.map((x) => 'f(' + num(x) + ') = ' + a + ' · ' + num(x) + ' + ' + b + ' = ' + num(fx(x))).concat(['<b>Im = ' + setTxt(im) + '</b>. Im ⊂ CD.']);
       }
@@ -259,10 +259,10 @@
           stem: '<p>A tarifa de energia é de <b>R$ 0,66 por kWh</b>.</p><p class="h-q">Quanto custam ' + n + ' kWh, sem contar a taxa fixa?</p>',
           alts: [
             { t: brl(v), ok: true, why: '0,66 · ' + n + ' = ' + f(v) + '.' },
-            { t: brl(v * 10), why: 'Vírgula uma casa para a direita.' },
-            { t: brl(v / 10), why: 'Vírgula uma casa para a esquerda.' },
-            { t: brl(66 * n), why: 'Esqueceu a vírgula: usou 66 em vez de 0,66.' },
-            { t: brl(n + 0.66), why: 'Somou em vez de multiplicar.' },
+            { t: brl(v * 10), e: 'vírgula deslocada', why: 'Vírgula uma casa para a direita.' },
+            { t: brl(v / 10), e: 'vírgula deslocada', why: 'Vírgula uma casa para a esquerda.' },
+            { t: brl(66 * n), e: 'esqueceu a vírgula', why: 'Esqueceu a vírgula: usou 66 em vez de 0,66.' },
+            { t: brl(n + 0.66), e: 'somou em vez de multiplicar', why: 'Somou em vez de multiplicar.' },
           ],
           solve: ['0,66 · ' + n + ' = 66 · ' + n + ' ÷ 100', '66 · ' + n + ' = ' + num(66 * n), num(66 * n) + ' ÷ 100 = <b>' + f(v) + '</b>: ' + brl(v) + '.', 'Estimativa para conferir: 0,66 é um pouco menos que 2/3; 2/3 de ' + n + ' ≈ ' + num(Math.round(2 * n / 3)) + '. ✓'],
           fab: { setup: { ctx: 'livre', law: '0,66x', dom: 'R+', cd: 'R', inputs: '' }, run: [n, 'fwd'] },
@@ -276,10 +276,10 @@
         stem: '<p>A conta de luz é ' + mathHTML('9,66 + 0,66x', 'x', 'P = ') + ', com <i>x</i> em kWh.</p><p class="h-q">Quanto paga quem consumiu ' + n + ' kWh?</p>',
         alts: [
           { t: brl(v), ok: true, why: 'Primeiro 0,66 · ' + n + ', depois + 9,66.' },
-          { t: brl(vals[1]), why: 'Somou 9,66 + 0,66 antes e multiplicou tudo por ' + n + '.' },
-          { t: brl(vals[2]), why: 'Trocou a parte fixa com o preço por kWh.' },
-          { t: brl(vals[3]), why: 'Esqueceu a taxa fixa de R$ 9,66.' },
-          { t: brl(vals[4]), why: 'Esqueceu a vírgula: usou 66 em vez de 0,66.' },
+          { t: brl(vals[1]), e: 'somou antes de multiplicar', why: 'Somou 9,66 + 0,66 antes e multiplicou tudo por ' + n + '.' },
+          { t: brl(vals[2]), e: 'trocou parte fixa e parte variável', why: 'Trocou a parte fixa com o preço por kWh.' },
+          { t: brl(vals[3]), e: 'esqueceu a parte fixa', why: 'Esqueceu a taxa fixa de R$ 9,66.' },
+          { t: brl(vals[4]), e: 'esqueceu a vírgula', why: 'Esqueceu a vírgula: usou 66 em vez de 0,66.' },
         ],
         solve: ['Trocar x por ' + n + ': P = 9,66 + 0,66 · ' + n, 'Multiplicação primeiro: 0,66 · ' + n + ' = ' + f(0.66 * n), 'Depois a soma: 9,66 + ' + f(0.66 * n) + ' = <b>' + f(v) + '</b>.'],
         fab: { setup: { ctx: 'luz', law: '', dom: FF.ctx('luz').dom, cd: FF.ctx('luz').cd, inputs: '' }, run: [n, 'fwd'] },
@@ -335,8 +335,9 @@
     if (!total) return;
     let all = [];
     try { all = JSON.parse(localStorage.getItem(REC_KEY) || '[]'); } catch (e) { all = []; }
-    const row = { uid: it.uid, when: new Date().toISOString(), lesson: FF.state.lesson || '', code: it.code, tpl: it.tpl,
-      ok: it.alts.findIndex((a) => a.ok), counts: it.counts.slice(), whys: it.alts.map((a) => (a.ok ? '' : a.why)) };
+    const row = { uid: it.uid, when: it.when || (it.when = new Date().toISOString()), turma: it.turma || (it.turma = FF.state.turma || ''),
+      lesson: FF.state.lesson || '', code: it.code, tpl: it.tpl, ok: it.alts.findIndex((a) => a.ok), counts: it.counts.slice(),
+      errs: it.alts.map((a) => (a.ok ? '' : a.e || a.why)), whys: it.alts.map((a) => (a.ok ? '' : a.why)) };
     const k = all.findIndex((r) => r.uid === it.uid);
     if (k >= 0) all[k] = row; else all.push(row);
     try { localStorage.setItem(REC_KEY, JSON.stringify(all.slice(-400))); } catch (e) { /* sem armazenamento */ }
@@ -376,6 +377,8 @@
     const inLesson = (H.title || H.warm) && FF.state.lesson;
     let h = '<div class="game-head h-head">' + (inLesson ? '' : '<h2>' + esc(H.title || (H.warm ? 'Aquecimento' : 'Placas A–E')) + '</h2>') +
       (H.list.length > 1 ? '<span class="h-count">' + (H.i + 1) + ' de ' + H.list.length + '</span>' : '') +
+      '<span class="h-tools"><label class="h-turma">Turma <input id="h-turma" list="turmas-dl" value="' + esc(FF.state.turma || '') + '" placeholder="ex.: 9º A" autocomplete="off"></label>' +
+      '<button class="btn btn-ghost sm" data-act="h-resumo" title="Acertos e erros mais escolhidos, por descritor">Resumo da turma</button></span>' +
       '<span class="h-desc" title="' + esc(DESC[it.code] || '') + '"><b>' + esc(it.code) + '</b> ' + esc(DESC[it.code] || '') + '</span></div>';
     const kc = (k, w) => '<span class="kchip k-' + k + '">' + w + '</span>';
     h += '<div class="ex-card h-stem kbox k-q">' + kc('q', 'Pergunta') + it.stem + '</div>';
@@ -425,6 +428,7 @@
       draw();
       return;
     }
+    if (a === 'h-resumo') { FF.resumo.open(); return; }
     if (a === 'h-solve') { H.showSolve = !H.showSolve; draw(); return; }
     if (a === 'h-new') {
       // Desafios com "Todos os tipos": sorteia outro modelo; nas aulas, o mesmo modelo com números novos
@@ -459,6 +463,8 @@
     draw, act, next, prev, atEnd, hasBack,
     stop: clearThink,
     results() { try { return JSON.parse(localStorage.getItem(REC_KEY) || '[]'); } catch (e) { return []; } },
+    saveResults(all) { try { localStorage.setItem(REC_KEY, JSON.stringify(all)); } catch (e) { /* sem armazenamento */ } },
+    TPL_NAME: (id) => (T[id] ? T[id].name : id),
     _make: (id) => build(id),
   };
 })();

@@ -456,6 +456,28 @@
     <small>tecla <kbd>.</kbd>, clique ou passador para voltar</small>
   </div>
 
+  <!-- ============ RESUMO DA TURMA (Placas A–E) ============ -->
+  <div class="scrim" id="rs-scrim" hidden></div>
+  <div class="rs-dialog" id="rs-dialog" role="dialog" aria-label="Resumo da turma" hidden>
+    <div class="panel-head">
+      <h2>Resumo da turma <small>Placas A–E, por descritor</small></h2>
+      <button class="icon-btn" id="rs-close" aria-label="Fechar">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <p class="rs-print-head" id="rs-print-head"></p>
+    <div class="rs-body" id="rs-body"></div>
+    <textarea class="rs-text" id="rs-text" rows="8" aria-label="Texto para o relatório" hidden></textarea>
+    <div class="rs-actions">
+      <button class="btn" id="rs-copy" title="Texto pronto para colar no relatório do PAE">Copiar texto para o relatório</button>
+      <button class="btn btn-ghost" id="rs-csv" title="Planilha com uma linha por pergunta (abre no Excel ou no Google Planilhas)">Baixar planilha</button>
+      <button class="btn btn-ghost" id="rs-print">Imprimir</button>
+      <button class="btn btn-ghost rs-clear" id="rs-clear">Apagar estes resultados</button>
+    </div>
+    <p class="note rs-note">Os resultados ficam guardados só neste navegador. Use "Baixar planilha" para guardar uma cópia.</p>
+  </div>
+  <datalist id="turmas-dl"><option value="9º A"><option value="9º B"><option value="9º C"></datalist>
+
   <!-- ============ PAINEL DO PROFESSOR ============ -->
   <div class="scrim" id="scrim" hidden></div>
   <aside class="panel" id="panel" aria-label="Painel do professor" hidden>
@@ -510,6 +532,12 @@
           <input type="text" id="site-base" inputmode="url" spellcheck="false">
           <p class="note">Os alunos abrem por este endereço (o do GitHub Pages). A prévia no Claude é privada e não serve para eles.</p>
         </div>
+      </section>
+
+      <section class="pgroup">
+        <h3>Resultados da turma</h3>
+        <p class="note">Os votos contados nas Placas A–E, por turma e por descritor, com os erros mais escolhidos. Texto pronto para o relatório do PAE e planilha.</p>
+        <button class="btn" id="btn-resumo">Abrir o resumo da turma</button>
       </section>
 
       <section class="pgroup">
@@ -609,6 +637,7 @@
 <script src="js/inspect.js"></script>
 <script src="js/hinge.js"></script>
 <script src="js/games.js"></script>
+<script src="js/resumo.js"></script>
 <script src="js/empresa.js"></script>
 <script src="js/vendor/qrcode.js"></script>
 <script src="js/annotate.js"></script>
