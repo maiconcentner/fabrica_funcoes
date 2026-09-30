@@ -397,7 +397,7 @@
     h += '<div class="g-row"><label for="g4-ctx">Situação</label><select id="g4-ctx" class="select">' + FF.CONTEXTS.map((c) =>
       '<option value="' + c.id + '"' + (c.id === G4.ctx ? ' selected' : '') + '>' + (c.icon ? c.icon + ' ' : '') + esc(c.id === 'livre' ? 'Sem contexto (nível ' + FF.state.gLevel + ')' : c.name) + '</option>').join('') + '</select>' +
       '<button class="btn" data-act="new">Novo exercício</button></div>';
-    h += '<div class="ex-card"><p class="ex-tag">' + (e.dir === 'fwd' ? 'Da entrada para a saída' : 'Da saída para a entrada') + (e.c.book ? ' · como na ' + esc(e.c.book) : '') + '</p><p class="ex-text" id="g4-text">' + esc(g4Text()) + '</p></div>';
+    h += '<div class="ex-card kbox k-q"><p class="ex-tag"><span class="kchip k-q">Pergunta</span> ' + (e.dir === 'fwd' ? 'Da entrada para a saída' : 'Da saída para a entrada') + (e.c.book ? ' · como na ' + esc(e.c.book) : '') + '</p><p class="ex-text" id="g4-text">' + esc(g4Text()) + '</p></div>';
     const steps = g4Steps();
     h += '<ol class="solve">' + steps.slice(0, G4.shown).map((s) => '<li>' + s + '</li>').join('') + '</ol>';
     h += '<div class="g-row end"><button class="btn btn-ghost" data-act="g4-copy">Copiar enunciado</button><button class="btn btn-ghost" data-act="g4-fab">Abrir na Fábrica</button>' +

@@ -171,6 +171,20 @@ Trazidas do projeto de Relações Métricas, valem em todas as abas:
 - O **link compartilhável** leva também o passo: o produto que está na esteira (e em que engrenagem) ou o passo da inspeção.
 - **QR code** para a turma abrir no celular, com o endereço do GitHub Pages (editável no painel).
 
+## Código de cores dos textos
+
+Cada tipo de texto tem sempre a mesma cor, o mesmo ícone e a mesma palavra, para a turma associar de longe (e sem depender só da cor, por causa do daltonismo):
+
+| Etiqueta | Cor | Onde aparece |
+|---|---|---|
+| **? Pergunta** | âmbar | perguntas das telas, enunciados das Placas A–E e dos Exercícios, perguntas do livro na Fábrica, pedidos da barra da aula que terminam em ? |
+| **▶ Faça** | verde-água | instruções: o pedido da barra da aula, "pense sozinho", "placas para cima", enunciados de atividade ("Escreva…") |
+| **✓ Resposta** | verde | respostas reveladas nas telas, resoluções passo a passo, alternativa certa |
+| **★ Ideia** | anil | *Organizando as ideias*, definições e o fechamento |
+| **! Atenção** | vermelho | cuidados (divisão por zero, raiz de negativo), alternativas erradas, refugo |
+
+Nas telas das aulas, o ícone substitui o número de cada item. A legenda aparece na página das Aulas e no painel do professor. No roteiro das aulas, um item pode forçar o tipo com `[q]`, `[do]`, `[ok]`, `[idea]` ou `[warn]`; sem marcação, o que termina em "?" é pergunta, e o resto é resposta (ou ideia, no *Organizando as ideias*).
+
 ## Modo projetor (tecla `M`)
 
 Para projetar a aula na sala. Liga no botão **Projetor** do topo, na tecla `M` ou no painel do professor, e fica guardado neste computador (não vai no link).

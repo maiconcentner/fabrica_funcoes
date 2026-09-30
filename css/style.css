@@ -1,6 +1,6 @@
 /* ===== Tokens ===== */
 :root {
-  --bg: #eef2f5;
+  --bg: #e5ebf0;
   --surface: #ffffff;
   --surface-2: #f4f7f9;
   --ink: #17212b;
@@ -1268,3 +1268,87 @@ html.proj svg.hg { max-width: 340px; }
 html.proj-drawer #view-game > .col-main { display: block; overflow-y: auto; }
 html.proj .h-stem p { font-size: 1.3rem; }
 html.proj .h-alt { padding-block: 6px; }
+
+/* ===== Código de cores por tipo de texto =====
+   Sempre cor + ícone + palavra (funciona com daltonismo e no projetor):
+   ? PERGUNTA (âmbar) · ▶ FAÇA (verde-água) · ✓ RESPOSTA (verde) · ★ IDEIA (anil) · ! ATENÇÃO (vermelho) */
+:root {
+  --q: #7a4f00; --q-fill: #fff0c4; --q-line: #d9a106;
+  --do: #0b6660; --do-fill: #d4f1ec; --do-line: #13998c;
+  --okk: #17693a; --okk-fill: #dcf2e3; --okk-line: #23a35a;
+  --idea: #3a3196; --idea-fill: #e6e3fb; --idea-line: #6a5ed8;
+  --warn: #a3221f; --warn-fill: #fde1e0; --warn-line: #d8403c;
+}
+:root[data-theme="dark"] {
+  --q: #ffd46b; --q-fill: #3a2e0c; --q-line: #d9a106;
+  --do: #6fe0d2; --do-fill: #0f3431; --do-line: #13998c;
+  --okk: #7fe0a4; --okk-fill: #14361f; --okk-line: #23a35a;
+  --idea: #b9b0ff; --idea-fill: #25224a; --idea-line: #6a5ed8;
+  --warn: #ff9c97; --warn-fill: #42191a; --warn-line: #d8403c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --q: #ffd46b; --q-fill: #3a2e0c; --do: #6fe0d2; --do-fill: #0f3431; --okk: #7fe0a4; --okk-fill: #14361f;
+    --idea: #b9b0ff; --idea-fill: #25224a; --warn: #ff9c97; --warn-fill: #42191a;
+  }
+}
+.k-q { --kc: var(--q); --kf: var(--q-fill); --kl: var(--q-line); --ki: "?"; }
+.k-do { --kc: var(--do); --kf: var(--do-fill); --kl: var(--do-line); --ki: "▶"; }
+.k-ok { --kc: var(--okk); --kf: var(--okk-fill); --kl: var(--okk-line); --ki: "✓"; }
+.k-idea { --kc: var(--idea); --kf: var(--idea-fill); --kl: var(--idea-line); --ki: "★"; }
+.k-warn { --kc: var(--warn); --kf: var(--warn-fill); --kl: var(--warn-line); --ki: "!"; }
+/* caixa */
+.kbox { background: var(--kf) !important; border: 0 !important; border-left: 7px solid var(--kl) !important; border-radius: 10px; }
+/* etiqueta (palavra com ícone) */
+.kchip {
+  display: inline-flex; align-items: center; gap: 6px; vertical-align: middle;
+  background: var(--kl); color: #fff; border-radius: 999px; padding: 2px 11px 2px 3px;
+  font-family: var(--font-body); font-size: 0.72rem; font-weight: 800; letter-spacing: 0.07em; text-transform: uppercase; line-height: 1.5;
+  white-space: nowrap; font-style: normal;
+}
+.kchip::before {
+  content: var(--ki); width: 19px; height: 19px; border-radius: 50%; display: grid; place-items: center;
+  background: #fff; color: var(--kl); font-size: 0.72rem; letter-spacing: 0;
+}
+.kchip.k-q { color: #3d2800; }
+.kchip.k-q::before { color: var(--q-line); background: #fff; }
+.kbox > .kchip:first-child { margin-bottom: 6px; }
+
+/* Telas das aulas: cada item revelado tem a cor do seu tipo, com o ícone no lugar do número */
+.reveal { list-style: none; padding-left: 0; }
+.reveal li.k { position: relative; background: var(--kf); border-left: 7px solid var(--kl); border-radius: 10px; padding: 8px 14px 8px 52px; }
+.reveal li.k::before {
+  content: var(--ki); position: absolute; left: 11px; top: 10px; width: 30px; height: 30px; border-radius: 50%;
+  display: grid; place-items: center; background: var(--kl); color: #fff; font-size: 1rem; font-weight: 800; font-family: var(--font-body);
+}
+.reveal li.k-q::before { color: #3d2800; }
+.slide-body.kbox { padding: 12px 16px; }
+.slide-body.kbox p:last-child { margin-bottom: 0; }
+.slide-body .big { border-left: 0; padding-left: 0; }
+
+/* Barra da aula: o pedido vira uma faixa colorida */
+.lb-prompt.kbox { padding: 5px 12px; }
+.lb-prompt .kchip { margin-right: 8px; }
+
+/* Perguntas (livro, exercícios, placas) em âmbar; resoluções em verde */
+.qbtn { background: var(--q-fill); border-color: var(--q-line); border-left-width: 5px; }
+.qdir { color: var(--q); }
+.qhead { color: var(--q); }
+.solve:empty { display: none; }
+.solve { background: var(--okk-fill); border-left: 7px solid var(--okk-line); border-radius: 10px; padding: 10px 14px 12px 2.4em; }
+.solve::before {
+  content: "✓ Resolução"; display: block; margin: 0 0 4px -1.3em; color: var(--okk);
+  font-size: 0.75rem; font-weight: 800; letter-spacing: 0.07em; text-transform: uppercase;
+}
+.solve li::marker { color: var(--okk); }
+.h-cue.kbox { padding: 8px 12px; }
+.h-sum.kbox { padding: 8px 12px; border-left-width: 7px; }
+.tnote { border: 2px dashed var(--line); border-radius: 10px; padding: 6px 12px; }
+
+/* Legenda das cores */
+.klegend { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 10px 0 12px; }
+.klegend .kchip { font-size: 0.78rem; }
+.klegend-t { font-size: 0.8rem; font-weight: 700; color: var(--muted); margin-right: 2px; }
+html.proj .kchip { font-size: 0.8rem; }
+html.proj .reveal li.k { padding-left: 58px; }
+html.proj .reveal li.k::before { width: 34px; height: 34px; top: 12px; font-size: 1.1rem; }

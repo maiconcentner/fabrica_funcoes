@@ -377,9 +377,10 @@
     let h = '<div class="game-head h-head">' + (inLesson ? '' : '<h2>' + esc(H.title || (H.warm ? 'Aquecimento' : 'Placas A–E')) + '</h2>') +
       (H.list.length > 1 ? '<span class="h-count">' + (H.i + 1) + ' de ' + H.list.length + '</span>' : '') +
       '<span class="h-desc" title="' + esc(DESC[it.code] || '') + '"><b>' + esc(it.code) + '</b> ' + esc(DESC[it.code] || '') + '</span></div>';
-    h += '<div class="ex-card h-stem">' + it.stem + '</div>';
-    if (st === 0) h += '<div class="h-cue"><div class="h-think" id="h-think" style="--p:1"><b></b></div><p></p></div>';
-    if (st === 1) h += '<div class="h-cue h-up"><p><b>Placas para cima!</b> Toque nas letras para contar quantos alunos escolheram cada uma (opcional).</p></div>';
+    const kc = (k, w) => '<span class="kchip k-' + k + '">' + w + '</span>';
+    h += '<div class="ex-card h-stem kbox k-q">' + kc('q', 'Pergunta') + it.stem + '</div>';
+    if (st === 0) h += '<div class="h-cue kbox k-do">' + kc('do', 'Faça') + '<div class="h-think" id="h-think" style="--p:1"><b></b></div><p></p></div>';
+    if (st === 1) h += '<div class="h-cue h-up kbox k-do">' + kc('do', 'Faça') + '<p><b>Placas para cima!</b> Toque nas letras para contar quantos alunos escolheram cada uma (opcional).</p></div>';
     h += '<ol class="h-alts' + (it.grid ? ' grid' : '') + '">' + it.alts.map((a, i) => {
       const cls = st >= 2 ? (a.ok ? ' ok' : ' no') : '';
       const pct = total ? Math.round((100 * it.counts[i]) / total) : 0;
@@ -392,7 +393,7 @@
     if (st >= 2 && total) {
       const wrong = it.counts.map((c, i) => ({ c, i })).filter((x) => x.i !== okI).sort((p, q) => q.c - p.c)[0];
       const pOk = Math.round((100 * it.counts[okI]) / total);
-      h += '<p class="h-sum"><b>' + pOk + '% acertaram.</b>' + (wrong && wrong.c ? ' O erro mais escolhido foi <b>' + LETTERS[wrong.i] + '</b>: ' + esc(it.alts[wrong.i].why) : '') + '</p>';
+      h += '<p class="h-sum kbox ' + (pOk >= 50 ? 'k-ok' : 'k-warn') + '"><b>' + pOk + '% acertaram.</b>' + (wrong && wrong.c ? ' O erro mais escolhido foi <b>' + LETTERS[wrong.i] + '</b>: ' + esc(it.alts[wrong.i].why) : '') + '</p>';
     }
     const solveN = H.warm ? (H.showSolve ? it.solve.length : 0) : Math.max(0, st - 2);
     if (solveN) h += '<ol class="solve">' + it.solve.slice(0, solveN).map((s) => '<li>' + s + '</li>').join('') + '</ol>';

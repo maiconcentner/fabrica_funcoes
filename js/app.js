@@ -470,6 +470,7 @@
     bindSetsCard();
     bindPanel();
     bindProj();
+    $('panel-legend').innerHTML = FF.kLegend();
     document.addEventListener('keydown', onKey);
     window.addEventListener('hashchange', () => {
       const h = FF.decodeHash(location.hash);

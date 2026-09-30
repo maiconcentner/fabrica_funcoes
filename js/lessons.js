@@ -55,7 +55,7 @@
           note: 'Retomada de média aritmética (material do IBGE Educa sugerido no livro).' },
         { kind: 'slide', kicker: 'Você sabia? · Territórios de aprendizagem', title: 'A Cosip e a conta da sua casa',
           body: '<p>A <b>Cosip</b> financia a iluminação pública do município. Em São Paulo, o valor depende da faixa de consumo.</p>',
-          steps: ['<b>Para a próxima aula:</b> traga uma conta de energia da sua casa.', 'Com o consumo dos últimos 12 meses, procure uma expressão que relacione o valor pago ao consumo.', 'Na Fábrica, é só trocar os números da lei para a tarifa da sua cidade.'],
+          steps: ['[do]<b>Para a próxima aula:</b> traga uma conta de energia da sua casa.', '[do]Com o consumo dos últimos 12 meses, procure uma expressão que relacione o valor pago ao consumo.', '[idea]Na Fábrica, é só trocar os números da lei para a tarifa da sua cidade.'],
           note: 'Consulte com a turma o site da distribuidora de energia do município.' },
       ],
     },
@@ -156,7 +156,7 @@
         warm(['imagem', 'lei', 'volta']),
         { kind: 'slide', kicker: 'Organizando as ideias', title: 'Domínio não dado',
           body: '<p>Quando o domínio não é dado, ele é o conjunto dos números reais (ℝ), <b>tirando</b> os valores para os quais as operações não fazem sentido.</p>',
-          steps: ['{{f(x) = |1/x|x}} não aceita <i>x</i> = 0: D = ℝ*.', 'Denominador nunca pode ser <b>zero</b>.', 'Raiz quadrada: o que está dentro não pode ser <b>negativo</b>.'] },
+          steps: ['{{f(x) = |1/x|x}} não aceita <i>x</i> = 0: D = ℝ*.', '[warn]Denominador nunca pode ser <b>zero</b>.', '[warn]Raiz quadrada: o que está dentro não pode ser <b>negativo</b>.'] },
         { kind: 'fab', title: 'f(x) = 1/x', setup: preset('1/x'), until: 'all',
           prompt: 'Fabrique todos: o <b>0</b> trava a engrenagem e vai para o <b>refugo</b>.' },
         { kind: 'fab', title: 'Atividade 13 a: (5x + 4)/(2x − 2)', setup: preset('(5x + 4)/(2x − 2)'), run: [1, 'fwd'], until: 'run',
@@ -186,7 +186,7 @@
         warm(['imagem', 'volta', 'seq']),
         { kind: 'slide', kicker: 'Organizando as ideias', title: 'O gráfico de uma função',
           body: '<p>O gráfico de uma função é o conjunto dos pares ordenados (<i>x</i>, <i>y</i>) com <i>x</i> no domínio e <i>y</i> = <i>f</i>(<i>x</i>).</p>',
-          steps: ['Cada produto que sai da fábrica é um <b>ponto</b> do gráfico.', 'Para saber se um gráfico é de função, trace uma <b>reta perpendicular ao eixo x</b>.', 'Se ela cortar o gráfico em <b>um único ponto</b> (em qualquer lugar), é gráfico de função.'] },
+          steps: ['Cada produto que sai da fábrica é um <b>ponto</b> do gráfico.', '[do]Para saber se um gráfico é de função, trace uma <b>reta perpendicular ao eixo x</b>.', 'Se ela cortar o gráfico em <b>um único ponto</b> (em qualquer lugar), é gráfico de função.'] },
         { kind: 'fab', title: 'Pontos que viram gráfico', setup: law('2x + 1', { inputs: '-2;-1;0;1;2;3', curve: true }), until: 'all',
           prompt: 'Cada par (<i>x</i>; <i>f</i>(<i>x</i>)) marca um ponto. Com todos, a curva mostra a reta inteira.' },
         hinge(['grafico'], 'Pergunta-dobradiça: qual é o gráfico?', 'Onde cada reta começa? Qual sobe mais rápido? Onde se cruzam?'),
@@ -208,7 +208,7 @@
         warm(['imagem', 'seq', 'lei']),
         { kind: 'slide', kicker: 'O que sei agora', title: 'Montem uma empresa',
           body: '<p>Em grupos de quatro, montem uma empresa fictícia (doces caseiros, camisetas, artesanato…) e criem funções para:</p>',
-          steps: ['os <b>custos</b> para fabricar um produto;', 'o custo com <b>mão de obra</b>, com acréscimos como horas extras e comissão;', 'a perspectiva de <b>faturamento</b> ao longo do tempo;', 'a perspectiva de <b>crescimento</b> ao longo do tempo.'],
+          steps: ['[do]os <b>custos</b> para fabricar um produto;', '[do]o custo com <b>mão de obra</b>, com acréscimos como horas extras e comissão;', '[do]a perspectiva de <b>faturamento</b> ao longo do tempo;', '[do]a perspectiva de <b>crescimento</b> ao longo do tempo.'],
           note: 'Proponha produtos simples; a atividade trabalha empreendedorismo.' },
         { kind: 'emp', title: 'A empresa de doces', model: 'doces',
           prompt: 'Arrastem no gráfico: onde o faturamento passa o custo? Troquem os números da empresa no cartão ao lado.' },
@@ -239,6 +239,27 @@
       catch (e) { return esc(pre + src); }
     });
   }
+
+  /* ---------- Código de cores por tipo de texto ----------
+     ? pergunta · ▶ faça · ✓ resposta · ★ ideia · ! atenção. Um item pode forçar o tipo com [q], [do], [ok], [idea] ou [warn]. */
+  const KWORD = { q: 'Pergunta', do: 'Faça', ok: 'Resposta', idea: 'Ideia', warn: 'Atenção' };
+  const chip = (k, w) => '<span class="kchip k-' + k + '">' + (w || KWORD[k]) + '</span>';
+  FF.kLegend = () => '<div class="klegend"><span class="klegend-t">Cores das telas:</span>' + ['q', 'do', 'ok', 'idea', 'warn'].map((k) => chip(k)).join('') + '</div>';
+  const plain = (h) => String(h || '').replace(/\{\{[^}]*\}\}/g, 'x').replace(/<[^>]+>/g, '').trim();
+  const isIdea = (mo) => /Organizando|Fechamento/.test(mo.kicker || '');
+  function kindOf(txt, mo) {
+    const m = String(txt).match(/^\[(q|do|ok|idea|warn)\]\s*/);
+    if (m) return { k: m[1], t: txt.slice(m[0].length) };
+    if (/\?$/.test(plain(txt))) return { k: 'q', t: txt };
+    return { k: isIdea(mo) ? 'idea' : 'ok', t: txt };
+  }
+  function bodyKind(mo) {
+    if (isIdea(mo)) return 'idea';
+    const t = plain(mo.body);
+    if (!/<p/.test(mo.body || '')) return '';
+    return /\?/.test(t) ? 'q' : 'do';
+  }
+  const promptKind = (html) => (/\?/.test(plain(html)) ? 'q' : 'do');
 
   /* ---------- Controle ---------- */
   const BASE_FAB = { ctx: 'livre', law: '2x + 1', dom: 'R', cd: 'R', inputs: '', preset: -1, made: '', bad: '',
@@ -343,7 +364,9 @@
     const n = l.moments.length;
     $('lb-where').innerHTML = '<b>Aula ' + (LS.indexOf(l) + 1) + '</b> · ' + (mo ? 'momento ' + (FF.state.lm + 1) + ' de ' + n : 'fim');
     $('lb-title').innerHTML = mo ? esc(mo.title || '') : 'Aula concluída';
-    $('lb-prompt').innerHTML = mo && mo.kind !== 'slide' ? rich(mo.prompt || '', 18) : '';
+    const pk = mo && mo.kind !== 'slide' ? promptKind(mo.prompt) : 'do';
+    $('lb-prompt').innerHTML = mo && mo.kind !== 'slide' ? chip(pk) + rich(mo.prompt || '', 18) : '';
+    $('lb-prompt').className = 'lb-prompt kbox k-' + pk;
     $('lb-prompt').hidden = !(mo && mo.kind !== 'slide' && mo.prompt);
     $('lb-back').hidden = inControl();
     $('lb-prev').disabled = FF.state.lm === 0 && FF.state.ls === 0 && !(mo && mo.kind !== 'slide' && ((mo.kind === 'fab' && FF.fab.status().i > 0) || (mo.kind === 'insp' && FF.insp.hasBack())));
@@ -369,7 +392,7 @@
     if (!l) {
       main.innerHTML = '<div class="aula-intro"><p class="eyebrow">Capítulo 8 · Uma variável pode mudar tudo</p><h2>Aulas prontas</h2>' +
         '<p>Cada aula segue o livro na ordem: conversa, atividades, <b>Organizando as ideias</b> e desafios, usando a Fábrica, o inspetor, os desafios e a empresa já configurados no momento certo. O passador de slides conduz tudo: avança dentro da ferramenta e, quando ela termina, passa para o próximo momento.</p>' +
-        '<p class="note">As outras abas continuam livres para usar sozinhas. Habilidade da BNCC: <b>EF09MA06</b> (funções como relação de dependência unívoca entre duas variáveis e suas representações numérica, algébrica e gráfica).</p></div>' +
+        '' + FF.kLegend() + '<p class="note">As outras abas continuam livres para usar sozinhas. Habilidade da BNCC: <b>EF09MA06</b> (funções como relação de dependência unívoca entre duas variáveis e suas representações numérica, algébrica e gráfica).</p></div>' +
         '<div class="lesson-grid">' + LS.map((x, i) =>
           '<article class="lesson-card"><p class="lc-num">Aula ' + (i + 1) + '</p><h3>' + esc(x.title) + '</h3><p class="lc-sub">' + esc(x.sub) + '</p>' +
           '<p class="lc-meta">' + esc(x.book) + ' · ' + esc(x.dur) + ' · ' + x.moments.length + ' momentos</p>' +
@@ -386,8 +409,8 @@
     } else if (mo.kind === 'slide') {
       const steps = mo.steps || [];
       main.innerHTML = '<div class="slide"><p class="eyebrow">' + esc(mo.kicker || '') + '</p><h2>' + rich(mo.title, 30) + '</h2>' +
-        (mo.body ? '<div class="slide-body">' + rich(mo.body, 30) + '</div>' : '') +
-        (steps.length ? '<ol class="reveal">' + steps.map((s, k) => '<li class="' + (k < FF.state.ls ? 'shown' : 'hid') + (k === FF.state.ls - 1 ? ' last' : '') + '">' + rich(s, 30) + '</li>').join('') + '</ol>' : '') +
+        (mo.body ? (bodyKind(mo) ? '<div class="slide-body kbox k-' + bodyKind(mo) + '">' + chip(bodyKind(mo)) : '<div class="slide-body">') + rich(mo.body, 30) + '</div>' : '') +
+        (steps.length ? '<ol class="reveal">' + steps.map((s, k) => { const c = kindOf(s, mo); return '<li class="k k-' + c.k + ' ' + (k < FF.state.ls ? 'shown' : 'hid') + (k === FF.state.ls - 1 ? ' last' : '') + '">' + rich(c.t, 30) + '</li>'; }).join('') + '</ol>' : '') +
         (steps.length && FF.state.ls < steps.length ? '<p class="slide-more">Avance para revelar (' + FF.state.ls + '/' + steps.length + ')</p>' : '') +
         (mo.note ? '<details class="tnote"><summary>Para o professor</summary><p>' + esc(mo.note) + '</p></details>' : '') + '</div>';
       // o item que acabou de aparecer nunca fica abaixo da tela (projetor com pouca altura)
@@ -407,7 +430,7 @@
       '<h2>Objetivos</h2><ul>' + l.goals.map((g) => '<li>' + esc(g) + '</li>').join('') + '</ul><h2>Roteiro</h2><ol>' +
       l.moments.map((m) => '<li><b>' + kindName(m) + ': ' + esc(m.title || '') + '</b>' + (m.kicker ? ' <i>(' + esc(m.kicker) + ')</i>' : '') +
         (m.prompt ? '<p>' + rich(m.prompt, 16) + '</p>' : '') + (m.body ? '<div>' + rich(m.body, 16) + '</div>' : '') +
-        (m.steps ? '<ul>' + m.steps.map((s) => '<li>' + rich(s, 16) + '</li>').join('') + '</ul>' : '') +
+        (m.steps ? '<ul>' + m.steps.map((s) => '<li>' + rich(kindOf(s, m).t, 16) + '</li>').join('') + '</ul>' : '') +
         (m.note ? '<p class="pn">Nota: ' + esc(m.note) + '</p>' : '') + '</li>').join('') + '</ol>';
   }
   function seeOutline(id) {
