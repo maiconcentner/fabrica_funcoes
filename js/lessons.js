@@ -23,6 +23,9 @@
      e perguntas-dobradiça no ponto em que a ideia é ensinada. */
   const warm = (items, title) => ({ kind: 'game', game: 'hinge', warm: true, items, title: title || 'Aquecimento',
     prompt: 'Aulas anteriores, misturadas: pensar sozinho → placas para cima → resposta.' });
+  /* O erro do Zé: uma resolução com um passo errado para a turma achar */
+  const ze = (items, prompt) => ({ kind: 'game', game: 'hinge', items, title: 'O erro do Zé',
+    prompt: prompt || 'O Zé resolveu, mas errou em um passo. Em qual? Placas: A, B, C ou D (ou E, se achar que está tudo certo).' });
   /* Bilhete de saída: duas perguntas sobre a aula de hoje e a autoavaliação */
   const exit = (items) => ({ kind: 'game', game: 'hinge', exit: true, items: items.concat(['auto']), title: 'Bilhete de saída',
     prompt: 'Duas perguntas sobre a aula de hoje e como você está. Placas na mão (ou no papel: "Imprimir bilhetes").' });
@@ -89,6 +92,7 @@
           prompt: 'Fabrique os tempos da tabela. O gráfico dos pares (t; d) forma uma <b>reta</b> que passa pela origem.' },
         { kind: 'fab', title: 'Item e: 6 horas', setup: ctx('viagem'), run: [6, 'fwd'], until: 'run', prompt: 'Mantendo a velocidade, quantos km em 6 horas?' },
         { kind: 'fab', title: 'Item f: 640 km', setup: ctx('viagem'), run: [640, 'rev'], until: 'run', prompt: 'Quanto tempo para percorrer 640 km? A máquina ao contrário desfaz o × 80.' },
+        ze(['zedecimal'], 'Conta com decimais, como na tarifa da água e da luz. O Zé errou em um passo: em qual?'),
         exit(['efuncao', 'decimal']),
       ],
     },
@@ -115,6 +119,7 @@
           body: '<p>Em todas há uma <b>parte fixa</b> e uma <b>parte que depende de x</b>.</p>',
           steps: ['Visita técnica: {{P = |50 + 30h|h}}', 'Aplicativo de viagem: {{P = |5 + 1,55x|x}}', 'Salário com comissão: {{S = |1500 + 15x|x}}'] },
         hinge(['lei'], 'Pergunta-dobradiça: qual é a lei?', 'Parte fixa ou parte que depende de x? Cada alternativa errada troca uma coisa pela outra.'),
+        ze(['zelei']),
         { kind: 'fab', title: 'Atividade 6: serviço de 2 h 30 min', setup: ctx('tecnico'), run: [2.5, 'fwd'], until: 'run', prompt: '2 horas e 30 minutos = 2,5 horas.' },
         { kind: 'fab', title: 'Atividade 6: pagou R$ 140,00', setup: ctx('tecnico'), run: [140, 'rev'], until: 'run', prompt: 'Quanto tempo durou o serviço?' },
         { kind: 'fab', title: 'Atividade 7: corrida de R$ 27,50', setup: ctx('app'), run: [27.5, 'rev'], until: 'run', prompt: 'Quantos km? O resultado não é exato: arredonde (≈ 14,5 km).' },
@@ -142,6 +147,7 @@
         { kind: 'insp', title: 'Inspecionando y = x − 2', mode: 'diag', case: 'y = x − 2',
           prompt: 'O inspetor confere cada elemento de A e, no fim, mostra D, CD e Im.' },
         hinge(['imagem'], 'Pergunta-dobradiça: qual é a imagem?', 'Domínio, contradomínio ou imagem? Duas alternativas erradas são os outros conjuntos.'),
+        ze(['zeimagem']),
         { kind: 'fab', title: 'Atividade 10: o avião', setup: ctx('aviao', { dom: '{1;2;3;4;5}' }), until: 'all',
           prompt: '<b>a.</b> <i>d</i> = 600<i>t</i>. Fabrique os tempos da tabela: <b>b.</b> D = {1, 2, 3, 4, 5}; <b>c.</b> Im = {600, 1 200, 1 800, 2 400, 3 000}.' },
         { kind: 'fab', title: 'Atividade 10 d: depois de 8 horas', setup: ctx('aviao'), run: [8, 'fwd'], until: 'run',
@@ -228,6 +234,7 @@
           prompt: 'Exercícios com números novos. Avance para revelar a resolução, passo a passo.' },
         { kind: 'slide', kicker: 'Fechamento', title: 'O que aprendemos',
           steps: ['<b>Função</b>: cada <i>x</i> do domínio tem <b>uma única</b> imagem.', 'A <b>lei de formação</b> é a máquina: dá para ir e (quase sempre) voltar.', 'D, CD e Im: <b>Im ⊂ CD</b>; o domínio exclui divisão por zero e raiz de negativo.', 'No <b>gráfico</b>, nenhuma reta vertical corta em mais de um ponto.'] },
+        ze(['zevolta', 'zeseq'], 'Revisão: duas resoluções do Zé, cada uma com um passo errado.'),
         exit(['grafico', 'volta']),
       ],
     },

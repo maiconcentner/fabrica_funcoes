@@ -148,6 +148,20 @@ Um clique por vez: **tempo para pensar** (anel de 25 s, sem placa) → **placas 
 
 **Nas aulas:** todas começam com um **aquecimento** de 2 ou 3 perguntas de aulas anteriores, misturadas (evocar e intercalar os tipos de problema), e têm perguntas-dobradiça logo depois de cada ideia: da saída para a entrada (aula 1 e 3), qual é a lei (aula 3), sequência (aula 3), imagem (aula 4) e gráfico (aulas 6 e 7). No modo projetor, a pergunta ocupa a largura toda, e o placar e o cronômetro ficam na gaveta.
 
+### O erro do Zé
+
+A **resolução do Zé** aparece passo a passo, como num caderno, com **um passo errado** — e os passos seguintes continuam a conta errada dele, como um aluno de verdade faria. A turma vota com as placas **em qual passo está o erro** (A a D) ou **E, "o Zé acertou tudo"**. Ao revelar, o passo errado fica em vermelho com o nome do erro e o jeito certo; os anteriores aparecem como certos e os seguintes como "só continua a conta errada". Depois vem a resolução correta e **Ver na Fábrica**. Analisar o erro de outra pessoa é seguro para quem ainda tem dúvida e fixa o porquê de cada passo.
+
+| Modelo | Descritor | Erros plantados (um por vez, sorteado) |
+|---|---|---|
+| Da saída para a entrada | D22 | desfez fora de ordem · somou a parte fixa em vez de tirar · multiplicou em vez de dividir |
+| Escrever a lei | D12 | trocou parte fixa e variável · somou antes de multiplicar · esqueceu de multiplicar por x |
+| A imagem | D11 | (−2)² = −4 · deu o contradomínio · deu o domínio |
+| Termo da sequência | C09 | contou um termo a mais · somou antes de multiplicar |
+| Conta com decimais | C20 | vírgula deslocada (no passo da divisão ou no da escrita) |
+
+Está nos Desafios (Placas A–E, tipos "O erro do Zé") e nas aulas 2, 3, 4 e 7. No resumo da turma, quem não acha o erro conta como "não viu: …" com o nome do erro.
+
 ### Bilhete de saída
 
 Último momento de cada aula: **duas perguntas sobre o conteúdo daquela aula** (o aquecimento retoma as anteriores) e uma **autoavaliação** com placas A, B ou C: *Entendi bem e consigo explicar* · *Entendi, mas ainda erro às vezes* · *Ainda não entendi*. Se 25% ou mais disserem que ainda não entenderam, a tela sugere retomar no aquecimento da próxima aula.

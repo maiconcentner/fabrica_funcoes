@@ -1527,3 +1527,17 @@ html.proj .h-rel { font-size: 1.35rem; }
 .rs-self .s0 { background: var(--okk-fill); color: var(--okk); }
 .rs-self .s1 { background: var(--q-fill); color: var(--q); }
 .rs-self .s2 { background: var(--warn-fill); color: var(--warn); }
+
+/* ===== O erro do Zé: a resolução num caderno ===== */
+.ze-title { margin: 2px 0 -2px; font-family: var(--font-display); font-weight: 700; font-size: 1.05rem; color: var(--muted); }
+.h-alts.ze { gap: 0; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--surface); }
+.h-alts.ze .h-alt { border: 0; border-radius: 0; border-left: 3px solid color-mix(in srgb, var(--bad) 45%, transparent); background: transparent; margin-left: 0; }
+.h-alts.ze .h-alt + .h-alt { border-top: 1px dashed var(--line); }
+.h-alts.ze .h-alt:last-child { border-left-color: transparent; background: var(--surface-2); }
+.ze-step { font-size: 1.2rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+html.proj .ze-step { font-size: 1.4rem; }
+.h-alts.ze .h-alt.zerr { background: var(--warn-fill); box-shadow: inset 0 0 0 3px var(--warn-line); }
+.h-alts.ze .h-alt.zerr .h-l { background: var(--warn-line); border-color: var(--warn-line); color: #fff; }
+.h-alts.ze .h-alt.zerr .h-why { color: var(--warn); }
+.h-alts.ze .h-alt.zfine .h-why { color: var(--okk); font-weight: 600; }
+.h-alts.ze .h-alt.zfine .h-body > :not(.h-why) { opacity: 0.85; }
