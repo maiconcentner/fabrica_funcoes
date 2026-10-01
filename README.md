@@ -150,7 +150,7 @@ Um clique por vez: **tempo para pensar** (anel de 25 s, sem placa) → **placas 
 
 ### O erro do Zé
 
-A **resolução do Zé** aparece passo a passo, como num caderno, com **um passo errado** — e os passos seguintes continuam a conta errada dele, como um aluno de verdade faria. A turma vota com as placas **em qual passo está o erro** (A a D) ou **E, "o Zé acertou tudo"**. Ao revelar, o passo errado fica em vermelho com o nome do erro e o jeito certo; os anteriores aparecem como certos e os seguintes como "só continua a conta errada". Depois vem a resolução correta e **Ver na Fábrica**. Analisar o erro de outra pessoa é seguro para quem ainda tem dúvida e fixa o porquê de cada passo.
+O **Zé** (um bonequinho com balão de fala) mostra o **caderno** com a resolução, em letra de mão, com **um passo errado** — e os passos seguintes continuam a conta errada dele, como um aluno de verdade faria. Primeiro, tempo para pensar; depois a turma vota com as placas **em qual passo está o erro** (A a D) ou **E, "o Zé acertou tudo"**, numa faixa de votos discreta embaixo do caderno. Ao revelar, a correção é de **caneta vermelha**: o passo errado fica riscado com o certo escrito embaixo, os anteriores ganham ✓ e os seguintes ficam apagados ("segue a conta errada"); a explicação aparece uma vez só, numa caixa de **Atenção**, com quantos acharam o erro e o que o voto errado mais comum mostra. Depois vem a resolução correta e **Ver na Fábrica**. Analisar o erro de outra pessoa é seguro para quem ainda tem dúvida e fixa o porquê de cada passo.
 
 | Modelo | Descritor | Erros plantados (um por vez, sorteado) |
 |---|---|---|

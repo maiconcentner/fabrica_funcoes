@@ -1528,16 +1528,71 @@ html.proj .h-rel { font-size: 1.35rem; }
 .rs-self .s1 { background: var(--q-fill); color: var(--q); }
 .rs-self .s2 { background: var(--warn-fill); color: var(--warn); }
 
-/* ===== O erro do Zé: a resolução num caderno ===== */
-.ze-title { margin: 2px 0 -2px; font-family: var(--font-display); font-weight: 700; font-size: 1.05rem; color: var(--muted); }
-.h-alts.ze { gap: 0; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--surface); }
-.h-alts.ze .h-alt { border: 0; border-radius: 0; border-left: 3px solid color-mix(in srgb, var(--bad) 45%, transparent); background: transparent; margin-left: 0; }
-.h-alts.ze .h-alt + .h-alt { border-top: 1px dashed var(--line); }
-.h-alts.ze .h-alt:last-child { border-left-color: transparent; background: var(--surface-2); }
-.ze-step { font-size: 1.2rem; font-weight: 600; font-variant-numeric: tabular-nums; }
-html.proj .ze-step { font-size: 1.4rem; }
-.h-alts.ze .h-alt.zerr { background: var(--warn-fill); box-shadow: inset 0 0 0 3px var(--warn-line); }
-.h-alts.ze .h-alt.zerr .h-l { background: var(--warn-line); border-color: var(--warn-line); color: #fff; }
-.h-alts.ze .h-alt.zerr .h-why { color: var(--warn); }
-.h-alts.ze .h-alt.zfine .h-why { color: var(--okk); font-weight: 600; }
-.h-alts.ze .h-alt.zfine .h-body > :not(.h-why) { opacity: 0.85; }
+
+
+/* ===== O erro do Zé: o caderno, corrigido de caneta vermelha ===== */
+:root { --font-hand: "Patrick Hand", "Comic Sans MS", "Segoe Print", cursive; --pen: #d0312d; }
+.ze-row { display: flex; align-items: center; gap: 12px; }
+.ze-ava { flex: none; display: flex; flex-direction: column; align-items: center; font-family: var(--font-hand); font-size: 1.1rem; line-height: 1; color: var(--muted); }
+.ze-ava svg { width: 58px; height: 58px; }
+.ze-skin { fill: #f2c9a0; stroke: #7a5236; stroke-width: 2; }
+.ze-cap { fill: var(--in); stroke: color-mix(in srgb, var(--in) 70%, #000); stroke-width: 2; stroke-linejoin: round; }
+.ze-brim { stroke: color-mix(in srgb, var(--in) 70%, #000); stroke-width: 4; stroke-linecap: round; }
+.ze-eye { fill: #3a2a1e; }
+.ze-mouth { fill: none; stroke: #3a2a1e; stroke-width: 2.4; stroke-linecap: round; }
+.ze-ava.oops .ze-mouth { d: path("M26 49q6 -4 12 0"); }
+.ze-bubble { position: relative; margin: 0; padding: 10px 16px; background: var(--surface); border: 2px solid var(--line); border-radius: 16px; font-size: 1.1rem; }
+.ze-bubble::before { content: ""; position: absolute; left: -9px; top: 50%; width: 14px; height: 14px; background: var(--surface); border-left: 2px solid var(--line); border-bottom: 2px solid var(--line); transform: translateY(-50%) rotate(45deg); }
+.ze-paper { background: #fffdf6; border: 1px solid #e3dccb; border-radius: 6px; padding: 6px 0; box-shadow: 0 2px 0 #e3dccb, 0 6px 16px rgba(8, 16, 24, 0.08); position: relative; }
+:root[data-theme="dark"] .ze-paper { background: #f4efe2; }
+.ze-paper::before { content: ""; position: absolute; top: 0; bottom: 0; left: 58px; border-left: 2px solid color-mix(in srgb, var(--pen) 45%, transparent); }
+.ze-lines { list-style: none; margin: 0; padding: 0; }
+.ze-line { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 14px; min-height: 52px; padding: 4px 16px 4px 0; border-bottom: 1px solid #c9dbea; color: #1c2a36; }
+.ze-line:last-child { border-bottom: 0; }
+.ze-line .ze-l { margin: 0 14px 0 14px; }
+.ze-l { flex: none; width: 30px; height: 30px; border-radius: 50%; display: inline-grid; place-items: center; border: 2px solid #3a4a58; color: #3a4a58; background: #fff; font-weight: 800; font-size: 0.95rem; font-family: var(--font-body); }
+.ze-txt { font-family: var(--font-hand); font-size: 1.55rem; line-height: 1.25; }
+.ze-line.good .ze-tick { font-family: var(--font-hand); color: #1d8a4a; font-size: 1.7rem; font-weight: 700; margin-left: auto; }
+.ze-line.bad { background: color-mix(in srgb, var(--pen) 7%, transparent); }
+.ze-line.bad .ze-l { border-color: var(--pen); background: var(--pen); color: #fff; box-shadow: 0 0 0 4px color-mix(in srgb, var(--pen) 25%, transparent); }
+.ze-line.bad .ze-txt { text-decoration: line-through; text-decoration-color: var(--pen); text-decoration-thickness: 3px; }
+.ze-fix { font-family: var(--font-hand); color: var(--pen); font-size: 1.55rem; transform: rotate(-2deg); }
+.ze-fix::before { content: "→ "; }
+.ze-line.after .ze-txt, .ze-line.after .ze-l { opacity: 0.4; }
+.ze-after { margin-left: auto; font-family: var(--font-hand); color: #7b8794; font-size: 1.1rem; }
+.ze-e { align-self: flex-start; margin: 0; display: inline-flex; align-items: center; gap: 10px; padding: 6px 16px 6px 8px; border: 2px dashed var(--line); border-radius: 999px; font-weight: 700; font-size: 1.05rem; background: var(--surface); }
+.ze-e.no { opacity: 0.5; text-decoration: line-through; }
+.ze-votes { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; padding: 6px 10px; background: var(--surface-2); border-radius: 10px; }
+.zv-t { color: var(--accent); }
+.zv { display: inline-flex; align-items: center; gap: 4px; }
+.zv .ze-l { width: 26px; height: 26px; font-size: 0.85rem; }
+.zv.ok .ze-l { border-color: var(--pen); background: var(--pen); color: #fff; }
+.zv .h-n { min-width: 38px; height: 30px; }
+.zv-m { border: 0; background: transparent; color: var(--muted); font-size: 1.1rem; width: 18px; padding: 0; }
+.zv small { color: var(--muted); font-weight: 700; }
+.ze-why { padding: 10px 14px; display: flex; flex-direction: column; gap: 4px; }
+.ze-why p { margin: 0; font-size: 1.1rem; }
+.ze-why .kchip { align-self: flex-start; }
+html.proj .ze-txt, html.proj .ze-fix { font-size: 1.8rem; }
+html.proj .ze-line { min-height: 60px; }
+html.proj .ze-ava svg { width: 70px; height: 70px; }
+html.proj .ze-bubble { font-size: 1.3rem; }
+@media (max-width: 700px) {
+  .ze-txt, .ze-fix { font-size: 1.25rem; }
+  .ze-paper::before { left: 50px; }
+  .ze-line .ze-l { margin: 0 10px; }
+  .ze-after { margin-left: 54px; }
+}
+.ze-think { margin-left: auto; display: flex; align-items: center; gap: 10px; padding: 6px 12px; border-radius: 12px; background: var(--do-fill); border-left: 6px solid var(--do-line); }
+.ze-think p { margin: 0; font-weight: 700; max-width: 14em; }
+@media (max-width: 700px) { .ze-row { flex-wrap: wrap; } .ze-think { margin-left: 0; } }
+/* linha do caderno em colunas: margem com a letra · passo (e a correção embaixo) · ✓ */
+.ze-line { display: grid; grid-template-columns: 58px minmax(0, 1fr) auto; column-gap: 12px; row-gap: 0; padding: 6px 16px 6px 0; }
+.ze-line .ze-l { margin: 0 auto; grid-row: 1 / span 2; align-self: center; }
+.ze-line .ze-txt { grid-column: 2; }
+.ze-line .ze-fix { grid-column: 2; transform: none; }
+.ze-line .ze-tick, .ze-line .ze-after { grid-column: 3; grid-row: 1; margin-left: 0; }
+@media (max-width: 700px) {
+  .ze-line { grid-template-columns: 50px minmax(0, 1fr) auto; padding-right: 8px; }
+  .ze-after { font-size: 0.9rem; max-width: 6em; text-align: right; }
+}

@@ -334,13 +334,12 @@
   function zeItem(o) {
     const n = o.zsteps.length;
     const alts = o.zsteps.map((h, i) => ({
-      h: '<span class="ze-step">' + h + '</span>', ok: i === o.at,
+      h: '<span class="ze-step">' + h + '</span>', zt: h, ok: i === o.at,
       e: i === o.at ? undefined : 'não viu: ' + o.tag,
       why: i === o.at ? o.why + ' O certo: ' + o.fix : i < o.at ? 'Este passo está certo.' : 'Este passo só continua a conta errada do Zé.',
     }));
     alts.push({ t: 'O Zé acertou tudo', e: 'não viu: ' + o.tag, why: 'Tem erro, sim: no passo ' + LETTERS[o.at] + '.' });
-    return { ze: true, stem: o.intro + '<p class="h-q">O Zé resolveu assim, mas errou em um passo. Em qual? (Se achar que está tudo certo, E.)</p>',
-      alts, solve: o.solve, fab: o.fab, nz: n };
+    return { ze: true, stem: o.intro, alts, solve: o.solve, fab: o.fab, nz: n, zat: o.at, zfix: o.fix, zwhy: o.why };
   }
   const pickErr = (list) => list[rnd(list.length)];
 
@@ -584,6 +583,7 @@
     const kc = (k, w) => '<span class="kchip k-' + k + '">' + w + '</span>';
     h += '<div class="ex-card h-stem kbox k-q">' + kc('q', it.self ? 'Autoavaliação' : 'Pergunta') + it.stem + '</div>';
     if (it.self) return drawSelf(h, it, st, total);
+    if (it.ze) return drawZe(h, it, st, total);
     if (st === 0) h += '<div class="h-cue kbox k-do">' + kc('do', 'Faça') + '<div class="h-think" id="h-think" style="--p:1"><b></b></div><p></p></div>';
     if (st === 1) h += '<div class="h-cue h-up kbox k-do">' + kc('do', 'Faça') + '<p><b>Placas para cima!</b> Toque nas letras para contar quantos alunos escolheram cada uma (opcional).</p></div>';
     if (it.ze) h += '<p class="ze-title">✎ Resolução do Zé</p>';
@@ -622,6 +622,50 @@
       paintThink(document.getElementById('h-think'));
     } else clearThink();
   }
+  /* Erro do Zé: o caderno dele, corrigido como a professora corrigiria (caneta vermelha) */
+  const ZE_SVG = '<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="36" r="20" class="ze-skin"/><path d="M12 30c0-13 9-20 20-20s20 7 20 20c-6-4-13-6-20-6s-14 2-20 6Z" class="ze-cap"/><path d="M50 27h9" class="ze-brim"/>' +
+    '<circle cx="25" cy="36" r="2.6" class="ze-eye"/><circle cx="39" cy="36" r="2.6" class="ze-eye"/><path class="ze-mouth" d="M25 46q7 5 14 0"/></svg>';
+  function drawZe(h, it, st, total) {
+    const okI = it.zat, ns = it.alts.length - 1, rev = st >= 2;
+    const kc = (k, w) => '<span class="kchip k-' + k + '">' + w + '</span>';
+    h += '<div class="ze-row"><div class="ze-ava' + (rev ? ' oops' : '') + '">' + ZE_SVG + '<span>Zé</span></div><p class="ze-bubble">' +
+      (rev ? 'Ah… então foi no passo <b>' + LETTERS[okI] + '</b> que eu errei!' : 'Resolvi assim… mas a professora disse que eu errei em <b>um</b> passo. Qual?') + '</p>' +
+      (st === 0 ? '<div class="ze-think"><div class="h-think" id="h-think" style="--p:1"><b></b></div><p></p></div>' : '') + '</div>';
+    h += '<div class="ze-paper"><ol class="ze-lines">' + it.alts.slice(0, ns).map((a, i) => {
+      const cls = rev ? (i === okI ? ' bad' : i < okI ? ' good' : ' after') : '';
+      return '<li class="ze-line' + cls + '"><span class="ze-l">' + LETTERS[i] + '</span><span class="ze-txt">' + a.zt + '</span>' +
+        (rev && i === okI ? '<span class="ze-fix">' + esc(it.zfix.replace(/^o certo:\s*/i, '')) + '</span>' : '') +
+        (rev && i < okI ? '<span class="ze-tick" aria-label="certo">✓</span>' : '') +
+        (rev && i > okI ? '<span class="ze-after">segue a conta errada</span>' : '') + '</li>';
+    }).join('') + '</ol></div>';
+    h += '<p class="ze-e' + (rev ? ' no' : '') + '"><span class="ze-l">E</span> O Zé acertou tudo</p>';
+    if (st >= 1) {
+      h += '<div class="ze-votes">' + (st === 1 ? '<b class="zv-t">Placas para cima!</b> ' : '<b class="zv-t">Votos</b> ') + it.alts.map((a, i) => {
+        const p = total ? Math.round((100 * it.counts[i]) / total) : 0;
+        return '<span class="zv' + (rev && i === okI ? ' ok' : '') + '"><span class="ze-l">' + LETTERS[i] + '</span>' +
+          '<button class="h-n" data-act="h-inc" data-i="' + i + '" aria-label="Mais um voto em ' + LETTERS[i] + '">' + it.counts[i] + '</button>' +
+          '<button class="zv-m" data-act="h-dec" data-i="' + i + '" aria-label="Tirar um voto de ' + LETTERS[i] + '">−</button>' + (total ? '<small>' + p + '%</small>' : '') + '</span>';
+      }).join('') + '</div>';
+    }
+    if (rev) {
+      const pOk = total ? Math.round((100 * it.counts[okI]) / total) : null;
+      const wrong = it.counts.map((c, i) => ({ c, i })).filter((x) => x.i !== okI).sort((p, q) => q.c - p.c)[0];
+      h += '<div class="ze-why kbox k-warn">' + kc('warn', 'Atenção') + '<p><b>Passo ' + LETTERS[okI] + ':</b> ' + esc(it.zwhy) + '</p>' +
+        (pOk != null ? '<p class="ze-res"><b>' + pOk + '% acharam o erro.</b>' + (wrong && wrong.c ? ' ' + zeHint(it, wrong.i, okI) : '') + '</p>' : '') + '</div>';
+    }
+    const solveN = H.warm ? (H.showSolve ? it.solve.length : 0) : Math.max(0, st - 2);
+    if (solveN) h += '<ol class="solve">' + it.solve.slice(0, solveN).map((x) => '<li>' + x + '</li>').join('') + '</ol>';
+    const label = st === 0 ? 'Placas para cima' : st === 1 ? 'Revelar o erro' : st < nSteps(it) - 1 ? 'Próximo passo da resolução' : H.i < H.list.length - 1 ? 'Próxima pergunta' : 'Fim';
+    h += '<div class="g-row end">' + (st >= 2 && it.fab ? '<button class="btn btn-ghost" data-act="h-fab">Ver na Fábrica</button>' : '') +
+      '<button class="btn btn-ghost" data-act="h-new">Outra resolução</button>' +
+      '<button class="btn btn-ghost" data-act="h-back"' + (hasBack() ? '' : ' disabled') + '>Voltar</button>' +
+      '<button class="btn" data-act="h-next"' + (atEnd() ? ' disabled' : '') + '>' + label + '</button></div>';
+    host.innerHTML = h;
+    const last = host.querySelector('.solve li:last-child') || (rev && host.querySelector('.ze-why'));
+    if (last) last.scrollIntoView({ block: 'nearest' });
+    if (st === 0) { if (!think.id) startThink(25); paintThink(document.getElementById('h-think')); } else clearThink();
+  }
+
   /* Erro do Zé: o que o voto errado mais comum mostra */
   function zeHint(it, i, okI) {
     if (i === it.alts.length - 1) return 'Muitos acharam que o Zé acertou tudo: vale refazer a conta junto, passo a passo.';
