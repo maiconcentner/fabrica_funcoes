@@ -5,7 +5,18 @@
   const X = FF.expr;
 
   const DEFAULTS = {
-    view: 'fab',
+    view: 'aula',       // 'aula' | 'fab' (Fábrica) | 'insp' (É função?) | 'game' | 'emp'
+    lesson: '',         // aula em andamento ('' = nenhuma)
+    lm: 0,              // momento da aula
+    ls: 0,              // passo revelado dentro do momento (telas de texto)
+    iMode: 'diag',      // inspetor: 'diag' | 'tab' | 'graf'
+    iCase: 0,           // caso atual do inspetor
+    iCustom: '',        // diagrama montado pelo professor
+    gGame: 'rule',      // desafio: 'rule' | 'rev' | 'race' | 'ex'
+    gLevel: 1,          // nível dos desafios (1 a 3)
+    gTeams: '',         // equipes e pontos (JSON)
+    gClock: 60,         // segundos do cronômetro
+    emp: '',            // Minha empresa (JSON)
     ctx: 'livre',
     law: '2x + 1',      // lei digitada (vazio quando a situação tem lei por faixas)
     dom: 'R',           // domínio: R, R+, N, {2;3;4}, (0;20)
@@ -13,6 +24,7 @@
     inputs: '',         // sugestões de entrada ("-2;-1;0"); vazio = as da situação
     preset: -1,         // lei pronta escolhida (para mostrar as perguntas do livro)
     made: '',           // valores já fabricados ("2;3;4"), para reabrir a produção
+    bad: '',            // refugo: valores que não deu para produzir ("f0;f1;r-4")
     black: false,       // caixa-preta: esconde a lei e as engrenagens
     predict: false,     // prever a saída antes de ver
     table: true,
@@ -21,9 +33,12 @@
     calc: true,         // coluna "cálculo" na tabela
     curve: false,       // traçar a curva no gráfico
     dec: 2,
-    theme: 'auto',
+    theme: 'light',     // tema claro por padrão ('auto' segue o sistema)
+    themeV: 2,          // versão da preferência de tema salva
     font: 1,
     speed: 1,
+    proj: false,        // modo projetor (preferência deste computador; não vai no link)
+    turma: '',          // turma atual (Placas A–E): vai junto de cada resultado
   };
   const STORE_KEY = 'fabrica-funcoes:v1';
   const listeners = [];
@@ -52,15 +67,28 @@
     s.cd = String(s.cd || 'R');
     s.inputs = String(s.inputs || '');
     s.made = String(s.made || '');
+    s.bad = String(s.bad || '');
     s.preset = Math.round(Number(s.preset));
     if (!(s.preset >= -1 && s.preset < FF.PRESETS.length)) s.preset = -1;
     s.dec = clamp(Math.round(Number(s.dec)), 0, 4);
     if (isNaN(s.dec)) s.dec = 2;
     s.font = clamp(Number(s.font) || 1, 0.85, 1.6);
     s.speed = clamp(Number(s.speed) || 1, 0.25, 3);
-    ['black', 'predict', 'table', 'diagram', 'graph', 'calc', 'curve'].forEach((k) => { s[k] = !!s[k]; });
-    if (!['auto', 'light', 'dark'].includes(s.theme)) s.theme = 'auto';
-    if (s.view !== 'fab') s.view = 'fab';
+    ['black', 'predict', 'table', 'diagram', 'graph', 'calc', 'curve', 'proj'].forEach((k) => { s[k] = !!s[k]; });
+    if (!['auto', 'light', 'dark'].includes(s.theme)) s.theme = 'light';
+    if (!['aula', 'fab', 'insp', 'game', 'emp'].includes(s.view)) s.view = 'aula';
+    s.lesson = String(s.lesson || '');
+    s.lm = Math.max(0, Math.round(Number(s.lm) || 0));
+    s.ls = Math.max(0, Math.round(Number(s.ls) || 0));
+    s.emp = String(s.emp || '');
+    s.turma = String(s.turma || '').slice(0, 20);
+    if (!['rule', 'rev', 'race', 'ex', 'hinge'].includes(s.gGame)) s.gGame = 'rule';
+    s.gLevel = clamp(Math.round(Number(s.gLevel) || 1), 1, 3);
+    s.gTeams = String(s.gTeams || '');
+    s.gClock = [30, 60, 90, 120, 180].includes(Number(s.gClock)) ? Number(s.gClock) : 60;
+    if (!['diag', 'tab', 'graf'].includes(s.iMode)) s.iMode = 'diag';
+    s.iCase = Math.max(0, Math.round(Number(s.iCase) || 0));
+    s.iCustom = String(s.iCustom || '').slice(0, 400);
   }
 
   /* ---------- Lei atual ---------- */
@@ -87,6 +115,7 @@
       try {
         const ast = X.parse(src, vin);
         L = { kind: 'expr', vin, ast, chain: X.chain(ast), src };
+        if (!L.chain) L.plan = X.plan(ast);
       } catch (e) {
         L = { kind: 'error', vin, error: e.message, src };
       }
@@ -160,7 +189,12 @@
   FF.loadSaved = function () {
     try {
       const raw = localStorage.getItem(STORE_KEY);
-      if (raw) Object.assign(FF.state, JSON.parse(raw));
+      if (raw) {
+        const saved = JSON.parse(raw);
+        // Quem salvou antes do tema claro virar padrão passa para o claro uma vez
+        if (!saved.themeV) { saved.theme = 'light'; saved.themeV = 2; }
+        Object.assign(FF.state, saved);
+      }
     } catch (e) { /* ignora */ }
     sanitize(FF.state);
   };
@@ -171,7 +205,15 @@
   const MODES = { black: 'b', predict: 'p' };
   FF.encodeHash = function () {
     const s = FF.state;
-    const parts = ['c=' + s.ctx];
+    const parts = [];
+    if (s.lesson) parts.push('au=' + s.lesson + ':' + s.lm + ':' + s.ls);
+    if (s.view === 'aula') parts.push('v=aula');
+    if (s.view === 'fab') parts.push('v=fab');
+    if (s.view === 'insp') parts.push('v=insp', 'im=' + s.iMode, 'ic=' + s.iCase);
+    if (s.view === 'game') parts.push('v=game', 'gg=' + s.gGame, 'gl=' + s.gLevel);
+    if (s.view === 'emp') parts.push('v=emp', 'e=' + encodeURIComponent(s.emp));
+    if (s.view === 'insp' && s.iCustom) parts.push('iu=' + encodeURIComponent(s.iCustom));
+    parts.push('c=' + s.ctx);
     const c = FF.ctx();
     if (!(c.law && c.law.kind === 'piece' && !s.law)) parts.push('l=' + encodeURIComponent(s.law));
     parts.push('d=' + encodeURIComponent(s.dom), 'b=' + encodeURIComponent(s.cd));
@@ -181,6 +223,13 @@
     parts.push('o=' + Object.keys(MODES).filter((k) => s[k]).map((k) => MODES[k]).join(''));
     parts.push('n=' + s.dec);
     if (s.made) parts.push('m=' + encodeURIComponent(s.made));
+    if (s.bad) parts.push('x=' + encodeURIComponent(s.bad));
+    // O passo também vai no link: produto na esteira ou passo da inspeção
+    if (s.view === 'fab' && FF.fab && FF.fab.status().run) {
+      const st = FF.fab.status();
+      parts.push('fr=' + (st.dir === 'rev' ? 'r' : 'f') + encodeURIComponent(st.v) + ':' + st.i);
+    }
+    if (s.view === 'insp' && FF.insp) parts.push('is=' + FF.insp.step());
     return parts.join('~');
   };
   FF.decodeHash = function (hash) {
@@ -194,6 +243,16 @@
       let v = tok.slice(i + 1);
       try { v = decodeURIComponent(v); } catch (e) { return; }
       switch (k) {
+        case 'v': out.view = v; break;
+        case 'au': { const [l, m, k] = v.split(':'); out.lesson = l; out.lm = parseInt(m, 10) || 0; out.ls = parseInt(k, 10) || 0; break; }
+        case 'fr': out._run = v; break;
+        case 'is': out._istep = parseInt(v, 10) || 0; break;
+        case 'gg': out.gGame = v; break;
+        case 'gl': out.gLevel = parseInt(v, 10); break;
+        case 'e': out.emp = v; break;
+        case 'im': out.iMode = v; break;
+        case 'ic': out.iCase = parseInt(v, 10); break;
+        case 'iu': out.iCustom = v; break;
         case 'c': out.ctx = v; break;
         case 'l': out.law = v; break;
         case 'd': out.dom = v; break;
@@ -202,6 +261,7 @@
         case 'q': out.preset = parseInt(v, 10); break;
         case 'n': out.dec = parseInt(v, 10); break;
         case 'm': out.made = v; break;
+        case 'x': out.bad = v; break;
         case 'k': Object.keys(FLAGS).forEach((f) => { out[f] = v.includes(FLAGS[f]); }); break;
         case 'o': Object.keys(MODES).forEach((f) => { out[f] = v.includes(MODES[f]); }); break;
       }

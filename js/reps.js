@@ -8,6 +8,7 @@
   function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
   function same(a, b) { return Math.abs(a - b) < 1e-9; }
   function uniq(list) { return list.filter((v, i) => list.findIndex((w) => same(v, w)) === i); }
+  const uniq2 = (list) => list.filter((v, i) => list.indexOf(v) === i);
   const setTxt = (vals) => '{' + vals.map((v) => FF.fmt(v)).join('; ') + '}';
 
   /* ---------- Tabela ---------- */
@@ -20,7 +21,8 @@
     const hout = livre ? '<i>f</i>(<i>' + L.vin + '</i>)' : '<i>' + esc(c.vout) + '</i><small>' + esc(c.outName) + (c.outUnit ? ' (' + esc(c.outUnit) + ')' : '') + '</small>';
     const showCalc = FF.state.calc && !FF.state.black;
     let h = '<table class="ftable"><thead><tr><th>' + hin + '</th>' + (showCalc ? '<th>cálculo</th>' : '') + '<th>' + hout + '</th></tr></thead><tbody>';
-    if (!recs.length) {
+    const rej = FF.prod.rejects;
+    if (!recs.length && !rej.length) {
       h += '<tr><td colspan="' + (showCalc ? 3 : 2) + '" class="empty">Os pares aparecem aqui quando os produtos saem da fábrica.</td></tr>';
     }
     recs.forEach((r, i) => {
@@ -28,6 +30,15 @@
       h += '<tr' + (last ? ' class="last"' : '') + '><td>' + FF.fmt(r.x) + '</td>' +
         (showCalc ? '<td class="calc">' + (r.calc ? FF.math.inline(r.calc, 17, L.vin) : '') + '</td>' : '') +
         '<td class="out">' + (X.isApprox(r.y) ? '≈ ' : '') + FF.fmtOutNum(r.y) + '</td></tr>';
+    });
+    // Refugo: em vermelho, com o motivo
+    rej.forEach((r) => {
+      const why = '<span class="why">' + esc(r.why) + '</span>';
+      if (r.dir === 'fwd') {
+        h += '<tr class="rej"><td>' + FF.fmt(r.v) + '</td>' + (showCalc ? '<td class="calc">' + why + '</td><td class="out">✗</td>' : '<td class="out">✗ ' + why + '</td>') + '</tr>';
+      } else {
+        h += '<tr class="rej"><td>✗</td>' + (showCalc ? '<td class="calc">' + why + '</td>' : '') + '<td class="out">' + FF.fmtOutNum(r.v) + (showCalc ? '' : ' ' + why) + '</td></tr>';
+      }
     });
     h += '</tbody></table>';
     $('rep-table').innerHTML = h;
@@ -38,7 +49,8 @@
     const L = FF.law();
     const recs = FF.prod.records;
     const W = 440, H = 300;
-    let A = L.dom.type === 'set' ? L.dom.vals.slice() : uniq(recs.map((r) => r.x)).sort((a, b) => a - b);
+    const rejX = FF.prod.rejects.filter((r) => r.dir === 'fwd').map((r) => r.v);
+    let A = L.dom.type === 'set' ? L.dom.vals.slice() : uniq(recs.map((r) => r.x).concat(rejX)).sort((a, b) => a - b);
     let B = L.cd.type === 'set' ? L.cd.vals.slice() : uniq(recs.map((r) => r.y)).sort((a, b) => a - b);
     const moreA = A.length > 8, moreB = B.length > 8;
     if (moreA) A = A.slice(-8);
@@ -63,8 +75,11 @@
     A.forEach((v, i) => {
       const y = pos(A, i);
       const done = recs.some((r) => same(r.x, v));
-      s += '<circle class="pt-a' + (done ? '' : ' idle') + '" cx="' + (ax + 16) + '" cy="' + r1(y) + '" r="3.2"/>' +
-        '<text class="el' + (done ? '' : ' idle') + '" x="' + (ax + 8) + '" y="' + r1(y + 5) + '" text-anchor="end">' + FF.fmt(v) + '</text>';
+      const bad = !done && rejX.some((w) => same(w, v));
+      const cls = done ? '' : bad ? ' rej' : ' idle';
+      s += '<circle class="pt-a' + cls + '" cx="' + (ax + 16) + '" cy="' + r1(y) + '" r="3.2"/>' +
+        '<text class="el' + cls + '" x="' + (ax + 8) + '" y="' + r1(y + 5) + '" text-anchor="end">' + FF.fmt(v) + '</text>' +
+        (bad ? '<text class="el rej" x="' + (ax + 30) + '" y="' + r1(y + 5) + '">✗</text>' : '');
     });
     B.forEach((v, j) => {
       const y = pos(B, j);
@@ -87,6 +102,13 @@
     const imSorted = im.slice().sort((a, b) => a - b);
     h += '<div><b>Im</b> ' + (allDone ? '= ' : '<span class="muted">(até agora)</span> ⊇ ') + (imSorted.length ? '{' + imSorted.map((v) => FF.fmtOutNum(v)).join('; ') + '}' : '{ }') + '</div>';
     if (allDone && L.cd.type === 'set') h += '<div class="muted">Im ⊂ CD: ' + (im.length < L.cd.vals.length ? 'sobram elementos de B sem flecha, e tudo bem.' : 'todos os elementos de B foram usados.') + '</div>';
+    const rej = FF.prod.rejects.filter((r) => r.dir === 'fwd');
+    if (rej.length) {
+      h += '<div class="rej-line"><b>Sem imagem</b> = {' + rej.map((r) => FF.fmt(r.v)).join('; ') + '}<span class="why"> ' +
+        uniq2(rej.map((r) => r.why)).join('; ') + '</span></div>';
+      if (L.dom.type === 'set' && rej.some((r) => X.inSet(L.dom, r.v))) h += '<div class="muted">Há elemento de A sem flecha: com esse A e esse B, não é função.</div>';
+      else if (L.dom.type !== 'set') h += '<div class="muted">Esses valores não podem estar no domínio.</div>';
+    }
     $('rep-sets').innerHTML = h;
     void W; void H;
   }
@@ -102,7 +124,8 @@
     const L = FF.law();
     const recs = FF.prod.records;
     const W = 440, H = 300, ml = 46, mr = 16, mt = 14, mb = 34;
-    const xs = recs.map((r) => r.x).concat(FF.inputList());
+    const rejG = FF.prod.rejects.filter((r) => r.dir === 'fwd').map((r) => r.v);
+    const xs = recs.map((r) => r.x).concat(FF.inputList(), rejG);
     let ys = recs.map((r) => r.y);
     if (L.kind !== 'error') {
       FF.inputList().forEach((x) => {
@@ -155,6 +178,14 @@
       s += '<clipPath id="plotclip"><rect x="' + ml + '" y="' + mt + '" width="' + (W - ml - mr) + '" height="' + (H - mt - mb) + '"/></clipPath>';
       s += '<path class="curve" clip-path="url(#plotclip)" d="' + d + '"/>';
     }
+    // Refugo: nenhum ponto nesse x
+    rejG.forEach((v) => {
+      const X0 = r1(sx(v));
+      if (X0 < ml || X0 > W - mr) return;
+      const ay = y0 < 0 && y1 > 0 ? sy(0) : H - mb;
+      s += '<line class="gnone" x1="' + X0 + '" y1="' + mt + '" x2="' + X0 + '" y2="' + (H - mb) + '"/>' +
+        '<text class="gnone-x" x="' + X0 + '" y="' + r1(ay + 5) + '" text-anchor="middle">✗</text>';
+    });
     // Pontos
     recs.forEach((r, i) => {
       const last = i === recs.length - 1;

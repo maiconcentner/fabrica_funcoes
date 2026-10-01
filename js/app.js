@@ -9,11 +9,11 @@
   /* ---------- Situação e lei ---------- */
   function chooseContext(id) {
     const c = FF.ctx(id);
-    FF.set({ ctx: c.id, law: typeof c.law === 'string' ? c.law : '', dom: c.dom, cd: c.cd, inputs: '', preset: -1, made: '' });
+    FF.set({ ctx: c.id, law: typeof c.law === 'string' ? c.law : '', dom: c.dom, cd: c.cd, inputs: '', preset: -1, made: '', bad: '' });
   }
   function choosePreset(i) {
     const p = FF.PRESETS[i];
-    FF.set({ ctx: 'livre', law: p.law, dom: p.dom || 'R', cd: p.cd || 'R', inputs: (p.inputs || []).join(';'), preset: i, made: '' });
+    FF.set({ ctx: 'livre', law: p.law, dom: p.dom || 'R', cd: p.cd || 'R', inputs: (p.inputs || []).join(';'), preset: i, made: '', bad: '' });
   }
   function applyLaw(src) {
     const c = FF.ctx();
@@ -29,7 +29,7 @@
     }
     $('law-msg').classList.remove('err');
     $('in-law').classList.remove('invalid');
-    FF.set({ law: src.trim(), made: '', preset: -1 });
+    FF.set({ law: src.trim(), made: '', bad: '', preset: -1 });
     return true;
   }
   function lawPrefix() {
@@ -53,7 +53,9 @@
     if (!S.black && L.kind === 'expr') {
       gearsTxt = L.chain
         ? '<p class="note">' + (L.chain.length ? 'Engrenagens, em ordem: ' + L.chain.map((g) => '<b class="gtag">' + esc(X.gearLabel(g)) + '</b>').join(' → ') : 'Sem engrenagens: sai o mesmo valor que entra.') + '</p>'
-        : '<p class="note">A variável aparece mais de uma vez: a máquina calcula numa <b>tela</b>, trocando <i>' + L.vin + '</i> pelo valor.</p>';
+        : L.plan
+          ? '<p class="note"><i>' + L.vin + '</i> aparece mais de uma vez: uma <b>copiadora</b> divide o produto em caminhos, e cada <b>junção</b> une os resultados.</p>'
+          : '<p class="note">Esta lei é calculada numa <b>tela</b>, trocando <i>' + L.vin + '</i> pelo valor.</p>';
     }
     $('law-view').innerHTML = h + gearsTxt;
   }
@@ -62,7 +64,7 @@
     const L = FF.law();
     const list = $('gear-list');
     if (L.kind !== 'expr' || !L.chain) {
-      list.innerHTML = '<li class="note">Esta lei não é uma fila de engrenagens. Use <b>Começar do zero</b> para montar uma.</li>';
+      list.innerHTML = (L.plan ? '<li class="note">Esta lei tem caminhos que se dividem (copiadora e junção): para mudá-la, edite a lei digitada acima.</li>' : '<li class="note">Esta lei não é uma fila de engrenagens. Use <b>Começar do zero</b> para montar uma.</li>');
       return;
     }
     if (!L.chain.length) { list.innerHTML = '<li class="note">Nenhuma engrenagem ainda.</li>'; return; }
@@ -167,22 +169,22 @@
       const v = e.target.value;
       if (v === 'set') {
         const vals = FF.inputList().slice(0, 6);
-        FF.set({ dom: '{' + (vals.length ? vals : [1, 2, 3, 4]).join(';') + '}', made: '' });
-      } else if (v !== 'iv') FF.set({ dom: v, made: '' });
+        FF.set({ dom: '{' + (vals.length ? vals : [1, 2, 3, 4]).join(';') + '}', made: '', bad: '' });
+      } else if (v !== 'iv') FF.set({ dom: v, made: '', bad: '' });
     });
     $('in-dom-set').addEventListener('change', (e) => {
       const vals = listStr(e.target.value);
-      if (vals.length) FF.set({ dom: '{' + vals.join(';') + '}', made: '' });
+      if (vals.length) FF.set({ dom: '{' + vals.join(';') + '}', made: '', bad: '' });
     });
     $('sel-cd').addEventListener('change', (e) => {
       if (e.target.value === 'set') {
         const ys = FF.prod.records.map((r) => r.y);
-        FF.set({ cd: '{' + (ys.length ? ys : [0, 1, 2, 3, 4]).join(';') + '}', made: '' });
-      } else FF.set({ cd: 'R', made: '' });
+        FF.set({ cd: '{' + (ys.length ? ys : [0, 1, 2, 3, 4]).join(';') + '}', made: '', bad: '' });
+      } else FF.set({ cd: 'R', made: '', bad: '' });
     });
     $('in-cd-set').addEventListener('change', (e) => {
       const vals = listStr(e.target.value);
-      if (vals.length) FF.set({ cd: '{' + vals.join(';') + '}', made: '' });
+      if (vals.length) FF.set({ cd: '{' + vals.join(';') + '}', made: '', bad: '' });
     });
     $('in-inputs').addEventListener('change', (e) => {
       FF.set({ inputs: listStr(e.target.value).slice(0, 12).join(';') });
@@ -227,6 +229,18 @@
   function syncUI() {
     const S = FF.state;
     const L = FF.law();
+    $('view-aula').hidden = S.view !== 'aula';
+    $('tab-aula').setAttribute('aria-selected', S.view === 'aula');
+    $('view-fab').hidden = S.view !== 'fab';
+    $('view-insp').hidden = S.view !== 'insp';
+    $('view-game').hidden = S.view !== 'game';
+    $('view-emp').hidden = S.view !== 'emp';
+    $('tab-emp').setAttribute('aria-selected', S.view === 'emp');
+    $('tab-game').setAttribute('aria-selected', S.view === 'game');
+    $('tab-fab').setAttribute('aria-selected', S.view === 'fab');
+    $('tab-insp').setAttribute('aria-selected', S.view === 'insp');
+    $('btn-black').hidden = S.view !== 'fab';
+    $('btn-predict').hidden = S.view !== 'fab';
     $('btn-black').setAttribute('aria-pressed', S.black);
     $('btn-predict').setAttribute('aria-pressed', S.predict);
     document.querySelectorAll('[data-flag]').forEach((b) => b.setAttribute('aria-pressed', !!S[b.dataset.flag]));
@@ -253,6 +267,7 @@
     if (S.theme === 'auto') document.documentElement.removeAttribute('data-theme');
     else document.documentElement.setAttribute('data-theme', S.theme);
     $('share-url').value = shareUrl();
+    syncProj();
   }
   function segSync(id, val) {
     Array.from($(id).querySelectorAll('button')).forEach((b) => b.setAttribute('aria-pressed', b.dataset.v === val));
@@ -264,8 +279,71 @@
     });
   }
   function shareUrl() {
-    const base = location.href.split('#')[0];
-    return base + '#' + FF.encodeHash();
+    if (FF.share) return FF.share.url();
+    return location.href.split('#')[0] + '#' + FF.encodeHash();
+  }
+
+  /* ---------- Modo projetor ----------
+     A narração sai da lateral e vira legenda embaixo da figura; o resto da lateral
+     vira uma gaveta. Desafios e Minha empresa mantêm a lateral (placar, cronômetro,
+     ponto de equilíbrio), só com letras e cores mais fortes. */
+  const DRAWER_VIEWS = ['aula', 'fab', 'insp'];
+  let projWas = null;
+  function syncProj() {
+    const S = FF.state;
+    const root = document.documentElement;
+    root.classList.toggle('proj', S.proj);
+    $('btn-proj').setAttribute('aria-pressed', S.proj);
+    segSync('seg-proj', S.proj ? '1' : '0');
+    // Placas A–E também ganham a largura toda (placar e cronômetro ficam na gaveta)
+    const drawer = S.proj && (DRAWER_VIEWS.includes(S.view) || (S.view === 'game' && S.gGame === 'hinge'));
+    root.classList.toggle('proj-drawer', drawer);
+    $('btn-drawer').hidden = !drawer;
+    if (!drawer) openDrawer(false);
+    if (projWas === S.proj) return;
+    projWas = S.proj;
+    // legenda: o cartão de narração muda de lugar (os ids continuam os mesmos)
+    ['view-fab', 'view-insp'].forEach((vid) => {
+      const view = $(vid);
+      const card = view.querySelector('.step-card');
+      const stepper = view.querySelector('.stepper');
+      const side = view.querySelector('.side');
+      if (S.proj) { card.classList.add('caption'); stepper.insertBefore(card, stepper.children[1]); }
+      else { card.classList.remove('caption'); side.insertBefore(card, side.firstChild); }
+    });
+    // figuras e anotações se ajustam ao novo tamanho
+    window.dispatchEvent(new Event('resize'));
+    idleCursor();
+  }
+  function openDrawer(open) {
+    const root = document.documentElement;
+    if (open === undefined) open = !root.classList.contains('drawer-open');
+    if (open && !root.classList.contains('proj-drawer')) open = false;
+    root.classList.toggle('drawer-open', open);
+    $('drawer-scrim').hidden = !open;
+    $('btn-drawer').setAttribute('aria-expanded', open);
+  }
+  function curtain(on) {
+    const c = $('curtain');
+    if (on === undefined) on = c.hidden;
+    c.hidden = !on;
+    if (on) c.focus();
+  }
+  // No projetor, a setinha do mouse some quando fica parada
+  let idleT = 0;
+  function idleCursor() {
+    document.documentElement.classList.remove('idle');
+    clearTimeout(idleT);
+    if (FF.state.proj) idleT = setTimeout(() => document.documentElement.classList.add('idle'), 2500);
+  }
+  FF.ui = { openDrawer };
+  function bindProj() {
+    $('btn-proj').addEventListener('click', () => FF.set({ proj: !FF.state.proj }));
+    segBind('seg-proj', (v) => FF.set({ proj: v === '1' }));
+    $('btn-drawer').addEventListener('click', () => openDrawer());
+    $('drawer-scrim').addEventListener('click', () => openDrawer(false));
+    $('curtain').addEventListener('click', () => curtain(false));
+    ['mousemove', 'pointerdown'].forEach((ev) => document.addEventListener(ev, idleCursor, { passive: true }));
   }
 
   /* ---------- Painel ---------- */
@@ -273,7 +351,7 @@
     $('panel').hidden = !open;
     $('scrim').hidden = !open;
     $('btn-panel').setAttribute('aria-expanded', open);
-    if (open) $('panel-close').focus();
+    if (open) { if (FF.share) FF.share.refresh(); $('panel-close').focus(); }
   }
   function bindPanel() {
     $('btn-panel').addEventListener('click', () => openPanel($('panel').hidden));
@@ -312,14 +390,30 @@
     if (tag === 'input' || tag === 'textarea' || tag === 'select' || e.ctrlKey || e.metaKey || e.altKey) return;
     const key = e.key;
     const S = FF.state;
+    // Cortina: qualquer tecla (ou o passador) só tira a cortina
+    if (!$('curtain').hidden) { e.preventDefault(); curtain(false); return; }
+    if (key === '.') { curtain(true); return; }
     if (key === 'Escape') {
       if (!$('panel').hidden) { openPanel(false); return; }
+      if (document.documentElement.classList.contains('drawer-open')) { openDrawer(false); return; }
       FF.reps.unmax();
       return;
     }
-    if (key === 'ArrowRight' || key === 'PageDown' || (key === ' ' && tag !== 'button')) { e.preventDefault(); FF.fab.next(); return; }
-    if (key === 'ArrowLeft' || key === 'PageUp') { e.preventDefault(); FF.fab.prev(); return; }
-    if (key === 'Home') { e.preventDefault(); FF.fab.first(); return; }
+    const MODS = { fab: FF.fab, insp: FF.insp, game: FF.games, emp: FF.emp, aula: FF.aula };
+    // Durante uma aula, na aba do momento, o passador comanda a aula (que comanda a ferramenta)
+    const mod = FF.aula.active() && FF.aula.inControl() ? FF.aula : MODS[S.view];
+    if (key === 'ArrowRight' || key === 'PageDown' || (key === ' ' && tag !== 'button')) { e.preventDefault(); mod.next(); return; }
+    if (key === 'ArrowLeft' || key === 'PageUp') { e.preventDefault(); mod.prev(); return; }
+    if (key === 'Home') { e.preventDefault(); (MODS[S.view].first || (() => {}))(); return; }
+    const TABS = ['aula', 'fab', 'insp', 'game', 'emp'];
+    if (/^[1-5]$/.test(key)) { FF.set({ view: TABS[Number(key) - 1] }); return; }
+    if (key.toLowerCase() === 'r') { const m = MODS[S.view]; if (m && m.replay) m.replay(); return; }
+    if (key.toLowerCase() === 'n') { const m = MODS[S.view]; if (m && m.newRound) m.newRound(); return; }
+    if (key.toLowerCase() === 'c') { FF.exportFig.copyFigure(); return; }
+    if (key.toLowerCase() === 'a') { FF.annot.toggle(); return; }
+    if (key.toLowerCase() === 'm') { FF.set({ proj: !S.proj }); return; }
+    if (key.toLowerCase() === 'l') { openDrawer(); return; }
+    if (S.view !== 'fab' && !['f', 'p'].includes(key.toLowerCase())) return;
     switch (key.toLowerCase()) {
       case 'b': FF.set({ black: !S.black }); break;
       case 'o': FF.set({ predict: !S.predict }); break;
@@ -337,7 +431,12 @@
   function init() {
     FF.loadSaved();
     const fromHash = FF.decodeHash(location.hash);
-    if (fromHash) Object.assign(FF.state, fromHash);
+    let linkRun = null, linkStep = null;
+    if (fromHash) {
+      linkRun = fromHash._run || null; linkStep = fromHash._istep;
+      delete fromHash._run; delete fromHash._istep;
+      Object.assign(FF.state, fromHash);
+    }
     FF.set({}, { force: true });
 
     $('sel-ctx').innerHTML = FF.CONTEXTS.map((c) => '<option value="' + c.id + '">' + (c.icon ? c.icon + ' ' : '') + esc(c.name) + (c.book ? ' · ' + esc(c.book) : '') + '</option>').join('');
@@ -370,12 +469,15 @@
     bindGearEditor();
     bindSetsCard();
     bindPanel();
+    bindProj();
+    $('panel-legend').innerHTML = FF.kLegend();
     document.addEventListener('keydown', onKey);
     window.addEventListener('hashchange', () => {
       const h = FF.decodeHash(location.hash);
-      if (h) FF.set(h);
+      if (h) { delete h._run; delete h._istep; FF.set(h); }
     });
 
+    FF.on((changed) => { if (changed.some((k) => ['view', 'lesson', 'lm'].includes(k))) openDrawer(false); });
     FF.on(syncUI);
     FF.on((changed) => {
       if (changed.some((k) => ['law', 'ctx', 'dom', 'cd'].includes(k))) {
@@ -390,9 +492,35 @@
         FF.reps.render();
       }
     });
+    document.querySelectorAll('.tab').forEach((b) => b.addEventListener('click', () => FF.set({ view: b.dataset.view })));
+    FF.on((changed) => {
+      if (changed.includes('view') && FF.state.view === 'insp') FF.insp.render();
+      if (changed.includes('view') && FF.state.view === 'game') FF.games.render();
+      if (changed.includes('view') && FF.state.view === 'fab') { FF.fab.render(); FF.reps.render(); }
+      if (changed.includes('view') && FF.state.view === 'emp') FF.emp.render();
+      // cenário salvo ou link aberto com a aba já visível
+      if (!changed.includes('view') && FF.state.view === 'insp' && changed.some((k) => ['iMode', 'iCase', 'iCustom'].includes(k))) FF.insp.render();
+      if (!changed.includes('view') && FF.state.view === 'game' && changed.some((k) => ['gGame', 'gLevel'].includes(k))) FF.games.render();
+    });
     syncUI();
     FF.fab.init();
     FF.reps.init();
+    FF.insp.init();
+    FF.games.init();
+    FF.emp.init();
+    FF.aula.init();
+    // Link com o passo: produto na esteira ou passo do inspetor
+    if (linkRun && FF.state.view === 'fab') {
+      const m = linkRun.match(/^([fr])(-?[\d.]+):(\d+)$/);
+      if (m) FF.fab.restoreRun(Number(m[2]), m[1] === 'r' ? 'rev' : 'fwd', Number(m[3]));
+    }
+    if (linkStep != null && FF.state.view === 'insp') FF.insp.goStep(linkStep);
+    FF.resumo.init();
+    FF.annot.init();
+    FF.share.init();
+    FF.exportFig.init();
+    if (FF.state.view === 'game') FF.games.render();
+    if (FF.state.view === 'emp') FF.emp.render();
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { syncUI(); FF.reps.render(); });
   }
 
