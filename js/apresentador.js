@@ -36,8 +36,8 @@
     if (!hz) return '';
     const tot = hz.counts.reduce((a, b) => a + b, 0);
     let h = '<p class="pv-sub">' + esc(hz.title) + (hz.n > 1 ? ' · pergunta ' + (hz.i + 1) + ' de ' + hz.n : '') + ' · <b>' + esc(hz.stepName) + '</b></p>';
-    h += '<div class="pv-stem kbox k-q">' + chip('q', 'Pergunta') + hz.stem + '</div>';
-    h += '<ol class="pv-alts">' + hz.alts.map((a, i) => '<li class="' + (a.ok ? 'ok' : 'no') + '"><span class="h-l">' + LETTERS[i] + '</span><div><div class="pv-alt">' + a.html + '</div><p class="pv-why">' + (a.ok ? '✓ Certa. ' : '✗ ') + esc(a.why) + '</p></div>' +
+    h += '<div class="pv-stem kbox k-q">' + chip('q', hz.self ? 'Autoavaliação' : 'Pergunta') + hz.stem + '</div>';
+    h += '<ol class="pv-alts">' + hz.alts.map((a, i) => '<li class="' + (hz.self ? '' : a.ok ? 'ok' : 'no') + '"><span class="h-l">' + LETTERS[i] + '</span><div><div class="pv-alt">' + a.html + '</div>' + (hz.self ? '' : '<p class="pv-why">' + (a.ok ? '✓ Certa. ' : '✗ ') + esc(a.why) + '</p>') + '</div>' +
       '<div class="pv-vote"><button class="icon-btn sm" data-vote="' + i + '" data-d="-1" aria-label="Tirar um voto">−</button><b>' + hz.counts[i] + '</b><button class="pv-plus" data-vote="' + i + '" data-d="1" aria-label="Mais um voto em ' + LETTERS[i] + '">+</button>' +
       (tot ? '<span class="pv-pct">' + Math.round((100 * hz.counts[i]) / tot) + '%</span>' : '') + '</div></li>').join('') + '</ol>';
     h += '<p class="note">Conte os votos aqui mesmo: os números aparecem na tela da turma depois de "Placas para cima".</p>';

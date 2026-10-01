@@ -23,6 +23,9 @@
      e perguntas-dobradiça no ponto em que a ideia é ensinada. */
   const warm = (items, title) => ({ kind: 'game', game: 'hinge', warm: true, items, title: title || 'Aquecimento',
     prompt: 'Aulas anteriores, misturadas: pensar sozinho → placas para cima → resposta.' });
+  /* Bilhete de saída: duas perguntas sobre a aula de hoje e a autoavaliação */
+  const exit = (items) => ({ kind: 'game', game: 'hinge', exit: true, items: items.concat(['auto']), title: 'Bilhete de saída',
+    prompt: 'Duas perguntas sobre a aula de hoje e como você está. Placas na mão (ou no papel: "Imprimir bilhetes").' });
   const hinge = (items, title, prompt) => ({ kind: 'game', game: 'hinge', items, title,
     prompt: prompt || 'Pergunta no formato da AvaliaSESI. Tempo para pensar, placas para cima, revelar e resolver.' });
 
@@ -57,6 +60,7 @@
           body: '<p>A <b>Cosip</b> financia a iluminação pública do município. Em São Paulo, o valor depende da faixa de consumo.</p>',
           steps: ['[do]<b>Para a próxima aula:</b> traga uma conta de energia da sua casa.', '[do]Com o consumo dos últimos 12 meses, procure uma expressão que relacione o valor pago ao consumo.', '[idea]Na Fábrica, é só trocar os números da lei para a tarifa da sua cidade.'],
           note: 'Consulte com a turma o site da distribuidora de energia do município.' },
+        exit(['lei', 'volta']),
       ],
     },
     {
@@ -85,6 +89,7 @@
           prompt: 'Fabrique os tempos da tabela. O gráfico dos pares (t; d) forma uma <b>reta</b> que passa pela origem.' },
         { kind: 'fab', title: 'Item e: 6 horas', setup: ctx('viagem'), run: [6, 'fwd'], until: 'run', prompt: 'Mantendo a velocidade, quantos km em 6 horas?' },
         { kind: 'fab', title: 'Item f: 640 km', setup: ctx('viagem'), run: [640, 'rev'], until: 'run', prompt: 'Quanto tempo para percorrer 640 km? A máquina ao contrário desfaz o × 80.' },
+        exit(['efuncao', 'decimal']),
       ],
     },
     {
@@ -117,6 +122,7 @@
         hinge(['volta', 'seq'], 'Pergunta-dobradiça: voltar e prever', 'Duas perguntas: achar a entrada a partir da saída e o termo de uma sequência (a posição conta!).'),
         { kind: 'game', title: 'Desafio: Adivinhe a regra', game: 'rule', level: 2,
           prompt: 'Em equipes: a máquina esconde uma lei do tipo <i>ax</i> + <i>b</i>. Cada equipe pede uma pista por vez.' },
+        exit(['lei', 'volta']),
       ],
     },
     {
@@ -146,6 +152,7 @@
           steps: ['<b>a.</b> <i>f</i>(5) = 2 · 5 − 0,5 = <b>9,5</b>', '<b>b.</b> <i>f</i>(10) = 2 · 10 − 0,5 = <b>19,5</b>', '<b>c.</b> <i>f</i>(−2) = 2 · (−2) − 0,5 = <b>−4,5</b>', '<b>d.</b> <i>f</i>(10) − <i>f</i>(5) = 19,5 − 9,5 = <b>10</b>', '<b>e.</b> <i>f</i>(−2) + <i>f</i>(5) = −4,5 + 9,5 = <b>5</b>', '<b>f.</b> <i>f</i>(−2) · <i>f</i>(5) · <i>f</i>(10) = (−4,5) · 9,5 · 19,5 = <b>−833,625</b>'],
           body: '<p>Calcule:</p>', note: 'Retomada das operações com números racionais.' },
         { kind: 'fab', title: 'Conferindo na máquina', setup: preset('2x − 0,5'), until: 'all', prompt: 'A máquina confere <i>f</i>(5), <i>f</i>(10), <i>f</i>(−2) e <i>f</i>(0).' },
+        exit(['imagem', 'lei']),
       ],
     },
     {
@@ -176,6 +183,7 @@
         { kind: 'insp', title: 'Atividade 15: Diagrama 4', mode: 'diag', case: 'Diagrama 4', prompt: 'Todos vão para o 2: é função?' },
         { kind: 'fab', title: 'Atividade 16: f(x) = x³ + 2', setup: preset('x³ + 2'), run: [66, 'rev'], until: 'run',
           prompt: 'A imagem é 66. Desfazendo: 66 − 2 = 64 e ∛64 = 4. (Os outros itens: 3, 10 e 29.)' },
+        exit(['efuncao', 'imagem']),
       ],
     },
     {
@@ -198,6 +206,7 @@
         { kind: 'insp', title: 'Reta vertical', mode: 'graf', case: 'Reta vertical', prompt: 'x = 2: quantos pontos a reta vertical corta?' },
         { kind: 'game', title: 'Desafio: Corrida das engrenagens', game: 'race', level: 1,
           prompt: 'Em equipes, montem a máquina que produz os pares dados.' },
+        exit(['grafico', 'efuncao']),
       ],
     },
     {
@@ -219,6 +228,7 @@
           prompt: 'Exercícios com números novos. Avance para revelar a resolução, passo a passo.' },
         { kind: 'slide', kicker: 'Fechamento', title: 'O que aprendemos',
           steps: ['<b>Função</b>: cada <i>x</i> do domínio tem <b>uma única</b> imagem.', 'A <b>lei de formação</b> é a máquina: dá para ir e (quase sempre) voltar.', 'D, CD e Im: <b>Im ⊂ CD</b>; o domínio exclui divisão por zero e raiz de negativo.', 'No <b>gráfico</b>, nenhuma reta vertical corta em mais de um ponto.'] },
+        exit(['grafico', 'volta']),
       ],
     },
   ];

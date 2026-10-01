@@ -142,10 +142,29 @@ Quinto jogo dos Desafios e momentos das aulas. Cada pergunta imita um item real 
 | Termo de uma sequência | C09 | PA·040 | um mês a mais · um mês a menos · só multiplicou · multiplicou o primeiro termo |
 | Qual é a imagem? | D11 | autoral (o banco não tinha item) | deu o domínio · deu o contradomínio · (−2)² = −4 · esqueceu de somar |
 | Conta com decimais | C20 / D22 | causa raiz do PAE | vírgula deslocada · esqueceu a vírgula · somou em vez de multiplicar · esqueceu a taxa |
+| Qual relação é função? | D02 | Atividades 14 e 15 | duas imagens para um x · x sem imagem · imagem fora de B · contou só as flechas |
 
 Um clique por vez: **tempo para pensar** (anel de 25 s, sem placa) → **placas para cima** (toque nas letras para contar os votos, opcional) → **revelar** (a certa em verde; em cada errada, o erro por trás dela; com votos, a porcentagem e o erro mais escolhido) → **resolução passo a passo** → **Ver na Fábrica**. Os votos ficam guardados neste navegador, por descritor, para o resumo da turma.
 
 **Nas aulas:** todas começam com um **aquecimento** de 2 ou 3 perguntas de aulas anteriores, misturadas (evocar e intercalar os tipos de problema), e têm perguntas-dobradiça logo depois de cada ideia: da saída para a entrada (aula 1 e 3), qual é a lei (aula 3), sequência (aula 3), imagem (aula 4) e gráfico (aulas 6 e 7). No modo projetor, a pergunta ocupa a largura toda, e o placar e o cronômetro ficam na gaveta.
+
+### Bilhete de saída
+
+Último momento de cada aula: **duas perguntas sobre o conteúdo daquela aula** (o aquecimento retoma as anteriores) e uma **autoavaliação** com placas A, B ou C: *Entendi bem e consigo explicar* · *Entendi, mas ainda erro às vezes* · *Ainda não entendi*. Se 25% ou mais disserem que ainda não entenderam, a tela sugere retomar no aquecimento da próxima aula.
+
+| Aula | Perguntas do bilhete |
+|---|---|
+| 1 | Qual é a lei? · Da saída para a entrada |
+| 2 | Qual relação é função? · Conta com decimais |
+| 3 | Qual é a lei? · Da saída para a entrada |
+| 4 | Qual é a imagem? · Qual é a lei? |
+| 5 | Qual relação é função? · Qual é a imagem? |
+| 6 | Qual é o gráfico? · Qual relação é função? |
+| 7 | Qual é o gráfico? · Da saída para a entrada |
+
+**Imprimir bilhetes** (no alto do bilhete) imprime as mesmas perguntas e a autoavaliação, **4 por folha A4**, com nome e turma, para quem preferir responder no papel. Os resultados entram no **Resumo da turma**, numa seção própria por aula, e no texto do relatório.
+
+O modelo novo **Qual relação é função?** (D02, Atividades 14 e 15) mostra cinco tabelas de A em B; os erros são: aceitar duas imagens para um *x*, aceitar *x* sem imagem, aceitar imagem fora de B e "contar só as flechas" (4 pares para 4 elementos, mas um *x* com duas imagens e outro sem nenhuma). A certa tem imagem repetida, de propósito: pode!
 
 ### Resumo da turma (para o relatório do PAE)
 

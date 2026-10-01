@@ -287,37 +287,90 @@
     },
   };
 
+  /* Qual relação é função? (Atividades 14 e 15 do livro: cada x com uma única imagem) */
+  T.efuncao = {
+    name: 'Qual relação é função?', code: 'D02', src: 'Atividades 14 e 15', grid: true,
+    make() {
+      const A = [1, 2, 3, 4];
+      const k = 1 + rnd(3);
+      const Bv = [k + 1, k + 3, k + 5, k + 7, k + 9];
+      // função certa, com uma imagem repetida (pode!)
+      const ys = shuffle(Bv.slice()).slice(0, 3);
+      const base = A.map((x, i) => [x, ys[i === 3 ? 0 : i]]);
+      const j = rnd(4);
+      let m; do { m = rnd(4); } while (m === j);
+      const other = Bv.find((v) => v !== base[j][1] && !ys.includes(v)) || Bv[4];
+      const out = Bv[Bv.length - 1] + 2 + rnd(3);
+      const sortP = (ps) => ps.slice().sort((p, q) => p[0] - q[0] || p[1] - q[1]);
+      const tab = (ps) => '<table class="h-rel"><tr><th><i>x</i></th>' + sortP(ps).map((p) => '<td>' + p[0] + '</td>').join('') + '</tr><tr><th><i>y</i></th>' + sortP(ps).map((p) => '<td>' + p[1] + '</td>').join('') + '</tr></table>';
+      const two = base.concat([[A[j], other]]);
+      const miss = base.filter((p, i) => i !== m);
+      const outB = base.map((p, i) => (i === m ? [p[0], out] : p));
+      const arrows = base.filter((p, i) => i !== m).concat([[A[j], other]]);
+      return {
+        stem: '<p>A = {1; 2; 3; 4} e B = {' + Bv.join('; ') + '}.</p><p class="h-q">Qual tabela representa uma função de A em B?</p>',
+        alts: [
+          { h: tab(base), ok: true, why: 'Cada x de A tem uma única imagem em B. Repetir imagem pode.' },
+          { h: tab(two), e: 'aceitou duas imagens para um x', why: 'O ' + A[j] + ' tem duas imagens.' },
+          { h: tab(miss), e: 'aceitou x sem imagem', why: 'O ' + A[m] + ' ficou sem imagem.' },
+          { h: tab(outB), e: 'aceitou imagem fora de B', why: 'A imagem ' + out + ' não está em B.' },
+          { h: tab(arrows), e: 'contou só as flechas', why: 'São 4 pares para 4 elementos, mas o ' + A[j] + ' tem duas imagens e o ' + A[m] + ' nenhuma.' },
+        ],
+        solve: [
+          'Função: <b>cada</b> elemento de A tem <b>uma, e só uma</b>, imagem em B.',
+          'Confira x por x: nenhum pode ficar sem imagem nem ter duas.',
+          'Imagens repetidas podem: dois x podem ir para o mesmo y.',
+          'E as imagens precisam estar em B.',
+        ],
+        fab: null,
+      };
+    },
+  };
+
+  /* Autoavaliação do bilhete de saída: não tem certa nem errada */
+  function selfItem() {
+    return { self: true, code: 'AUTO', tpl: 'auto', grid: false, solve: [], fab: null,
+      stem: '<p class="h-q">Como você está com o que aprendemos hoje?</p><p>Levante a placa da frase que mais combina com você.</p>',
+      alts: [{ t: 'Entendi bem e consigo explicar para um colega' }, { t: 'Entendi, mas ainda erro às vezes' }, { t: 'Ainda não entendi' }] };
+  }
+
   /* ---------- Estado da rodada ---------- */
-  const H = { list: [], i: 0, step: 0, warm: false, title: '', tpl: 'mix', showSolve: false, uid: 0 };
+  const H = { list: [], i: 0, step: 0, warm: false, exit: false, title: '', tpl: 'mix', showSolve: false, uid: 0 };
   function build(tplId) {
-    const tpl = T[tplId];
-    const it = tpl.make();
-    it.tpl = tplId;
-    it.code = it.code || tpl.code;
-    it.src = tpl.src;
-    it.grid = !!tpl.grid;
-    it.alts = shuffle(it.alts.slice());
-    it.counts = [0, 0, 0, 0, 0];
+    let it;
+    if (tplId === 'auto') it = selfItem();
+    else {
+      const tpl = T[tplId];
+      it = tpl.make();
+      it.tpl = tplId;
+      it.code = it.code || tpl.code;
+      it.src = tpl.src;
+      it.grid = !!tpl.grid;
+      it.alts = shuffle(it.alts.slice());
+    }
+    it.counts = it.alts.map(() => 0);
     it.uid = Date.now() + '-' + (H.uid++);
     return it;
   }
   function start(items, opts) {
     H.list = items.map(build);
     H.i = 0; H.step = 0; H.showSolve = false;
-    H.warm = !!(opts && opts.warm);
+    H.exit = !!(opts && opts.exit);
+    H.warm = !!(opts && opts.warm) || H.exit; // bilhete de saída: fluxo curto, como o aquecimento
     H.title = (opts && opts.title) || '';
     clearThink();
   }
   const cur = () => H.list[H.i];
   // passos de cada pergunta: 0 pensar, 1 placas, 2 revelar, 3… resolução (o aquecimento para no revelar)
-  const nSteps = (it) => 3 + (H.warm ? 0 : it.solve.length);
+  const nSteps = (it) => (it.self ? 2 : 3 + (H.warm ? 0 : it.solve.length));
+  const revealStep = (it) => (it.self ? 1 : 2);
   function atEnd() { const it = cur(); return !it || (H.i === H.list.length - 1 && H.step >= nSteps(it) - 1); }
   function next() {
     const it = cur();
     if (!it) return;
     if (H.step < nSteps(it) - 1) H.step++;
     else if (H.i < H.list.length - 1) { H.i++; H.step = 0; H.showSolve = false; }
-    if (H.step === 2) record();
+    if (H.step === revealStep(cur())) record();
     draw();
   }
   function prev() {
@@ -336,7 +389,8 @@
     let all = [];
     try { all = JSON.parse(localStorage.getItem(REC_KEY) || '[]'); } catch (e) { all = []; }
     const row = { uid: it.uid, when: it.when || (it.when = new Date().toISOString()), turma: it.turma || (it.turma = FF.state.turma || ''),
-      lesson: FF.state.lesson || '', code: it.code, tpl: it.tpl, ok: it.alts.findIndex((a) => a.ok), counts: it.counts.slice(),
+      lesson: FF.state.lesson || '', src: H.exit ? 'saida' : H.warm ? 'aquec' : H.title ? 'dobradica' : 'desafio',
+      code: it.code, tpl: it.tpl, ok: it.alts.findIndex((a) => a.ok), counts: it.counts.slice(),
       errs: it.alts.map((a) => (a.ok ? '' : a.e || a.why)), whys: it.alts.map((a) => (a.ok ? '' : a.why)) };
     const k = all.findIndex((r) => r.uid === it.uid);
     if (k >= 0) all[k] = row; else all.push(row);
@@ -378,10 +432,13 @@
     let h = '<div class="game-head h-head">' + (inLesson ? '' : '<h2>' + esc(H.title || (H.warm ? 'Aquecimento' : 'Placas A–E')) + '</h2>') +
       (H.list.length > 1 ? '<span class="h-count">' + (H.i + 1) + ' de ' + H.list.length + '</span>' : '') +
       '<span class="h-tools"><label class="h-turma">Turma <input id="h-turma" list="turmas-dl" value="' + esc(FF.state.turma || '') + '" placeholder="ex.: 9º A" autocomplete="off"></label>' +
-      '<button class="btn btn-ghost sm" data-act="h-resumo" title="Acertos e erros mais escolhidos, por descritor">Resumo da turma</button></span>' +
-      '<span class="h-desc" title="' + esc(DESC[it.code] || '') + '"><b>' + esc(it.code) + '</b> ' + esc(DESC[it.code] || '') + '</span></div>';
+      '<button class="btn btn-ghost sm" data-act="h-resumo" title="Acertos e erros mais escolhidos, por descritor">Resumo da turma</button>' +
+      (H.exit ? '<button class="btn btn-ghost sm" data-act="h-print" title="Imprime o bilhete (estas perguntas e a autoavaliação), 4 por folha, para responder no papel">Imprimir bilhetes</button>' : '') +
+      '</span>' + (it.self ? '<span class="h-desc"><b>Autoavaliação</b> como a turma se sente; não tem resposta certa</span></div>'
+        : '<span class="h-desc" title="' + esc(DESC[it.code] || '') + '"><b>' + esc(it.code) + '</b> ' + esc(DESC[it.code] || '') + '</span></div>');
     const kc = (k, w) => '<span class="kchip k-' + k + '">' + w + '</span>';
-    h += '<div class="ex-card h-stem kbox k-q">' + kc('q', 'Pergunta') + it.stem + '</div>';
+    h += '<div class="ex-card h-stem kbox k-q">' + kc('q', it.self ? 'Autoavaliação' : 'Pergunta') + it.stem + '</div>';
+    if (it.self) return drawSelf(h, it, st, total);
     if (st === 0) h += '<div class="h-cue kbox k-do">' + kc('do', 'Faça') + '<div class="h-think" id="h-think" style="--p:1"><b></b></div><p></p></div>';
     if (st === 1) h += '<div class="h-cue h-up kbox k-do">' + kc('do', 'Faça') + '<p><b>Placas para cima!</b> Toque nas letras para contar quantos alunos escolheram cada uma (opcional).</p></div>';
     h += '<ol class="h-alts' + (it.grid ? ' grid' : '') + '">' + it.alts.map((a, i) => {
@@ -403,7 +460,7 @@
     const label = st === 0 ? 'Placas para cima' : st === 1 ? 'Revelar a resposta' : st < nSteps(it) - 1 ? 'Próximo passo da resolução' : H.i < H.list.length - 1 ? 'Próxima pergunta' : 'Fim';
     h += '<div class="g-row end">' +
       (H.warm && st >= 2 ? '<button class="btn btn-ghost" data-act="h-solve">' + (H.showSolve ? 'Esconder' : 'Ver') + ' a resolução</button>' : '') +
-      (st >= 2 ? '<button class="btn btn-ghost" data-act="h-fab">Ver na Fábrica</button>' : '') +
+      (st >= 2 && it.fab ? '<button class="btn btn-ghost" data-act="h-fab">Ver na Fábrica</button>' : '') +
       '<button class="btn btn-ghost" data-act="h-new">Outra pergunta</button>' +
       '<button class="btn btn-ghost" data-act="h-back"' + (hasBack() ? '' : ' disabled') + '>Voltar</button>' +
       '<button class="btn" data-act="h-next"' + (atEnd() ? ' disabled' : '') + '>' + label + '</button></div>';
@@ -417,20 +474,60 @@
       paintThink(document.getElementById('h-think'));
     } else clearThink();
   }
+  /* Autoavaliação: placas A, B ou C desde o começo; depois, o resultado */
+  function drawSelf(h, it, st, total) {
+    const FACE = ['😀', '🤔', '😟'];
+    h += '<div class="h-cue h-up kbox k-do"><span class="kchip k-do">Faça</span><p><b>Placas para cima: A, B ou C.</b> Toque nas letras para contar.</p></div>';
+    h += '<ol class="h-alts h-self">' + it.alts.map((a, i) => {
+      const pct = total ? Math.round((100 * it.counts[i]) / total) : 0;
+      return '<li class="h-alt s' + i + '"><span class="h-l">' + LETTERS[i] + '</span><div class="h-body"><span class="h-t"><span class="h-face" aria-hidden="true">' + FACE[i] + '</span> ' + esc(a.t) + '</span></div>' +
+        '<div class="h-tally"><button class="icon-btn sm" data-act="h-dec" data-i="' + i + '" aria-label="Tirar um voto de ' + LETTERS[i] + '">−</button><button class="h-n" data-act="h-inc" data-i="' + i + '" aria-label="Mais um voto em ' + LETTERS[i] + '">' + it.counts[i] + '</button>' +
+        (total ? '<span class="h-bar"><i style="width:' + pct + '%"></i></span><span class="h-pct">' + pct + '%</span>' : '') + '</div></li>';
+    }).join('') + '</ol>';
+    if (st >= 1 && total) {
+      const p = it.counts.map((c) => Math.round((100 * c) / total));
+      h += '<p class="h-sum kbox ' + (p[2] >= 25 ? 'k-warn' : 'k-ok') + '">' + (p[2] >= 25
+        ? '<b>' + p[2] + '% ainda não entenderam.</b> Vale retomar no aquecimento da próxima aula.'
+        : '<b>' + (p[0] + p[1]) + '% entenderam</b> (' + p[0] + '% com segurança).') + '</p>';
+    }
+    h += '<div class="g-row end"><button class="btn btn-ghost" data-act="h-back"' + (hasBack() ? '' : ' disabled') + '>Voltar</button>' +
+      '<button class="btn" data-act="h-next"' + (atEnd() ? ' disabled' : '') + '>' + (st === 0 ? 'Ver o resultado' : 'Fim') + '</button></div>';
+    host.innerHTML = h;
+    clearThink();
+  }
+
+  /* Bilhetes para imprimir: as perguntas desta rodada e a autoavaliação, 4 por folha */
+  function printTickets() {
+    const one = '<div class="xt"><div class="xt-head"><b>Bilhete de saída' + (FF.state.lesson ? ' · ' + esc(lessonLabel()) : '') + '</b><span>Nome: ______________________ Turma: ______</span></div>' +
+      H.list.map((it, n) => '<div class="xt-q"><p class="xt-n">' + (it.self ? 'Como você está com o que aprendemos hoje?' : (n + 1) + '.') + '</p>' + (it.self ? '' : it.stem) +
+        '<ol class="xt-alts' + (it.grid ? ' grid' : '') + '">' + it.alts.map((a, i) => '<li><b>' + (it.self ? '☐' : '(' + LETTERS[i] + ')') + '</b> ' + (a.h || esc(a.t)) + '</li>').join('') + '</ol></div>').join('') + '</div>';
+    document.getElementById('exit-print').innerHTML = one + one + one + one;
+    document.body.classList.add('print-exit');
+    const done = () => { document.body.classList.remove('print-exit'); window.removeEventListener('afterprint', done); };
+    window.addEventListener('afterprint', done);
+    window.print();
+  }
+  function lessonLabel() {
+    const i = (FF.LESSONS || []).findIndex((l) => l.id === FF.state.lesson);
+    return i >= 0 ? 'Aula ' + (i + 1) + ': ' + FF.LESSONS[i].title : '';
+  }
+
   function act(a, el) {
     const it = cur();
+    if (a === 'h-print') { printTickets(); return; }
     if (a === 'h-next') { next(); return; }
     if (a === 'h-back') { prev(); return; }
     if (a === 'h-inc' || a === 'h-dec') {
       const i = Number(el.dataset.i);
       it.counts[i] = Math.max(0, it.counts[i] + (a === 'h-inc' ? 1 : -1));
-      if (H.step >= 2) record();
+      if (H.step >= revealStep(it)) record();
       draw();
       return;
     }
     if (a === 'h-resumo') { FF.resumo.open(); return; }
     if (a === 'h-solve') { H.showSolve = !H.showSolve; draw(); return; }
     if (a === 'h-new') {
+      if (it.self) return;
       // Desafios com "Todos os tipos": sorteia outro modelo; nas aulas, o mesmo modelo com números novos
       const id = H.title || H.warm ? it.tpl : H.tpl === 'mix' ? pick(TPL_IDS) : H.tpl;
       H.list[H.i] = build(id);
@@ -471,10 +568,10 @@
       const it = cur();
       if (!it) return null;
       const st = H.step;
-      return { title: H.title || (H.warm ? 'Aquecimento' : 'Placas A–E'), warm: H.warm, i: H.i, n: H.list.length, step: st,
-        stepName: ['Tempo para pensar', 'Placas para cima', 'Resposta revelada'][Math.min(st, 2)] + (st > 2 ? ' · resolução ' + (st - 2) + '/' + it.solve.length : ''),
+      return { title: H.title || (H.warm ? 'Aquecimento' : 'Placas A–E'), warm: H.warm, i: H.i, n: H.list.length, step: st, self: !!it.self,
+        stepName: it.self ? ['Placas para cima', 'Resultado'][Math.min(st, 1)] : ['Tempo para pensar', 'Placas para cima', 'Resposta revelada'][Math.min(st, 2)] + (st > 2 ? ' · resolução ' + (st - 2) + '/' + it.solve.length : ''),
         code: it.code, desc: DESC[it.code] || '', stem: it.stem, counts: it.counts.slice(),
-        alts: it.alts.map((a) => ({ html: a.h || esc(a.t), ok: !!a.ok, why: a.why })), solve: it.solve.slice() };
+        alts: it.alts.map((a) => ({ html: a.h || esc(a.t), ok: !!a.ok, why: a.why || '' })), solve: it.solve.slice() };
     },
     vote(i, d) { if (cur()) act(d > 0 ? 'h-inc' : 'h-dec', { dataset: { i: String(i) } }); },
   };

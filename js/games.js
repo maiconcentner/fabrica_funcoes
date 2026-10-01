@@ -538,7 +538,7 @@
       FF.set({ gGame: g, gLevel: level || FF.state.gLevel });
       if (g === 'ex' && ctx) G4.ctx = ctx;
       // Placas A–E numa aula: a lista de perguntas vem do momento (aquecimento ou pergunta-dobradiça)
-      if (g === 'hinge' && mo && mo.items) FF.hinge.start(mo.items, { warm: mo.warm, title: mo.title });
+      if (g === 'hinge' && mo && mo.items) FF.hinge.start(mo.items, { warm: mo.warm, exit: mo.exit, title: mo.title });
       else game().make();
       render();
     },
