@@ -466,5 +466,16 @@
     saveResults(all) { try { localStorage.setItem(REC_KEY, JSON.stringify(all)); } catch (e) { /* sem armazenamento */ } },
     TPL_NAME: (id) => (T[id] ? T[id].name : id),
     _make: (id) => build(id),
+    /* Para o modo apresentador: a pergunta inteira, com a certa e o erro de cada letra */
+    snap() {
+      const it = cur();
+      if (!it) return null;
+      const st = H.step;
+      return { title: H.title || (H.warm ? 'Aquecimento' : 'Placas A–E'), warm: H.warm, i: H.i, n: H.list.length, step: st,
+        stepName: ['Tempo para pensar', 'Placas para cima', 'Resposta revelada'][Math.min(st, 2)] + (st > 2 ? ' · resolução ' + (st - 2) + '/' + it.solve.length : ''),
+        code: it.code, desc: DESC[it.code] || '', stem: it.stem, counts: it.counts.slice(),
+        alts: it.alts.map((a) => ({ html: a.h || esc(a.t), ok: !!a.ok, why: a.why })), solve: it.solve.slice() };
+    },
+    vote(i, d) { if (cur()) act(d > 0 ? 'h-inc' : 'h-dec', { dataset: { i: String(i) } }); },
   };
 })();

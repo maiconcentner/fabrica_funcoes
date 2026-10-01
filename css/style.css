@@ -1419,3 +1419,74 @@ html.proj .reveal li.k::before { width: 34px; height: 34px; top: 12px; font-size
   body.print-sum .rs-bar, body.print-sum .kchip, body.print-sum .kpi { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 .rs-turmas { max-width: 640px; }
+
+/* ===== Modo apresentador (apresentador.html, no notebook do professor) ===== */
+body.pv { min-height: 100vh; display: flex; flex-direction: column; padding: 0 14px 14px; }
+.pv-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 10px 0; }
+.pv-brand { display: flex; flex-direction: column; }
+.pv-brand b { font-family: var(--font-display); font-size: 1.1rem; color: var(--accent); }
+.pv-brand span { font-size: 0.95rem; }
+.pv-clocks { display: flex; align-items: center; gap: 12px; }
+.pv-clock { font-family: var(--font-display); font-size: 1.6rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.pv-el { color: var(--accent); }
+.pv-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--bad); box-shadow: 0 0 0 3px color-mix(in srgb, var(--bad) 25%, transparent); }
+.pv-dot.on { background: var(--ok); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ok) 25%, transparent); }
+.pv-grid { flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, 340px); gap: 14px; align-items: start; }
+.pv-now, .pv-side { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.pv-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 18px; display: flex; flex-direction: column; gap: 10px; }
+.pv-card h2 { font-size: 1.5rem; }
+.pv-kind { margin: 0; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+.pv-prompt { margin: 0; padding: 6px 10px; background: var(--do-fill); border-left: 6px solid var(--do-line); border-radius: 8px; }
+.pv-prompt .kchip { margin-right: 8px; }
+.pv-sub { margin: 0; }
+.pv-body { font-size: 1.05rem; }
+.pv-body p { margin: 0 0 6px; }
+.pv-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.pv-steps li.k { position: relative; background: var(--kf); border-left: 7px solid var(--kl); border-radius: 10px; padding: 8px 12px; font-size: 1.05rem; }
+.pv-steps li.later { opacity: 0.6; }
+.pv-steps li.nextup { outline: 3px solid var(--accent); outline-offset: 2px; }
+.pv-tag { display: inline-block; margin-right: 8px; background: var(--accent); color: var(--accent-ink); border-radius: 999px; padding: 0 9px; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; }
+.pv-stem p { margin: 0 0 6px; }
+.pv-alts { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.pv-alts li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: center; border: 2px solid var(--line); border-radius: 10px; padding: 6px 10px; }
+.pv-alts li.ok { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 10%, var(--surface)); }
+.pv-alts li.ok .h-l { background: var(--ok); border-color: var(--ok); color: #fff; }
+.pv-alt { font-size: 1.05rem; font-weight: 700; }
+.pv-alt svg.hg { max-width: 220px; }
+.pv-why { margin: 2px 0 0; font-size: 0.85rem; }
+.pv-alts li.ok .pv-why { color: var(--okk); font-weight: 700; }
+.pv-alts li.no .pv-why { color: var(--warn); }
+.pv-vote { display: flex; align-items: center; gap: 6px; }
+.pv-vote b { min-width: 2ch; text-align: center; font-size: 1.2rem; font-variant-numeric: tabular-nums; }
+.pv-plus { width: 46px; height: 40px; border-radius: 10px; border: 2px solid var(--accent); background: var(--accent); color: var(--accent-ink); font-size: 1.3rem; font-weight: 800; }
+.pv-pct { min-width: 3em; text-align: right; font-weight: 700; color: var(--muted); }
+.pv-ans { margin: 0; font-size: 1.1rem; }
+.pv-ans .kchip { margin-right: 6px; }
+.pv-law { margin: 0; font-size: 1.1rem; }
+.pv-narr { border-left: 5px solid var(--accent); padding-left: 12px; }
+.pv-narr h3 { font-size: 1.1rem; margin: 0 0 4px; }
+.pv-narr .eyebrow { margin: 0; }
+.pv-table { border-collapse: collapse; font-family: var(--font-math); font-size: 1.05rem; }
+.pv-table th, .pv-table td { border: 1px solid var(--line); padding: 4px 10px; text-align: center; }
+.pv-table td.bad { color: var(--bad); font-family: var(--font-body); font-size: 0.85rem; font-weight: 700; }
+.pv-later { opacity: 0.6; }
+.pv-note { border: 2px dashed var(--muted); }
+.pv-note p { margin: 0; }
+.pv-warn { margin: 0; padding: 8px 12px; }
+.pv-ctrl { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; }
+.pv-big { height: 84px; border-radius: 14px; border: 2px solid var(--line); background: var(--surface); display: grid; place-items: center; }
+.pv-big svg { width: 38px; height: 38px; }
+.pv-next { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 1.3rem; font-weight: 800; }
+.pv-ctrl2 { display: flex; flex-wrap: wrap; gap: 8px; }
+#pv-curtain.on { background: var(--ink); color: var(--surface); }
+#pv-proj[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.pv-ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; max-height: 42vh; overflow-y: auto; }
+.pv-ol button { width: 100%; text-align: left; border: 1px solid var(--line); background: var(--surface-2); border-radius: 8px; padding: 5px 9px; font-size: 0.86rem; font-weight: 700; }
+.pv-ol button span { display: block; font-size: 0.66rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); }
+.pv-ol li.done button { opacity: 0.55; }
+.pv-ol li.cur button { border-color: var(--accent); outline: 2px solid var(--accent); background: color-mix(in srgb, var(--accent) 10%, var(--surface)); }
+.pv-keys { font-size: 0.8rem; }
+@media (max-width: 860px) { .pv-grid { grid-template-columns: minmax(0, 1fr); } }
+#btn-pres[aria-pressed="true"] { background: var(--ok); border-color: var(--ok); color: #fff; }
+.pv-stem { padding: 10px 14px; }
+.pv-stem > .kchip:first-child { margin-bottom: 6px; }

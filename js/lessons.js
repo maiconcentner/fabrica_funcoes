@@ -474,8 +474,29 @@
     FF.on((changed) => { if (changed.includes('view') || changed.includes('lesson')) render(); });
   }
 
+  /* Para o modo apresentador: a aula inteira vista pelo professor */
+  function snapshot() {
+    const l = lesson();
+    if (!l) return null;
+    const mo = moment();
+    const nx = l.moments[FF.state.lm + 1];
+    const out = { num: LS.indexOf(l) + 1, id: l.id, title: l.title, book: l.book, dur: l.dur, lm: FF.state.lm, n: l.moments.length, ls: FF.state.ls,
+      outline: l.moments.map((m, i) => ({ kind: kindName(m), title: m.title || '', st: i < FF.state.lm ? 'done' : i === FF.state.lm ? 'cur' : '' })),
+      next: nx ? { kind: kindName(nx), title: nx.title || '' } : null };
+    if (mo) {
+      out.mo = { kind: mo.kind, kindName: kindName(mo), title: rich(mo.title || '', 22), kicker: mo.kicker || '', note: mo.note || '',
+        prompt: mo.prompt ? chip(promptKind(mo.prompt)) + rich(mo.prompt, 18) : '',
+        body: mo.body ? rich(mo.body, 22) : '',
+        steps: (mo.steps || []).map((s) => { const c = kindOf(s, mo); return { k: c.k, html: rich(c.t, 22) }; }),
+        run: mo.run || null, until: mo.until || '' };
+    }
+    return out;
+  }
+
   FF.aula = {
     init() { bind(); render(); },
+    snapshot,
+    go(k) { if (lesson()) goMoment(k); },
     render,
     renderBar,
     inControl,

@@ -105,6 +105,7 @@ Casas decimais, modo projetor, tema claro/escuro, tamanho do texto, velocidade d
 | `T` / `D` / `G` | tabela / diagrama / gráfico |
 | `F` | tela cheia |
 | `M` | modo projetor |
+| `S` | modo apresentador (segunda janela, só para o professor) |
 | `L` | gaveta com os controles da lateral (no modo projetor) |
 | `.` | cortina: apaga a tela (qualquer tecla ou clique volta) |
 | `P` | painel do professor |
@@ -183,6 +184,20 @@ Trazidas do projeto de Relações Métricas, valem em todas as abas:
 - O **link compartilhável** leva também o passo: o produto que está na esteira (e em que engrenagem) ou o passo da inspeção.
 - **QR code** para a turma abrir no celular, com o endereço do GitHub Pages (editável no painel).
 
+## Modo apresentador (tecla `S`)
+
+Para dar aula com o notebook ligado ao projetor (tela estendida). O botão **Apresentador** abre uma **segunda janela, só para o professor**; a janela da Fábrica vai para o projetor (arraste e aperte `F`). A janela do apresentador mostra:
+
+- o **momento atual** e o pedido da barra da aula;
+- nas telas, **todos os itens**, com o **próximo clique** marcado e os que a turma ainda não viu;
+- nas **Placas A–E**, a **alternativa certa e o erro de cada letra** antes de revelar, a resolução inteira e botões **+ / −** para contar os votos ali mesmo;
+- nos **Exercícios**, a resolução completa; em **Adivinhe a regra** e na **Corrida**, a lei escondida;
+- na **Fábrica**, a **resposta esperada** (indo ou voltando) e a tabela inteira com o que vai para o refugo;
+- no **É função?**, o veredito certo;
+- a nota **Para o professor**, o **próximo momento**, o **roteiro** (toque para pular), a hora e o **tempo de aula**.
+
+Os botões grandes **◀ ▶** (e as setas, o espaço e o passador, com esta janela em primeiro plano) comandam a janela do projetor; **Cortina**, **Modo projetor** e **Tela cheia lá** também. As duas janelas conversam pelo próprio navegador, sem internet. Se o navegador bloquear a janela, permita pop-ups para o site.
+
 ## Código de cores dos textos
 
 Cada tipo de texto tem sempre a mesma cor, o mesmo ícone e a mesma palavra, para a turma associar de longe (e sem depender só da cor, por causa do daltonismo):
@@ -236,6 +251,8 @@ js/reps.js          tabela, diagrama de flechas e gráfico
 js/inspect.js       É função?: diagramas, tabelas, gráficos e reta vertical
 js/hinge.js         Placas A–E: perguntas-dobradiça e aquecimento (itens do Banco, erros com nome)
 js/games.js         Desafios: jogos, placar e cronômetro
+js/presenter.js     Modo apresentador, lado do projetor (manda o estado, recebe os comandos)
+js/apresentador.js  Modo apresentador, janela do professor (apresentador.html)
 js/resumo.js        Resumo da turma: acertos por descritor, erros mais escolhidos, texto e planilha
 js/empresa.js       Minha empresa: custos, faturamento, lucro e crescimento
 js/annotate.js      caneta, marca-texto e laser por cima da figura

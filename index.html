@@ -55,6 +55,10 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="8" width="19" height="9" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="16" cy="12.5" r="2.3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M6 12.5h4M7 17v2.5M17 17v2.5M9 8l2-3h2l2 3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <span>Projetor</span>
       </button>
+      <button class="tool" id="btn-pres" title="Modo apresentador: abre uma segunda janela, só para você, com as respostas, as notas e o próximo momento; esta janela vai para o projetor (tecla S)" aria-pressed="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="4" width="12" height="9" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="9.5" y="10" width="12" height="8" rx="1.5" fill="var(--surface)" stroke="currentColor" stroke-width="1.8"/><path d="M13 21h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <span>Apresentador</span>
+      </button>
       <button class="tool" id="btn-full" title="Tela cheia (tecla F)">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
         <span>Tela cheia</span>
@@ -569,6 +573,7 @@
           <dt><kbd>A</kbd></dt><dd>anotar na tela</dd>
           <dt><kbd>F</kbd></dt><dd>tela cheia</dd>
           <dt><kbd>M</kbd></dt><dd>modo projetor</dd>
+          <dt><kbd>S</kbd></dt><dd>modo apresentador (segunda janela, só para o professor)</dd>
           <dt><kbd>L</kbd></dt><dd>gaveta com os controles (no modo projetor)</dd>
           <dt><kbd>.</kbd></dt><dd>cortina: apaga a tela para a turma olhar para você</dd>
           <dt><kbd>P</kbd></dt><dd>painel do professor</dd>
@@ -644,6 +649,7 @@
 <script src="js/share.js"></script>
 <script src="js/export.js"></script>
 <script src="js/lessons.js"></script>
+<script src="js/presenter.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>
