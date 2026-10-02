@@ -336,7 +336,13 @@
     clearTimeout(idleT);
     if (FF.state.proj) idleT = setTimeout(() => document.documentElement.classList.add('idle'), 2500);
   }
-  FF.ui = { openDrawer };
+  /* Avançar/voltar como o passador faria (usado também pelo modo apresentador) */
+  function advance(dir) {
+    const MODS = { fab: FF.fab, insp: FF.insp, game: FF.games, emp: FF.emp, aula: FF.aula };
+    const mod = FF.aula.active() && FF.aula.inControl() ? FF.aula : MODS[FF.state.view];
+    if (dir > 0) mod.next(); else mod.prev();
+  }
+  FF.ui = { openDrawer, advance, curtain, curtainOn: () => !$('curtain').hidden };
   function bindProj() {
     $('btn-proj').addEventListener('click', () => FF.set({ proj: !FF.state.proj }));
     segBind('seg-proj', (v) => FF.set({ proj: v === '1' }));
@@ -413,6 +419,7 @@
     if (key.toLowerCase() === 'a') { FF.annot.toggle(); return; }
     if (key.toLowerCase() === 'm') { FF.set({ proj: !S.proj }); return; }
     if (key.toLowerCase() === 'l') { openDrawer(); return; }
+    if (key.toLowerCase() === 's') { FF.pres.open(); return; }
     if (S.view !== 'fab' && !['f', 'p'].includes(key.toLowerCase())) return;
     switch (key.toLowerCase()) {
       case 'b': FF.set({ black: !S.black }); break;
@@ -516,6 +523,7 @@
     }
     if (linkStep != null && FF.state.view === 'insp') FF.insp.goStep(linkStep);
     FF.resumo.init();
+    FF.pres.init();
     FF.annot.init();
     FF.share.init();
     FF.exportFig.init();

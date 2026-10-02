@@ -696,6 +696,8 @@
     atEnd() { return step === stages().length - 1; },
     hasBack() { return step > 0; },
     step() { return step; },
+    /* Para o modo apresentador: o caso e o veredito certo */
+    snap() { const c = current(); return c ? { title: c.title, fn: isFn(c), step, n: stages().length } : null; },
     goStep(i) { go(i); },
     /* Abre um caso pelo título (usado pelas aulas). */
     open(mode, title) {

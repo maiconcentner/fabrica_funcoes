@@ -287,37 +287,234 @@
     },
   };
 
+  /* Qual relação é função? (Atividades 14 e 15 do livro: cada x com uma única imagem) */
+  T.efuncao = {
+    name: 'Qual relação é função?', code: 'D02', src: 'Atividades 14 e 15', grid: true,
+    make() {
+      const A = [1, 2, 3, 4];
+      const k = 1 + rnd(3);
+      const Bv = [k + 1, k + 3, k + 5, k + 7, k + 9];
+      // função certa, com uma imagem repetida (pode!)
+      const ys = shuffle(Bv.slice()).slice(0, 3);
+      const base = A.map((x, i) => [x, ys[i === 3 ? 0 : i]]);
+      const j = rnd(4);
+      let m; do { m = rnd(4); } while (m === j);
+      const other = Bv.find((v) => v !== base[j][1] && !ys.includes(v)) || Bv[4];
+      const out = Bv[Bv.length - 1] + 2 + rnd(3);
+      const sortP = (ps) => ps.slice().sort((p, q) => p[0] - q[0] || p[1] - q[1]);
+      const tab = (ps) => '<table class="h-rel"><tr><th><i>x</i></th>' + sortP(ps).map((p) => '<td>' + p[0] + '</td>').join('') + '</tr><tr><th><i>y</i></th>' + sortP(ps).map((p) => '<td>' + p[1] + '</td>').join('') + '</tr></table>';
+      const two = base.concat([[A[j], other]]);
+      const miss = base.filter((p, i) => i !== m);
+      const outB = base.map((p, i) => (i === m ? [p[0], out] : p));
+      const arrows = base.filter((p, i) => i !== m).concat([[A[j], other]]);
+      return {
+        stem: '<p>A = {1; 2; 3; 4} e B = {' + Bv.join('; ') + '}.</p><p class="h-q">Qual tabela representa uma função de A em B?</p>',
+        alts: [
+          { h: tab(base), ok: true, why: 'Cada x de A tem uma única imagem em B. Repetir imagem pode.' },
+          { h: tab(two), e: 'aceitou duas imagens para um x', why: 'O ' + A[j] + ' tem duas imagens.' },
+          { h: tab(miss), e: 'aceitou x sem imagem', why: 'O ' + A[m] + ' ficou sem imagem.' },
+          { h: tab(outB), e: 'aceitou imagem fora de B', why: 'A imagem ' + out + ' não está em B.' },
+          { h: tab(arrows), e: 'contou só as flechas', why: 'São 4 pares para 4 elementos, mas o ' + A[j] + ' tem duas imagens e o ' + A[m] + ' nenhuma.' },
+        ],
+        solve: [
+          'Função: <b>cada</b> elemento de A tem <b>uma, e só uma</b>, imagem em B.',
+          'Confira x por x: nenhum pode ficar sem imagem nem ter duas.',
+          'Imagens repetidas podem: dois x podem ir para o mesmo y.',
+          'E as imagens precisam estar em B.',
+        ],
+        fab: null,
+      };
+    },
+  };
+
+  /* ---------- O erro do Zé ----------
+     A resolução do Zé tem um passo errado (e os passos seguintes continuam a conta dele, como um aluno
+     de verdade faria). A turma vota em qual passo está o erro (A a D) ou se ele acertou tudo (E).
+     Analisar o erro de outra pessoa é seguro e ensina muito: o erro plantado é sempre um erro típico. */
+  function zeItem(o) {
+    const n = o.zsteps.length;
+    const alts = o.zsteps.map((h, i) => ({
+      h: '<span class="ze-step">' + h + '</span>', zt: h, ok: i === o.at,
+      e: i === o.at ? undefined : 'não viu: ' + o.tag,
+      why: i === o.at ? o.why + ' O certo: ' + o.fix : i < o.at ? 'Este passo está certo.' : 'Este passo só continua a conta errada do Zé.',
+    }));
+    alts.push({ t: 'O Zé acertou tudo', e: 'não viu: ' + o.tag, why: 'Tem erro, sim: no passo ' + LETTERS[o.at] + '.' });
+    return { ze: true, stem: o.intro, alts, solve: o.solve, fab: o.fab, nz: n, zat: o.at, zfix: o.fix, zwhy: o.why };
+  }
+  const pickErr = (list) => list[rnd(list.length)];
+
+  T.zevolta = {
+    name: 'O erro do Zé: da saída para a entrada', code: 'D22', src: 'PA·011', noShuffle: true,
+    make() {
+      const C = pick([
+        { v: 'd', P: 'C', u: 'km', txt: (a, b, Tt) => 'Uma transportadora cobra ' + brl(b) + ' fixos mais ' + brl(a) + ' por km: C(d) = ' + a + 'd + ' + b + '. Uma viagem custou ' + brl(Tt) + '. Qual foi a distância?', as: [2, 3, 4], ms: [5, 8, 10] },
+        { v: 'h', P: 'P', u: 'h', txt: (a, b, Tt) => 'Um técnico cobra ' + brl(b) + ' pela visita mais ' + brl(a) + ' por hora: P(h) = ' + a + 'h + ' + b + '. Um cliente pagou ' + brl(Tt) + '. Quantas horas durou o serviço?', as: [20, 30, 40], ms: [1, 2] },
+      ]);
+      let a, m, d, b, Tt, kind;
+      do {
+        a = pick(C.as); m = pick(C.ms); b = a * m; d = 3 + rnd(20); Tt = a * d + b;
+        kind = pickErr(['ordem', 'soma', 'mult']);
+      } while (kind === 'ordem' && Tt / a - b <= 0);
+      const v = C.v;
+      const ok = ['Troquei ' + C.P + ' por ' + num(Tt) + ': ' + num(Tt) + ' = ' + a + v + ' + ' + num(b), 'Tirei a parte fixa: ' + num(Tt) + ' − ' + num(b) + ' = ' + num(Tt - b), 'Dividi por ' + a + ': ' + num(Tt - b) + ' ÷ ' + a + ' = ' + num(d), 'Resposta: ' + num(d) + ' ' + C.u];
+      let z, at, tag, why, fix;
+      if (kind === 'ordem') {
+        const q = Tt / a, r = q - b;
+        z = [ok[0], 'Dividi por ' + a + ': ' + num(Tt) + ' ÷ ' + a + ' = ' + num(q), 'Tirei a parte fixa: ' + num(q) + ' − ' + num(b) + ' = ' + num(r), 'Resposta: ' + num(r) + ' ' + C.u];
+        at = 1; tag = 'desfez fora de ordem'; why = 'O Zé desfez as engrenagens fora de ordem: a última (+ ' + num(b) + ') é a primeira a ser desfeita.'; fix = ok[1].replace('Tirei', 'tirar') + ', e só depois dividir.';
+      } else if (kind === 'soma') {
+        const s2 = Tt + b, r = s2 / a;
+        z = [ok[0], 'Passei a parte fixa: ' + num(Tt) + ' + ' + num(b) + ' = ' + num(s2), 'Dividi por ' + a + ': ' + num(s2) + ' ÷ ' + a + ' = ' + num(X.tidy(r)), 'Resposta: ' + num(X.tidy(r)) + ' ' + C.u];
+        at = 1; tag = 'somou a parte fixa em vez de tirar'; why = 'Para desfazer + ' + num(b) + ', o Zé somou de novo: tinha que subtrair.'; fix = num(Tt) + ' − ' + num(b) + ' = ' + num(Tt - b) + '.';
+      } else {
+        const r = (Tt - b) * a;
+        z = [ok[0], ok[1], 'Passei o ' + a + ': ' + num(Tt - b) + ' · ' + a + ' = ' + num(r), 'Resposta: ' + num(r) + ' ' + C.u];
+        at = 2; tag = 'multiplicou em vez de dividir'; why = 'Para desfazer × ' + a + ', o Zé multiplicou de novo: tinha que dividir.'; fix = num(Tt - b) + ' ÷ ' + a + ' = ' + num(d) + '.';
+      }
+      return zeItem({ intro: '<p>' + esc(C.txt(a, b, Tt)) + '</p>', zsteps: z, at, tag, why, fix,
+        solve: ok.slice(1).concat(['Conferir: ' + a + ' · ' + num(d) + ' + ' + num(b) + ' = ' + num(Tt) + '. ✓']),
+        fab: { setup: { ctx: 'livre', law: a + v + ' + ' + b, dom: 'R', cd: 'R', inputs: '' }, run: [Tt, 'rev'] } });
+    },
+  };
+
+  T.zelei = {
+    name: 'O erro do Zé: escrever a lei', code: 'D12', src: 'PA·055', noShuffle: true,
+    make() {
+      const C = pick([
+        { txt: (V, r) => 'Um plano de celular custa ' + brl(V) + ' por mês, mais ' + brl(r) + ' por gigabyte extra. Escreva a lei V(x), com x gigabytes extras, e calcule a conta com ', u: ' GB extras.', Vs: [40, 50, 60], rs: [5, 6, 8], ns: [2, 3, 4] },
+        { txt: (V, r) => 'Um funcionário recebe ' + brl(V) + ' fixos por mês, mais ' + brl(r) + ' por venda. Escreva a lei S(x), com x vendas, e calcule o salário com ', u: ' vendas.', Vs: [1500, 1800], rs: [15, 20], ns: [10, 20, 30] },
+      ]);
+      const V = pick(C.Vs), r = pick(C.rs), n = pick(C.ns);
+      const P = C.u.indexOf('GB') >= 0 ? 'V' : 'S';
+      const kind = pickErr(['troca', 'junta', 'semx']);
+      const ok = ['Parte fixa: ' + num(V), 'Parte que muda: ' + num(r) + ' para cada unidade, ou seja, ' + num(r) + '·x', 'Lei: ' + P + '(x) = ' + num(V) + ' + ' + num(r) + 'x', P + '(' + n + ') = ' + num(V) + ' + ' + num(r) + ' · ' + n + ' = ' + num(V + r * n)];
+      let z, at, tag, why, fix;
+      if (kind === 'troca') {
+        z = [ok[0], ok[1], 'Lei: ' + P + '(x) = ' + num(V) + 'x + ' + num(r), P + '(' + n + ') = ' + num(V) + ' · ' + n + ' + ' + num(r) + ' = ' + num(V * n + r)];
+        at = 2; tag = 'trocou parte fixa e parte variável'; why = 'O Zé multiplicou a parte fixa por x e deixou fixo o que muda.'; fix = ok[2].replace('Lei: ', '') + '.';
+      } else if (kind === 'junta') {
+        z = [ok[0], ok[1], ok[2], P + '(' + n + ') = (' + num(V) + ' + ' + num(r) + ') · ' + n + ' = ' + num((V + r) * n)];
+        at = 3; tag = 'somou antes de multiplicar'; why = 'O Zé somou antes de multiplicar: a multiplicação vem primeiro.'; fix = ok[3] + '.';
+      } else {
+        z = [ok[0], 'Parte que muda: ' + num(r), 'Lei: ' + P + '(x) = ' + num(V) + ' + ' + num(r), P + '(' + n + ') = ' + num(V) + ' + ' + num(r) + ' = ' + num(V + r)];
+        at = 1; tag = 'esqueceu de multiplicar pela variável'; why = 'O Zé esqueceu que ' + num(r) + ' é por unidade: tem que multiplicar por x.'; fix = 'parte que muda: ' + num(r) + '·x.';
+      }
+      return zeItem({ intro: '<p>' + esc(C.txt(V, r) + n + C.u) + '</p>', zsteps: z, at, tag, why, fix, solve: ok,
+        fab: { setup: { ctx: 'livre', law: V + ' + ' + r + 'x', dom: 'R+', cd: 'R', inputs: '' }, run: [n, 'fwd'] } });
+    },
+  };
+
+  T.zeimagem = {
+    name: 'O erro do Zé: a imagem', code: 'D11', src: 'autoral', noShuffle: true,
+    make() {
+      const b = 1 + rnd(4);
+      const A = [-2, -1, 0, 1, 2];
+      const im = [b, b + 1, b + 4];
+      const Bset = [b - 1, b, b + 1, b + 2, b + 4, b + 6];
+      const kind = pickErr(['sinal', 'cd', 'dom']);
+      const ok = ['f(−2) = (−2)² + ' + b + ' = 4 + ' + b + ' = ' + (4 + b), 'f(−1) = (−1)² + ' + b + ' = ' + (1 + b), 'f(0) = ' + b + '; f(1) = ' + (1 + b) + '; f(2) = ' + (4 + b), 'Im = ' + setTxt(im)];
+      let z, at, tag, why, fix;
+      if (kind === 'sinal') {
+        z = ['f(−2) = (−2)² + ' + b + ' = −4 + ' + b + ' = ' + num(b - 4), ok[1], ok[2], 'Im = ' + setTxt([b - 4, b, b + 1, b + 4])];
+        at = 0; tag = 'errou o sinal da potência'; why = 'O Zé fez (−2)² = −4: negativo vezes negativo dá positivo.'; fix = '(−2)² = 4, então f(−2) = ' + (4 + b) + '.';
+      } else if (kind === 'cd') {
+        z = [ok[0], ok[1], ok[2], 'Im = B = ' + setTxt(Bset)];
+        at = 3; tag = 'deu o contradomínio'; why = 'O Zé deu o contradomínio: a imagem tem só os elementos de B que recebem flecha.'; fix = ok[3] + '.';
+      } else {
+        z = [ok[0], ok[1], ok[2], 'Im = A = ' + setTxt(A)];
+        at = 3; tag = 'deu o domínio'; why = 'O Zé deu o domínio: a imagem são os resultados.'; fix = ok[3] + '.';
+      }
+      return zeItem({ intro: '<p>f: A → B, f(x) = x² + ' + b + ', com A = ' + setTxt(A) + ' e B = ' + setTxt(Bset) + '. Qual é a imagem?</p>', zsteps: z, at, tag, why, fix, solve: ok.concat(['Im ⊂ CD: nem todo elemento de B precisa receber flecha.']),
+        fab: { setup: { ctx: 'livre', law: 'x² + ' + b, dom: setTxt(A).replace(/\u2009/g, ''), cd: setTxt(Bset).replace(/\u2009/g, '') }, all: true } });
+    },
+  };
+
+  T.zeseq = {
+    name: 'O erro do Zé: termo da sequência', code: 'C09', src: 'PA·040', noShuffle: true,
+    make() {
+      const a = 1 + rnd(6), r = 3 + rnd(6), k = 6 + rnd(7);
+      const mes = MONTHS[k - 1];
+      const kind = pickErr(['mais', 'ordem']);
+      const val = a + (k - 1) * r;
+      const ok = ['De um mês para o outro, soma ' + r, mes[0].toUpperCase() + mes.slice(1) + ' é o ' + k + 'º mês', 'De janeiro a ' + mes + ' são ' + (k - 1) + ' aumentos: ' + a + ' + ' + (k - 1) + ' · ' + r, a + ' + ' + (k - 1) + ' · ' + r + ' = ' + a + ' + ' + (k - 1) * r + ' = ' + val];
+      let z, at, tag, why, fix;
+      if (kind === 'mais') {
+        z = [ok[0], ok[1], 'São ' + k + ' aumentos: ' + a + ' + ' + k + ' · ' + r, a + ' + ' + k + ' · ' + r + ' = ' + (a + k * r)];
+        at = 2; tag = 'contou um termo a mais'; why = 'O Zé contou um aumento a mais: janeiro já é o 1º mês.'; fix = 'são ' + (k - 1) + ' aumentos.';
+      } else {
+        z = [ok[0], ok[1], ok[2], a + ' + ' + (k - 1) + ' · ' + r + ' = ' + (a + k - 1) + ' · ' + r + ' = ' + (a + k - 1) * r];
+        at = 3; tag = 'somou antes de multiplicar'; why = 'O Zé somou antes de multiplicar.'; fix = ok[3] + '.';
+      }
+      return zeItem({ intro: '<p>Corridas de aplicativo: ' + a + ' em janeiro, ' + (a + r) + ' em fevereiro, ' + (a + 2 * r) + ' em março, sempre com o mesmo aumento. Quantas em ' + mes + '?</p>', zsteps: z, at, tag, why, fix, solve: ok,
+        fab: { setup: { ctx: 'livre', law: a + ' + ' + r + '(n − 1)', dom: 'N', cd: 'R', inputs: '1;2;3;' + k }, run: [k, 'fwd'] } });
+    },
+  };
+
+  T.zedecimal = {
+    name: 'O erro do Zé: conta com decimais', code: 'C20', src: 'PAE', noShuffle: true,
+    make() {
+      const n = pick([50, 120, 150, 200, 250, 300]);
+      const P = 66 * n, v = X.tidy(0.66 * n);
+      const kind = pickErr(['cem', 'dez']);
+      const ok = ['0,66 · ' + n + ' = 66 · ' + n + ' ÷ 100', '66 · ' + n + ' = ' + num(P), num(P) + ' ÷ 100 = ' + f(v), 'Resposta: ' + brl(v)];
+      let z, at, tag, why, fix;
+      if (kind === 'cem') {
+        z = [ok[0], ok[1], num(P) + ' ÷ 100 = ' + f(P / 10), 'Resposta: ' + brl(P / 10)];
+        at = 2; tag = 'vírgula deslocada'; why = 'Dividir por 100 anda a vírgula duas casas, e o Zé andou só uma.'; fix = num(P) + ' ÷ 100 = ' + f(v) + '.';
+      } else {
+        z = ['0,66 · ' + n + ' = 66 · ' + n + ' ÷ 10', ok[1], num(P) + ' ÷ 10 = ' + f(P / 10), 'Resposta: ' + brl(P / 10)];
+        at = 0; tag = 'vírgula deslocada'; why = '0,66 tem duas casas depois da vírgula: é 66 ÷ 100, e não 66 ÷ 10.'; fix = ok[0] + '.';
+      }
+      return zeItem({ intro: '<p>A tarifa é de <b>R$ 0,66 por kWh</b>. Quanto custam ' + n + ' kWh, sem a taxa fixa?</p>', zsteps: z, at, tag, why, fix,
+        solve: ok.concat(['Estimativa para conferir: 0,66 é quase 2/3; 2/3 de ' + n + ' ≈ ' + num(Math.round(2 * n / 3)) + '. ✓']),
+        fab: { setup: { ctx: 'livre', law: '0,66x', dom: 'R+', cd: 'R', inputs: '' }, run: [n, 'fwd'] } });
+    },
+  };
+
+  /* Autoavaliação do bilhete de saída: não tem certa nem errada */
+  function selfItem() {
+    return { self: true, code: 'AUTO', tpl: 'auto', grid: false, solve: [], fab: null,
+      stem: '<p class="h-q">Como você está com o que aprendemos hoje?</p><p>Levante a placa da frase que mais combina com você.</p>',
+      alts: [{ t: 'Entendi bem e consigo explicar para um colega' }, { t: 'Entendi, mas ainda erro às vezes' }, { t: 'Ainda não entendi' }] };
+  }
+
   /* ---------- Estado da rodada ---------- */
-  const H = { list: [], i: 0, step: 0, warm: false, title: '', tpl: 'mix', showSolve: false, uid: 0 };
+  const H = { list: [], i: 0, step: 0, warm: false, exit: false, title: '', tpl: 'mix', showSolve: false, uid: 0 };
   function build(tplId) {
-    const tpl = T[tplId];
-    const it = tpl.make();
-    it.tpl = tplId;
-    it.code = it.code || tpl.code;
-    it.src = tpl.src;
-    it.grid = !!tpl.grid;
-    it.alts = shuffle(it.alts.slice());
-    it.counts = [0, 0, 0, 0, 0];
+    let it;
+    if (tplId === 'auto') it = selfItem();
+    else {
+      const tpl = T[tplId];
+      it = tpl.make();
+      it.tpl = tplId;
+      it.code = it.code || tpl.code;
+      it.src = tpl.src;
+      it.grid = !!tpl.grid;
+      if (!tpl.noShuffle) it.alts = shuffle(it.alts.slice()); // no erro do Zé, os passos ficam em ordem
+    }
+    it.counts = it.alts.map(() => 0);
     it.uid = Date.now() + '-' + (H.uid++);
     return it;
   }
   function start(items, opts) {
     H.list = items.map(build);
     H.i = 0; H.step = 0; H.showSolve = false;
-    H.warm = !!(opts && opts.warm);
+    H.exit = !!(opts && opts.exit);
+    H.warm = !!(opts && opts.warm) || H.exit; // bilhete de saída: fluxo curto, como o aquecimento
     H.title = (opts && opts.title) || '';
     clearThink();
   }
   const cur = () => H.list[H.i];
   // passos de cada pergunta: 0 pensar, 1 placas, 2 revelar, 3… resolução (o aquecimento para no revelar)
-  const nSteps = (it) => 3 + (H.warm ? 0 : it.solve.length);
+  const nSteps = (it) => (it.self ? 2 : 3 + (H.warm ? 0 : it.solve.length));
+  const revealStep = (it) => (it.self ? 1 : 2);
   function atEnd() { const it = cur(); return !it || (H.i === H.list.length - 1 && H.step >= nSteps(it) - 1); }
   function next() {
     const it = cur();
     if (!it) return;
     if (H.step < nSteps(it) - 1) H.step++;
     else if (H.i < H.list.length - 1) { H.i++; H.step = 0; H.showSolve = false; }
-    if (H.step === 2) record();
+    if (H.step === revealStep(cur())) record();
     draw();
   }
   function prev() {
@@ -336,7 +533,8 @@
     let all = [];
     try { all = JSON.parse(localStorage.getItem(REC_KEY) || '[]'); } catch (e) { all = []; }
     const row = { uid: it.uid, when: it.when || (it.when = new Date().toISOString()), turma: it.turma || (it.turma = FF.state.turma || ''),
-      lesson: FF.state.lesson || '', code: it.code, tpl: it.tpl, ok: it.alts.findIndex((a) => a.ok), counts: it.counts.slice(),
+      lesson: FF.state.lesson || '', src: H.exit ? 'saida' : H.warm ? 'aquec' : H.title ? 'dobradica' : 'desafio',
+      code: it.code, tpl: it.tpl, ok: it.alts.findIndex((a) => a.ok), counts: it.counts.slice(),
       errs: it.alts.map((a) => (a.ok ? '' : a.e || a.why)), whys: it.alts.map((a) => (a.ok ? '' : a.why)) };
     const k = all.findIndex((r) => r.uid === it.uid);
     if (k >= 0) all[k] = row; else all.push(row);
@@ -378,32 +576,39 @@
     let h = '<div class="game-head h-head">' + (inLesson ? '' : '<h2>' + esc(H.title || (H.warm ? 'Aquecimento' : 'Placas A–E')) + '</h2>') +
       (H.list.length > 1 ? '<span class="h-count">' + (H.i + 1) + ' de ' + H.list.length + '</span>' : '') +
       '<span class="h-tools"><label class="h-turma">Turma <input id="h-turma" list="turmas-dl" value="' + esc(FF.state.turma || '') + '" placeholder="ex.: 9º A" autocomplete="off"></label>' +
-      '<button class="btn btn-ghost sm" data-act="h-resumo" title="Acertos e erros mais escolhidos, por descritor">Resumo da turma</button></span>' +
-      '<span class="h-desc" title="' + esc(DESC[it.code] || '') + '"><b>' + esc(it.code) + '</b> ' + esc(DESC[it.code] || '') + '</span></div>';
+      '<button class="btn btn-ghost sm" data-act="h-resumo" title="Acertos e erros mais escolhidos, por descritor">Resumo da turma</button>' +
+      (H.exit ? '<button class="btn btn-ghost sm" data-act="h-print" title="Imprime o bilhete (estas perguntas e a autoavaliação), 4 por folha, para responder no papel">Imprimir bilhetes</button>' : '') +
+      '</span>' + (it.self ? '<span class="h-desc"><b>Autoavaliação</b> como a turma se sente; não tem resposta certa</span></div>'
+        : '<span class="h-desc" title="' + esc(DESC[it.code] || '') + '"><b>' + esc(it.code) + '</b> ' + esc(DESC[it.code] || '') + '</span></div>');
     const kc = (k, w) => '<span class="kchip k-' + k + '">' + w + '</span>';
-    h += '<div class="ex-card h-stem kbox k-q">' + kc('q', 'Pergunta') + it.stem + '</div>';
+    h += '<div class="ex-card h-stem kbox k-q">' + kc('q', it.self ? 'Autoavaliação' : 'Pergunta') + it.stem + '</div>';
+    if (it.self) return drawSelf(h, it, st, total);
+    if (it.ze) return drawZe(h, it, st, total);
     if (st === 0) h += '<div class="h-cue kbox k-do">' + kc('do', 'Faça') + '<div class="h-think" id="h-think" style="--p:1"><b></b></div><p></p></div>';
     if (st === 1) h += '<div class="h-cue h-up kbox k-do">' + kc('do', 'Faça') + '<p><b>Placas para cima!</b> Toque nas letras para contar quantos alunos escolheram cada uma (opcional).</p></div>';
-    h += '<ol class="h-alts' + (it.grid ? ' grid' : '') + '">' + it.alts.map((a, i) => {
-      const cls = st >= 2 ? (a.ok ? ' ok' : ' no') : '';
+    if (it.ze) h += '<p class="ze-title">✎ Resolução do Zé</p>';
+    h += '<ol class="h-alts' + (it.grid ? ' grid' : '') + (it.ze ? ' ze' : '') + '">' + it.alts.map((a, i) => {
+      const isStep = it.ze && i < it.alts.length - 1;
+      const cls = st >= 2 ? (it.ze ? (a.ok ? ' zerr' : isStep ? ' zfine' : ' no') : (a.ok ? ' ok' : ' no')) : '';
+      const mark = it.ze ? (a.ok ? '✗ Aqui está o erro! ' : isStep ? '✓ ' : '✗ ') : (a.ok ? '✓ ' : '✗ ');
       const pct = total ? Math.round((100 * it.counts[i]) / total) : 0;
       return '<li class="h-alt' + cls + '"><span class="h-l">' + LETTERS[i] + '</span><div class="h-body">' +
         (a.h || '<span class="h-t">' + esc(a.t) + '</span>') +
-        (st >= 2 ? '<p class="h-why">' + (a.ok ? '✓ ' : '✗ ') + esc(a.why) + '</p>' : '') + '</div>' +
+        (st >= 2 ? '<p class="h-why">' + mark + esc(a.why) + '</p>' : '') + '</div>' +
         (st >= 1 ? '<div class="h-tally"><button class="icon-btn sm" data-act="h-dec" data-i="' + i + '" aria-label="Tirar um voto de ' + LETTERS[i] + '">−</button><button class="h-n" data-act="h-inc" data-i="' + i + '" aria-label="Mais um voto em ' + LETTERS[i] + '">' + it.counts[i] + '</button>' +
           (total ? '<span class="h-bar"><i style="width:' + pct + '%"></i></span><span class="h-pct">' + pct + '%</span>' : '') + '</div>' : '') + '</li>';
     }).join('') + '</ol>';
     if (st >= 2 && total) {
       const wrong = it.counts.map((c, i) => ({ c, i })).filter((x) => x.i !== okI).sort((p, q) => q.c - p.c)[0];
       const pOk = Math.round((100 * it.counts[okI]) / total);
-      h += '<p class="h-sum kbox ' + (pOk >= 50 ? 'k-ok' : 'k-warn') + '"><b>' + pOk + '% acertaram.</b>' + (wrong && wrong.c ? ' O erro mais escolhido foi <b>' + LETTERS[wrong.i] + '</b>: ' + esc(it.alts[wrong.i].why) : '') + '</p>';
+      h += '<p class="h-sum kbox ' + (pOk >= 50 ? 'k-ok' : 'k-warn') + '"><b>' + pOk + (it.ze ? '% acharam o erro.' : '% acertaram.') + '</b>' + (wrong && wrong.c ? (it.ze ? ' ' + zeHint(it, wrong.i, okI) : ' O erro mais escolhido foi <b>' + LETTERS[wrong.i] + '</b>: ' + esc(it.alts[wrong.i].why)) : '') + '</p>';
     }
     const solveN = H.warm ? (H.showSolve ? it.solve.length : 0) : Math.max(0, st - 2);
     if (solveN) h += '<ol class="solve">' + it.solve.slice(0, solveN).map((s) => '<li>' + s + '</li>').join('') + '</ol>';
     const label = st === 0 ? 'Placas para cima' : st === 1 ? 'Revelar a resposta' : st < nSteps(it) - 1 ? 'Próximo passo da resolução' : H.i < H.list.length - 1 ? 'Próxima pergunta' : 'Fim';
     h += '<div class="g-row end">' +
       (H.warm && st >= 2 ? '<button class="btn btn-ghost" data-act="h-solve">' + (H.showSolve ? 'Esconder' : 'Ver') + ' a resolução</button>' : '') +
-      (st >= 2 ? '<button class="btn btn-ghost" data-act="h-fab">Ver na Fábrica</button>' : '') +
+      (st >= 2 && it.fab ? '<button class="btn btn-ghost" data-act="h-fab">Ver na Fábrica</button>' : '') +
       '<button class="btn btn-ghost" data-act="h-new">Outra pergunta</button>' +
       '<button class="btn btn-ghost" data-act="h-back"' + (hasBack() ? '' : ' disabled') + '>Voltar</button>' +
       '<button class="btn" data-act="h-next"' + (atEnd() ? ' disabled' : '') + '>' + label + '</button></div>';
@@ -417,20 +622,111 @@
       paintThink(document.getElementById('h-think'));
     } else clearThink();
   }
+  /* Erro do Zé: o caderno dele, corrigido como a professora corrigiria (caneta vermelha) */
+  const ZE_SVG = '<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="36" r="20" class="ze-skin"/><path d="M12 30c0-13 9-20 20-20s20 7 20 20c-6-4-13-6-20-6s-14 2-20 6Z" class="ze-cap"/><path d="M50 27h9" class="ze-brim"/>' +
+    '<circle cx="25" cy="36" r="2.6" class="ze-eye"/><circle cx="39" cy="36" r="2.6" class="ze-eye"/><path class="ze-mouth" d="M25 46q7 5 14 0"/></svg>';
+  function drawZe(h, it, st, total) {
+    const okI = it.zat, ns = it.alts.length - 1, rev = st >= 2;
+    const kc = (k, w) => '<span class="kchip k-' + k + '">' + w + '</span>';
+    h += '<div class="ze-row"><div class="ze-ava' + (rev ? ' oops' : '') + '">' + ZE_SVG + '<span>Zé</span></div><p class="ze-bubble">' +
+      (rev ? 'Ah… então foi no passo <b>' + LETTERS[okI] + '</b> que eu errei!' : 'Resolvi assim… mas a professora disse que eu errei em <b>um</b> passo. Qual?') + '</p>' +
+      (st === 0 ? '<div class="ze-think"><div class="h-think" id="h-think" style="--p:1"><b></b></div><p></p></div>' : '') + '</div>';
+    h += '<div class="ze-paper"><ol class="ze-lines">' + it.alts.slice(0, ns).map((a, i) => {
+      const cls = rev ? (i === okI ? ' bad' : i < okI ? ' good' : ' after') : '';
+      return '<li class="ze-line' + cls + '"><span class="ze-l">' + LETTERS[i] + '</span><span class="ze-txt">' + a.zt + '</span>' +
+        (rev && i === okI ? '<span class="ze-fix">' + esc(it.zfix.replace(/^o certo:\s*/i, '')) + '</span>' : '') +
+        (rev && i < okI ? '<span class="ze-tick" aria-label="certo">✓</span>' : '') +
+        (rev && i > okI ? '<span class="ze-after">segue a conta errada</span>' : '') + '</li>';
+    }).join('') + '</ol></div>';
+    h += '<p class="ze-e' + (rev ? ' no' : '') + '"><span class="ze-l">E</span> O Zé acertou tudo</p>';
+    if (st >= 1) {
+      h += '<div class="ze-votes">' + (st === 1 ? '<b class="zv-t">Placas para cima!</b> ' : '<b class="zv-t">Votos</b> ') + it.alts.map((a, i) => {
+        const p = total ? Math.round((100 * it.counts[i]) / total) : 0;
+        return '<span class="zv' + (rev && i === okI ? ' ok' : '') + '"><span class="ze-l">' + LETTERS[i] + '</span>' +
+          '<button class="h-n" data-act="h-inc" data-i="' + i + '" aria-label="Mais um voto em ' + LETTERS[i] + '">' + it.counts[i] + '</button>' +
+          '<button class="zv-m" data-act="h-dec" data-i="' + i + '" aria-label="Tirar um voto de ' + LETTERS[i] + '">−</button>' + (total ? '<small>' + p + '%</small>' : '') + '</span>';
+      }).join('') + '</div>';
+    }
+    if (rev) {
+      const pOk = total ? Math.round((100 * it.counts[okI]) / total) : null;
+      const wrong = it.counts.map((c, i) => ({ c, i })).filter((x) => x.i !== okI).sort((p, q) => q.c - p.c)[0];
+      h += '<div class="ze-why kbox k-warn">' + kc('warn', 'Atenção') + '<p><b>Passo ' + LETTERS[okI] + ':</b> ' + esc(it.zwhy) + '</p>' +
+        (pOk != null ? '<p class="ze-res"><b>' + pOk + '% acharam o erro.</b>' + (wrong && wrong.c ? ' ' + zeHint(it, wrong.i, okI) : '') + '</p>' : '') + '</div>';
+    }
+    const solveN = H.warm ? (H.showSolve ? it.solve.length : 0) : Math.max(0, st - 2);
+    if (solveN) h += '<ol class="solve">' + it.solve.slice(0, solveN).map((x) => '<li>' + x + '</li>').join('') + '</ol>';
+    const label = st === 0 ? 'Placas para cima' : st === 1 ? 'Revelar o erro' : st < nSteps(it) - 1 ? 'Próximo passo da resolução' : H.i < H.list.length - 1 ? 'Próxima pergunta' : 'Fim';
+    h += '<div class="g-row end">' + (st >= 2 && it.fab ? '<button class="btn btn-ghost" data-act="h-fab">Ver na Fábrica</button>' : '') +
+      '<button class="btn btn-ghost" data-act="h-new">Outra resolução</button>' +
+      '<button class="btn btn-ghost" data-act="h-back"' + (hasBack() ? '' : ' disabled') + '>Voltar</button>' +
+      '<button class="btn" data-act="h-next"' + (atEnd() ? ' disabled' : '') + '>' + label + '</button></div>';
+    host.innerHTML = h;
+    const last = host.querySelector('.solve li:last-child') || (rev && host.querySelector('.ze-why'));
+    if (last) last.scrollIntoView({ block: 'nearest' });
+    if (st === 0) { if (!think.id) startThink(25); paintThink(document.getElementById('h-think')); } else clearThink();
+  }
+
+  /* Erro do Zé: o que o voto errado mais comum mostra */
+  function zeHint(it, i, okI) {
+    if (i === it.alts.length - 1) return 'Muitos acharam que o Zé acertou tudo: vale refazer a conta junto, passo a passo.';
+    if (i > okI) return 'Muitos apontaram o passo <b>' + LETTERS[i] + '</b>, que só continua a conta errada: o erro veio antes, no ' + LETTERS[okI] + '.';
+    return 'Muitos apontaram o passo <b>' + LETTERS[i] + '</b>, que está certo.';
+  }
+
+  /* Autoavaliação: placas A, B ou C desde o começo; depois, o resultado */
+  function drawSelf(h, it, st, total) {
+    const FACE = ['😀', '🤔', '😟'];
+    h += '<div class="h-cue h-up kbox k-do"><span class="kchip k-do">Faça</span><p><b>Placas para cima: A, B ou C.</b> Toque nas letras para contar.</p></div>';
+    h += '<ol class="h-alts h-self">' + it.alts.map((a, i) => {
+      const pct = total ? Math.round((100 * it.counts[i]) / total) : 0;
+      return '<li class="h-alt s' + i + '"><span class="h-l">' + LETTERS[i] + '</span><div class="h-body"><span class="h-t"><span class="h-face" aria-hidden="true">' + FACE[i] + '</span> ' + esc(a.t) + '</span></div>' +
+        '<div class="h-tally"><button class="icon-btn sm" data-act="h-dec" data-i="' + i + '" aria-label="Tirar um voto de ' + LETTERS[i] + '">−</button><button class="h-n" data-act="h-inc" data-i="' + i + '" aria-label="Mais um voto em ' + LETTERS[i] + '">' + it.counts[i] + '</button>' +
+        (total ? '<span class="h-bar"><i style="width:' + pct + '%"></i></span><span class="h-pct">' + pct + '%</span>' : '') + '</div></li>';
+    }).join('') + '</ol>';
+    if (st >= 1 && total) {
+      const p = it.counts.map((c) => Math.round((100 * c) / total));
+      h += '<p class="h-sum kbox ' + (p[2] >= 25 ? 'k-warn' : 'k-ok') + '">' + (p[2] >= 25
+        ? '<b>' + p[2] + '% ainda não entenderam.</b> Vale retomar no aquecimento da próxima aula.'
+        : '<b>' + (p[0] + p[1]) + '% entenderam</b> (' + p[0] + '% com segurança).') + '</p>';
+    }
+    h += '<div class="g-row end"><button class="btn btn-ghost" data-act="h-back"' + (hasBack() ? '' : ' disabled') + '>Voltar</button>' +
+      '<button class="btn" data-act="h-next"' + (atEnd() ? ' disabled' : '') + '>' + (st === 0 ? 'Ver o resultado' : 'Fim') + '</button></div>';
+    host.innerHTML = h;
+    clearThink();
+  }
+
+  /* Bilhetes para imprimir: as perguntas desta rodada e a autoavaliação, 4 por folha */
+  function printTickets() {
+    const one = '<div class="xt"><div class="xt-head"><b>Bilhete de saída' + (FF.state.lesson ? ' · ' + esc(lessonLabel()) : '') + '</b><span>Nome: ______________________ Turma: ______</span></div>' +
+      H.list.map((it, n) => '<div class="xt-q"><p class="xt-n">' + (it.self ? 'Como você está com o que aprendemos hoje?' : (n + 1) + '.') + '</p>' + (it.self ? '' : it.stem) +
+        '<ol class="xt-alts' + (it.grid ? ' grid' : '') + '">' + it.alts.map((a, i) => '<li><b>' + (it.self ? '☐' : '(' + LETTERS[i] + ')') + '</b> ' + (a.h || esc(a.t)) + '</li>').join('') + '</ol></div>').join('') + '</div>';
+    document.getElementById('exit-print').innerHTML = one + one + one + one;
+    document.body.classList.add('print-exit');
+    const done = () => { document.body.classList.remove('print-exit'); window.removeEventListener('afterprint', done); };
+    window.addEventListener('afterprint', done);
+    window.print();
+  }
+  function lessonLabel() {
+    const i = (FF.LESSONS || []).findIndex((l) => l.id === FF.state.lesson);
+    return i >= 0 ? 'Aula ' + (i + 1) + ': ' + FF.LESSONS[i].title : '';
+  }
+
   function act(a, el) {
     const it = cur();
+    if (a === 'h-print') { printTickets(); return; }
     if (a === 'h-next') { next(); return; }
     if (a === 'h-back') { prev(); return; }
     if (a === 'h-inc' || a === 'h-dec') {
       const i = Number(el.dataset.i);
       it.counts[i] = Math.max(0, it.counts[i] + (a === 'h-inc' ? 1 : -1));
-      if (H.step >= 2) record();
+      if (H.step >= revealStep(it)) record();
       draw();
       return;
     }
     if (a === 'h-resumo') { FF.resumo.open(); return; }
     if (a === 'h-solve') { H.showSolve = !H.showSolve; draw(); return; }
     if (a === 'h-new') {
+      if (it.self) return;
       // Desafios com "Todos os tipos": sorteia outro modelo; nas aulas, o mesmo modelo com números novos
       const id = H.title || H.warm ? it.tpl : H.tpl === 'mix' ? pick(TPL_IDS) : H.tpl;
       H.list[H.i] = build(id);
@@ -466,5 +762,16 @@
     saveResults(all) { try { localStorage.setItem(REC_KEY, JSON.stringify(all)); } catch (e) { /* sem armazenamento */ } },
     TPL_NAME: (id) => (T[id] ? T[id].name : id),
     _make: (id) => build(id),
+    /* Para o modo apresentador: a pergunta inteira, com a certa e o erro de cada letra */
+    snap() {
+      const it = cur();
+      if (!it) return null;
+      const st = H.step;
+      return { title: H.title || (H.warm ? 'Aquecimento' : 'Placas A–E'), warm: H.warm, i: H.i, n: H.list.length, step: st, self: !!it.self,
+        stepName: it.self ? ['Placas para cima', 'Resultado'][Math.min(st, 1)] : ['Tempo para pensar', 'Placas para cima', 'Resposta revelada'][Math.min(st, 2)] + (st > 2 ? ' · resolução ' + (st - 2) + '/' + it.solve.length : ''),
+        code: it.code, desc: DESC[it.code] || '', stem: it.stem, counts: it.counts.slice(),
+        alts: it.alts.map((a) => ({ html: a.h || esc(a.t), ok: !!a.ok, why: a.why || '' })), solve: it.solve.slice() };
+    },
+    vote(i, d) { if (cur()) act(d > 0 ? 'h-inc' : 'h-dec', { dataset: { i: String(i) } }); },
   };
 })();

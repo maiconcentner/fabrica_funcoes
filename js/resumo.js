@@ -70,10 +70,27 @@
     });
     return Object.values(m).sort((a, b) => a.t.localeCompare(b.t));
   }
+  /* Autoavaliação (bilhete de saída) não tem certa: fica fora das contas de acerto */
+  const isSelf = (r) => r.code === 'AUTO';
+  const qs = (rows) => rows.filter((r) => !isSelf(r));
+  const SELF = ['entenderam bem', 'ainda erram às vezes', 'ainda não entenderam'];
+  /* Bilhetes de saída: por aula e turma, acerto das perguntas e autoavaliação */
+  function byTicket(rows) {
+    const m = {};
+    rows.filter((r) => r.src === 'saida').forEach((r) => {
+      const k = r.lesson + '|' + (r.turma || '') + '|' + dateBR(r.when);
+      const x = m[k] || (m[k] = { lesson: r.lesson, turma: r.turma || '', date: dateBR(r.when), when: r.when, votes: 0, ok: 0, self: [0, 0, 0] });
+      if (isSelf(r)) r.counts.forEach((c, i) => { x.self[i] += c; });
+      else { x.votes += total(r); x.ok += r.counts[r.ok] || 0; }
+    });
+    return Object.values(m).sort((a, b) => new Date(a.when) - new Date(b.when));
+  }
+  const selfTxt = (sv) => { const t = sv[0] + sv[1] + sv[2]; return t ? sv.map((c, i) => pct(c, t) + '% ' + SELF[i]).join(', ') : ''; };
   const status = (rate) => (rate < 50 ? { k: 'warn', w: 'Retomar' } : rate < 70 ? { k: 'q', w: 'Consolidar' } : { k: 'ok', w: 'Adequado' });
 
   /* ---------- Texto para o relatório ---------- */
-  function reportText(rows) {
+  function reportText(allRows) {
+    const rows = qs(allRows);
     if (!rows.length) return '';
     const votes = rows.reduce((a, r) => a + total(r), 0);
     const ok = rows.reduce((a, r) => a + (r.counts[r.ok] || 0), 0);
@@ -99,6 +116,13 @@
     const ret = ds.filter((d) => d.rate < 50).map((d) => d.code);
     const con = ds.filter((d) => d.rate >= 50 && d.rate < 70).map((d) => d.code);
     const ade = ds.filter((d) => d.rate >= 70).map((d) => d.code);
+    const tk = byTicket(allRows);
+    if (tk.length) {
+      L.push('');
+      L.push('Bilhetes de saída (fim de cada aula):');
+      tk.forEach((t) => L.push('• ' + lessonName(t.lesson) + (t.turma ? ', ' + t.turma : '') + ', ' + t.date + ': ' +
+        (t.votes ? pct(t.ok, t.votes) + '% de acerto nas perguntas' : 'sem perguntas contadas') + (selfTxt(t.self) ? '; autoavaliação: ' + selfTxt(t.self) : '') + '.'));
+    }
     L.push('');
     L.push('Encaminhamentos:' +
       (ret.length ? ' retomar ' + ret.join(', ') + ' (abaixo de 50% de acerto), com nova pergunta-dobradiça sobre o erro mais escolhido;' : '') +
@@ -110,13 +134,16 @@
   /* ---------- Planilha (CSV para Excel/Planilhas, separado por ;) ---------- */
   function csv(rows) {
     const q = (v) => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
-    const head = ['data', 'turma', 'aula', 'descritor', 'tipo de pergunta', 'correta', 'A', 'B', 'C', 'D', 'E', 'respostas', 'acerto (%)', 'erro mais escolhido', 'erro mais escolhido (%)'];
+    const ORIG = { saida: 'bilhete de saída', aquec: 'aquecimento', dobradica: 'pergunta-dobradiça', desafio: 'Desafios' };
+    const head = ['data', 'turma', 'aula', 'origem', 'descritor', 'tipo de pergunta', 'correta', 'A', 'B', 'C', 'D', 'E', 'respostas', 'acerto (%)', 'erro mais escolhido', 'erro mais escolhido (%)'];
     const lines = rows.map((r) => {
       const tt = total(r);
       const errs = errsOf(r);
       let bi = -1;
       r.counts.forEach((c, i) => { if (i !== r.ok && c > 0 && (bi < 0 || c > r.counts[bi])) bi = i; });
-      return [dateBR(r.when, true), r.turma || '', lessonName(r.lesson), r.code, FF.hinge.TPL_NAME(r.tpl), LETTERS[r.ok]].concat(r.counts)
+      const c5 = r.counts.concat([0, 0, 0, 0, 0]).slice(0, 5);
+      if (isSelf(r)) return [dateBR(r.when, true), r.turma || '', lessonName(r.lesson), ORIG[r.src] || '', 'autoavaliação', 'A entendi bem · B ainda erro · C não entendi', ''].concat(c5).concat([tt, '', '', '']).map(q).join(';');
+      return [dateBR(r.when, true), r.turma || '', lessonName(r.lesson), ORIG[r.src] || '', r.code, FF.hinge.TPL_NAME(r.tpl), LETTERS[r.ok]].concat(c5)
         .concat([tt, pct(r.counts[r.ok], tt), bi >= 0 ? LETTERS[bi] + ': ' + errs[bi] : '', bi >= 0 ? pct(r.counts[bi], tt) : '']).map(q).join(';');
     });
     return '﻿' + head.map(q).join(';') + '\n' + lines.join('\n');
@@ -132,7 +159,8 @@
   /* ---------- Desenho ---------- */
   function bar(rate, k) { return '<span class="rs-bar k-' + k + '"><i style="width:' + rate + '%"></i></span>'; }
   function render() {
-    const rows = filtered();
+    const allRows = filtered();
+    const rows = qs(allRows);
     const turmas = Array.from(new Set(all().map((r) => r.turma || ''))).sort();
     const votes = rows.reduce((a, r) => a + total(r), 0);
     const ok = rows.reduce((a, r) => a + (r.counts[r.ok] || 0), 0);
@@ -140,7 +168,7 @@
       turmas.map((t) => '<option value="' + esc(t) + '"' + (t === V.turma ? ' selected' : '') + '>' + esc(t || '(sem turma)') + '</option>').join('') + '</select></label>' +
       '<div class="seg seg-sm" id="rs-per" role="group" aria-label="Período">' + [['today', 'Hoje'], ['d7', '7 dias'], ['d30', '30 dias'], ['all', 'Tudo']].map(([v, w]) =>
         '<button data-v="' + v + '" aria-pressed="' + (V.per === v) + '">' + w + '</button>').join('') + '</div></div>';
-    if (!rows.length) {
+    if (!allRows.length) {
       h += '<div class="rs-empty"><p><b>Ainda não há respostas registradas' + (V.turma !== '*' || V.per !== 'all' ? ' com esses filtros' : '') + '.</b></p>' +
         '<p class="note">Nas Placas A–E (Desafios ou dentro das aulas), toque nas letras para contar os votos antes de revelar. Cada pergunta com votos entra aqui, com a turma escrita no alto da pergunta.</p></div>';
       $('rs-body').innerHTML = h;
@@ -149,10 +177,10 @@
     }
     $('rs-copy').disabled = $('rs-csv').disabled = $('rs-print').disabled = $('rs-clear').disabled = false;
     const g = pct(ok, votes);
-    h += '<div class="rs-kpis"><div class="kpi"><span>Perguntas</span><b>' + rows.length + '</b></div><div class="kpi"><span>Respostas (placas)</span><b>' + votes + '</b></div>' +
+    if (rows.length) h += '<div class="rs-kpis"><div class="kpi"><span>Perguntas</span><b>' + rows.length + '</b></div><div class="kpi"><span>Respostas (placas)</span><b>' + votes + '</b></div>' +
       '<div class="kpi ' + (g < 50 ? 'dn' : 'up') + '"><span>Acerto geral</span><b>' + g + '%</b></div></div>';
     // por descritor
-    h += '<h3 class="rs-h">Por descritor <small>do menor para o maior acerto</small></h3><table class="rs-table"><thead><tr><th>Descritor</th><th>Perguntas</th><th>Respostas</th><th>Acerto</th><th>Erro mais escolhido</th><th></th></tr></thead><tbody>' +
+    if (rows.length) h += '<h3 class="rs-h">Por descritor <small>do menor para o maior acerto</small></h3><table class="rs-table"><thead><tr><th>Descritor</th><th>Perguntas</th><th>Respostas</th><th>Acerto</th><th>Erro mais escolhido</th><th></th></tr></thead><tbody>' +
       byDesc(rows).map((d) => {
         const st = status(d.rate);
         return '<tr><td><b>' + esc(d.code) + '</b><small>' + esc(FF.hinge.DESC[d.code] || '') + '</small></td><td class="num">' + d.n + '</td><td class="num">' + d.votes + '</td>' +
@@ -171,14 +199,25 @@
       h += '<h3 class="rs-h">Por turma</h3><table class="rs-table rs-small rs-turmas"><thead><tr><th>Turma</th><th>Perguntas</th><th>Respostas</th><th>Acerto</th></tr></thead><tbody>' +
         bt.map((x) => { const r = pct(x.ok, x.votes); return '<tr><td><b>' + esc(x.t) + '</b></td><td class="num">' + x.n + '</td><td class="num">' + x.votes + '</td><td class="rs-rate">' + bar(r, status(r).k) + '<b>' + r + '%</b></td></tr>'; }).join('') + '</tbody></table>';
     }
+    // bilhetes de saída
+    const tk = byTicket(allRows);
+    if (tk.length) {
+      h += '<h3 class="rs-h">Bilhetes de saída <small>fim de cada aula: acerto das perguntas e como a turma diz que está</small></h3><table class="rs-table rs-small"><thead><tr><th>Aula</th><th>Turma</th><th>Data</th><th>Acerto</th><th>Autoavaliação</th></tr></thead><tbody>' +
+        tk.map((t) => {
+          const r = pct(t.ok, t.votes), tt = t.self[0] + t.self[1] + t.self[2];
+          return '<tr><td><b>' + esc(lessonName(t.lesson)) + '</b></td><td>' + esc(t.turma || '—') + '</td><td>' + t.date + '</td>' +
+            '<td class="rs-rate">' + (t.votes ? bar(r, status(r).k) + '<b>' + r + '%</b>' : '—') + '</td>' +
+            '<td class="rs-self">' + (tt ? '<span class="sf s0">😀 ' + pct(t.self[0], tt) + '%</span><span class="sf s1">🤔 ' + pct(t.self[1], tt) + '%</span><span class="sf s2">😟 ' + pct(t.self[2], tt) + '%</span>' : '—') + '</td></tr>';
+        }).join('') + '</tbody></table>';
+    }
     // perguntas aplicadas
-    h += '<details class="rs-list"' + (V.listOpen ? ' open' : '') + '><summary>Perguntas aplicadas (' + rows.length + ')</summary><table class="rs-table rs-small"><thead><tr><th>Data</th><th>Turma</th><th>Onde</th><th>Descritor</th><th>Votos A–E (certa em negrito)</th><th>Acerto</th><th></th></tr></thead><tbody>' +
-      rows.slice().reverse().map((r) => '<tr><td>' + dateBR(r.when, true) + '</td><td>' + esc(r.turma || '—') + '</td><td>' + esc(lessonName(r.lesson)) + '<small>' + esc(FF.hinge.TPL_NAME(r.tpl)) + '</small></td><td>' + esc(r.code) + '</td>' +
+    h += '<details class="rs-list"' + (V.listOpen ? ' open' : '') + '><summary>Perguntas aplicadas (' + allRows.length + ')</summary><table class="rs-table rs-small"><thead><tr><th>Data</th><th>Turma</th><th>Onde</th><th>Descritor</th><th>Votos A–E (certa em negrito)</th><th>Acerto</th><th></th></tr></thead><tbody>' +
+      allRows.slice().reverse().map((r) => '<tr><td>' + dateBR(r.when, true) + '</td><td>' + esc(r.turma || '—') + '</td><td>' + esc(lessonName(r.lesson)) + '<small>' + esc(FF.hinge.TPL_NAME(r.tpl)) + '</small></td><td>' + esc(isSelf(r) ? 'autoavaliação' : r.code) + '</td>' +
         '<td class="rs-dist">' + r.counts.map((c, i) => (i === r.ok ? '<b class="ok">' : '<span>') + LETTERS[i] + ' ' + c + (i === r.ok ? '</b>' : '</span>')).join(' ') + '</td>' +
-        '<td class="num">' + pct(r.counts[r.ok], total(r)) + '%</td><td><button class="icon-btn sm" data-del="' + esc(r.uid) + '" title="Apagar esta pergunta do resumo" aria-label="Apagar">✕</button></td></tr>').join('') +
+        '<td class="num">' + (isSelf(r) ? '—' : pct(r.counts[r.ok], total(r)) + '%') + '</td><td><button class="icon-btn sm" data-del="' + esc(r.uid) + '" title="Apagar esta pergunta do resumo" aria-label="Apagar">✕</button></td></tr>').join('') +
       '</tbody></table></details>';
     $('rs-body').innerHTML = h;
-    $('rs-clear').textContent = V.armed ? 'Confirmar: apagar ' + rows.length + ' pergunta' + (rows.length > 1 ? 's' : '') : 'Apagar estes resultados';
+    $('rs-clear').textContent = V.armed ? 'Confirmar: apagar ' + allRows.length + ' pergunta' + (allRows.length > 1 ? 's' : '') : 'Apagar estes resultados';
     $('rs-clear').classList.toggle('armed', V.armed);
   }
 

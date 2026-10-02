@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Apresentador · Fábrica de Funções</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=STIX+Two+Text:ital,wght@0,500;1,500;1,600&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="pv">
+  <header class="pv-top">
+    <div class="pv-brand"><b>Modo apresentador</b><span id="pv-where">Esperando a janela do projetor…</span></div>
+    <div class="pv-clocks">
+      <span class="pv-dot" id="pv-dot" title="Ligação com a janela do projetor"></span>
+      <span class="pv-clock" id="pv-now" title="Hora"></span>
+      <span class="pv-clock pv-el" id="pv-el" title="Tempo desde o começo da aula">0:00</span>
+      <button class="btn btn-ghost sm" id="pv-zero" title="Zerar o tempo de aula">Zerar</button>
+    </div>
+  </header>
+
+  <main class="pv-grid">
+    <section class="pv-now">
+      <div class="pv-card" id="pv-main">
+        <p class="note">Abra esta janela pelo botão <b>Apresentador</b> (ou tecla <kbd>S</kbd>) na janela da Fábrica de Funções. Depois, arraste a janela da Fábrica para o projetor e aperte <kbd>F</kbd> (tela cheia).</p>
+      </div>
+      <div class="pv-card pv-note" id="pv-note" hidden></div>
+    </section>
+
+    <aside class="pv-side">
+      <div class="pv-ctrl">
+        <button class="pv-big" id="pv-prev" aria-label="Voltar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <button class="pv-big pv-next" id="pv-next" aria-label="Avançar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Avançar</span></button>
+      </div>
+      <div class="pv-ctrl2">
+        <button class="btn btn-ghost" id="pv-curtain" title="Apaga a tela do projetor (tecla .)">Cortina</button>
+        <button class="btn btn-ghost" id="pv-proj" title="Liga ou desliga o modo projetor na outra janela">Modo projetor</button>
+        <button class="btn btn-ghost" id="pv-full" title="Coloca a janela do projetor em tela cheia">Tela cheia lá</button>
+      </div>
+      <div class="pv-card" id="pv-next-card" hidden></div>
+      <div class="pv-card pv-outline-card" id="pv-outline" hidden></div>
+      <p class="note pv-keys">Aqui também valem <kbd>→</kbd> <kbd>Espaço</kbd> <kbd>PageDown</kbd> para avançar, <kbd>←</kbd> <kbd>PageUp</kbd> para voltar e <kbd>.</kbd> para a cortina. O passador funciona na janela que estiver em primeiro plano.</p>
+    </aside>
+  </main>
+
+<script src="js/apresentador.js"></script>
+</body>
+</html>

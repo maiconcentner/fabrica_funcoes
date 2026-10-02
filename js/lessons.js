@@ -23,6 +23,12 @@
      e perguntas-dobradiça no ponto em que a ideia é ensinada. */
   const warm = (items, title) => ({ kind: 'game', game: 'hinge', warm: true, items, title: title || 'Aquecimento',
     prompt: 'Aulas anteriores, misturadas: pensar sozinho → placas para cima → resposta.' });
+  /* O erro do Zé: uma resolução com um passo errado para a turma achar */
+  const ze = (items, prompt) => ({ kind: 'game', game: 'hinge', items, title: 'O erro do Zé',
+    prompt: prompt || 'O Zé resolveu, mas errou em um passo. Em qual? Placas: A, B, C ou D (ou E, se achar que está tudo certo).' });
+  /* Bilhete de saída: duas perguntas sobre a aula de hoje e a autoavaliação */
+  const exit = (items) => ({ kind: 'game', game: 'hinge', exit: true, items: items.concat(['auto']), title: 'Bilhete de saída',
+    prompt: 'Duas perguntas sobre a aula de hoje e como você está. Placas na mão (ou no papel: "Imprimir bilhetes").' });
   const hinge = (items, title, prompt) => ({ kind: 'game', game: 'hinge', items, title,
     prompt: prompt || 'Pergunta no formato da AvaliaSESI. Tempo para pensar, placas para cima, revelar e resolver.' });
 
@@ -57,6 +63,7 @@
           body: '<p>A <b>Cosip</b> financia a iluminação pública do município. Em São Paulo, o valor depende da faixa de consumo.</p>',
           steps: ['[do]<b>Para a próxima aula:</b> traga uma conta de energia da sua casa.', '[do]Com o consumo dos últimos 12 meses, procure uma expressão que relacione o valor pago ao consumo.', '[idea]Na Fábrica, é só trocar os números da lei para a tarifa da sua cidade.'],
           note: 'Consulte com a turma o site da distribuidora de energia do município.' },
+        exit(['lei', 'volta']),
       ],
     },
     {
@@ -85,6 +92,8 @@
           prompt: 'Fabrique os tempos da tabela. O gráfico dos pares (t; d) forma uma <b>reta</b> que passa pela origem.' },
         { kind: 'fab', title: 'Item e: 6 horas', setup: ctx('viagem'), run: [6, 'fwd'], until: 'run', prompt: 'Mantendo a velocidade, quantos km em 6 horas?' },
         { kind: 'fab', title: 'Item f: 640 km', setup: ctx('viagem'), run: [640, 'rev'], until: 'run', prompt: 'Quanto tempo para percorrer 640 km? A máquina ao contrário desfaz o × 80.' },
+        ze(['zedecimal'], 'Conta com decimais, como na tarifa da água e da luz. O Zé errou em um passo: em qual?'),
+        exit(['efuncao', 'decimal']),
       ],
     },
     {
@@ -110,6 +119,7 @@
           body: '<p>Em todas há uma <b>parte fixa</b> e uma <b>parte que depende de x</b>.</p>',
           steps: ['Visita técnica: {{P = |50 + 30h|h}}', 'Aplicativo de viagem: {{P = |5 + 1,55x|x}}', 'Salário com comissão: {{S = |1500 + 15x|x}}'] },
         hinge(['lei'], 'Pergunta-dobradiça: qual é a lei?', 'Parte fixa ou parte que depende de x? Cada alternativa errada troca uma coisa pela outra.'),
+        ze(['zelei']),
         { kind: 'fab', title: 'Atividade 6: serviço de 2 h 30 min', setup: ctx('tecnico'), run: [2.5, 'fwd'], until: 'run', prompt: '2 horas e 30 minutos = 2,5 horas.' },
         { kind: 'fab', title: 'Atividade 6: pagou R$ 140,00', setup: ctx('tecnico'), run: [140, 'rev'], until: 'run', prompt: 'Quanto tempo durou o serviço?' },
         { kind: 'fab', title: 'Atividade 7: corrida de R$ 27,50', setup: ctx('app'), run: [27.5, 'rev'], until: 'run', prompt: 'Quantos km? O resultado não é exato: arredonde (≈ 14,5 km).' },
@@ -117,6 +127,7 @@
         hinge(['volta', 'seq'], 'Pergunta-dobradiça: voltar e prever', 'Duas perguntas: achar a entrada a partir da saída e o termo de uma sequência (a posição conta!).'),
         { kind: 'game', title: 'Desafio: Adivinhe a regra', game: 'rule', level: 2,
           prompt: 'Em equipes: a máquina esconde uma lei do tipo <i>ax</i> + <i>b</i>. Cada equipe pede uma pista por vez.' },
+        exit(['lei', 'volta']),
       ],
     },
     {
@@ -136,6 +147,7 @@
         { kind: 'insp', title: 'Inspecionando y = x − 2', mode: 'diag', case: 'y = x − 2',
           prompt: 'O inspetor confere cada elemento de A e, no fim, mostra D, CD e Im.' },
         hinge(['imagem'], 'Pergunta-dobradiça: qual é a imagem?', 'Domínio, contradomínio ou imagem? Duas alternativas erradas são os outros conjuntos.'),
+        ze(['zeimagem']),
         { kind: 'fab', title: 'Atividade 10: o avião', setup: ctx('aviao', { dom: '{1;2;3;4;5}' }), until: 'all',
           prompt: '<b>a.</b> <i>d</i> = 600<i>t</i>. Fabrique os tempos da tabela: <b>b.</b> D = {1, 2, 3, 4, 5}; <b>c.</b> Im = {600, 1 200, 1 800, 2 400, 3 000}.' },
         { kind: 'fab', title: 'Atividade 10 d: depois de 8 horas', setup: ctx('aviao'), run: [8, 'fwd'], until: 'run',
@@ -146,6 +158,7 @@
           steps: ['<b>a.</b> <i>f</i>(5) = 2 · 5 − 0,5 = <b>9,5</b>', '<b>b.</b> <i>f</i>(10) = 2 · 10 − 0,5 = <b>19,5</b>', '<b>c.</b> <i>f</i>(−2) = 2 · (−2) − 0,5 = <b>−4,5</b>', '<b>d.</b> <i>f</i>(10) − <i>f</i>(5) = 19,5 − 9,5 = <b>10</b>', '<b>e.</b> <i>f</i>(−2) + <i>f</i>(5) = −4,5 + 9,5 = <b>5</b>', '<b>f.</b> <i>f</i>(−2) · <i>f</i>(5) · <i>f</i>(10) = (−4,5) · 9,5 · 19,5 = <b>−833,625</b>'],
           body: '<p>Calcule:</p>', note: 'Retomada das operações com números racionais.' },
         { kind: 'fab', title: 'Conferindo na máquina', setup: preset('2x − 0,5'), until: 'all', prompt: 'A máquina confere <i>f</i>(5), <i>f</i>(10), <i>f</i>(−2) e <i>f</i>(0).' },
+        exit(['imagem', 'lei']),
       ],
     },
     {
@@ -176,6 +189,7 @@
         { kind: 'insp', title: 'Atividade 15: Diagrama 4', mode: 'diag', case: 'Diagrama 4', prompt: 'Todos vão para o 2: é função?' },
         { kind: 'fab', title: 'Atividade 16: f(x) = x³ + 2', setup: preset('x³ + 2'), run: [66, 'rev'], until: 'run',
           prompt: 'A imagem é 66. Desfazendo: 66 − 2 = 64 e ∛64 = 4. (Os outros itens: 3, 10 e 29.)' },
+        exit(['efuncao', 'imagem']),
       ],
     },
     {
@@ -198,6 +212,7 @@
         { kind: 'insp', title: 'Reta vertical', mode: 'graf', case: 'Reta vertical', prompt: 'x = 2: quantos pontos a reta vertical corta?' },
         { kind: 'game', title: 'Desafio: Corrida das engrenagens', game: 'race', level: 1,
           prompt: 'Em equipes, montem a máquina que produz os pares dados.' },
+        exit(['grafico', 'efuncao']),
       ],
     },
     {
@@ -219,6 +234,8 @@
           prompt: 'Exercícios com números novos. Avance para revelar a resolução, passo a passo.' },
         { kind: 'slide', kicker: 'Fechamento', title: 'O que aprendemos',
           steps: ['<b>Função</b>: cada <i>x</i> do domínio tem <b>uma única</b> imagem.', 'A <b>lei de formação</b> é a máquina: dá para ir e (quase sempre) voltar.', 'D, CD e Im: <b>Im ⊂ CD</b>; o domínio exclui divisão por zero e raiz de negativo.', 'No <b>gráfico</b>, nenhuma reta vertical corta em mais de um ponto.'] },
+        ze(['zevolta', 'zeseq'], 'Revisão: duas resoluções do Zé, cada uma com um passo errado.'),
+        exit(['grafico', 'volta']),
       ],
     },
   ];
@@ -474,8 +491,29 @@
     FF.on((changed) => { if (changed.includes('view') || changed.includes('lesson')) render(); });
   }
 
+  /* Para o modo apresentador: a aula inteira vista pelo professor */
+  function snapshot() {
+    const l = lesson();
+    if (!l) return null;
+    const mo = moment();
+    const nx = l.moments[FF.state.lm + 1];
+    const out = { num: LS.indexOf(l) + 1, id: l.id, title: l.title, book: l.book, dur: l.dur, lm: FF.state.lm, n: l.moments.length, ls: FF.state.ls,
+      outline: l.moments.map((m, i) => ({ kind: kindName(m), title: m.title || '', st: i < FF.state.lm ? 'done' : i === FF.state.lm ? 'cur' : '' })),
+      next: nx ? { kind: kindName(nx), title: nx.title || '' } : null };
+    if (mo) {
+      out.mo = { kind: mo.kind, kindName: kindName(mo), title: rich(mo.title || '', 22), kicker: mo.kicker || '', note: mo.note || '',
+        prompt: mo.prompt ? chip(promptKind(mo.prompt)) + rich(mo.prompt, 18) : '',
+        body: mo.body ? rich(mo.body, 22) : '',
+        steps: (mo.steps || []).map((s) => { const c = kindOf(s, mo); return { k: c.k, html: rich(c.t, 22) }; }),
+        run: mo.run || null, until: mo.until || '' };
+    }
+    return out;
+  }
+
   FF.aula = {
     init() { bind(); render(); },
+    snapshot,
+    go(k) { if (lesson()) goMoment(k); },
     render,
     renderBar,
     inControl,

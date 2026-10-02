@@ -522,13 +522,23 @@
       if (FF.state.gGame === 'rev') return !G2.law || G2.shown >= g2Steps().length;
       return true;
     },
+    /* Para o modo apresentador: o que só o professor deve ver (lei escondida, resolução inteira) */
+    snap() {
+      const g = FF.state.gGame;
+      if (g === 'hinge') return { g, hinge: FF.hinge.snap() };
+      if (g === 'ex' && G4.ex) return { g, text: g4Text(), steps: g4Steps(), shown: G4.shown };
+      if (g === 'rev' && G2.law) return { g, law: lawHTML(G2.law, 24), y: f(G2.y), steps: g2Steps(), shown: G2.shown };
+      if (g === 'rule' && G1.law) return { g, law: lawHTML(G1.law, 24), clues: G1.clues.length };
+      if (g === 'race' && G3.law) return { g, law: lawHTML(G3.law, 24), chain: G3.law.chain.map((x) => X.gearLabel(x)).join(' → ') };
+      return { g };
+    },
     hasBack() { return (FF.state.gGame === 'ex' && G4.shown > 0) || (FF.state.gGame === 'hinge' && FF.hinge.hasBack()); },
     /* Abre um jogo num nível, com rodada nova (aulas). Em Exercícios, a situação pode vir junto. */
     open(g, level, ctx, mo) {
       FF.set({ gGame: g, gLevel: level || FF.state.gLevel });
       if (g === 'ex' && ctx) G4.ctx = ctx;
       // Placas A–E numa aula: a lista de perguntas vem do momento (aquecimento ou pergunta-dobradiça)
-      if (g === 'hinge' && mo && mo.items) FF.hinge.start(mo.items, { warm: mo.warm, title: mo.title });
+      if (g === 'hinge' && mo && mo.items) FF.hinge.start(mo.items, { warm: mo.warm, exit: mo.exit, title: mo.title });
       else game().make();
       render();
     },

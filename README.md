@@ -105,6 +105,7 @@ Casas decimais, modo projetor, tema claro/escuro, tamanho do texto, velocidade d
 | `T` / `D` / `G` | tabela / diagrama / gráfico |
 | `F` | tela cheia |
 | `M` | modo projetor |
+| `S` | modo apresentador (segunda janela, só para o professor) |
 | `L` | gaveta com os controles da lateral (no modo projetor) |
 | `.` | cortina: apaga a tela (qualquer tecla ou clique volta) |
 | `P` | painel do professor |
@@ -141,10 +142,43 @@ Quinto jogo dos Desafios e momentos das aulas. Cada pergunta imita um item real 
 | Termo de uma sequência | C09 | PA·040 | um mês a mais · um mês a menos · só multiplicou · multiplicou o primeiro termo |
 | Qual é a imagem? | D11 | autoral (o banco não tinha item) | deu o domínio · deu o contradomínio · (−2)² = −4 · esqueceu de somar |
 | Conta com decimais | C20 / D22 | causa raiz do PAE | vírgula deslocada · esqueceu a vírgula · somou em vez de multiplicar · esqueceu a taxa |
+| Qual relação é função? | D02 | Atividades 14 e 15 | duas imagens para um x · x sem imagem · imagem fora de B · contou só as flechas |
 
 Um clique por vez: **tempo para pensar** (anel de 25 s, sem placa) → **placas para cima** (toque nas letras para contar os votos, opcional) → **revelar** (a certa em verde; em cada errada, o erro por trás dela; com votos, a porcentagem e o erro mais escolhido) → **resolução passo a passo** → **Ver na Fábrica**. Os votos ficam guardados neste navegador, por descritor, para o resumo da turma.
 
 **Nas aulas:** todas começam com um **aquecimento** de 2 ou 3 perguntas de aulas anteriores, misturadas (evocar e intercalar os tipos de problema), e têm perguntas-dobradiça logo depois de cada ideia: da saída para a entrada (aula 1 e 3), qual é a lei (aula 3), sequência (aula 3), imagem (aula 4) e gráfico (aulas 6 e 7). No modo projetor, a pergunta ocupa a largura toda, e o placar e o cronômetro ficam na gaveta.
+
+### O erro do Zé
+
+O **Zé** (um bonequinho com balão de fala) mostra o **caderno** com a resolução, em letra de mão, com **um passo errado** — e os passos seguintes continuam a conta errada dele, como um aluno de verdade faria. Primeiro, tempo para pensar; depois a turma vota com as placas **em qual passo está o erro** (A a D) ou **E, "o Zé acertou tudo"**, numa faixa de votos discreta embaixo do caderno. Ao revelar, a correção é de **caneta vermelha**: o passo errado fica riscado com o certo escrito embaixo, os anteriores ganham ✓ e os seguintes ficam apagados ("segue a conta errada"); a explicação aparece uma vez só, numa caixa de **Atenção**, com quantos acharam o erro e o que o voto errado mais comum mostra. Depois vem a resolução correta e **Ver na Fábrica**. Analisar o erro de outra pessoa é seguro para quem ainda tem dúvida e fixa o porquê de cada passo.
+
+| Modelo | Descritor | Erros plantados (um por vez, sorteado) |
+|---|---|---|
+| Da saída para a entrada | D22 | desfez fora de ordem · somou a parte fixa em vez de tirar · multiplicou em vez de dividir |
+| Escrever a lei | D12 | trocou parte fixa e variável · somou antes de multiplicar · esqueceu de multiplicar por x |
+| A imagem | D11 | (−2)² = −4 · deu o contradomínio · deu o domínio |
+| Termo da sequência | C09 | contou um termo a mais · somou antes de multiplicar |
+| Conta com decimais | C20 | vírgula deslocada (no passo da divisão ou no da escrita) |
+
+Está nos Desafios (Placas A–E, tipos "O erro do Zé") e nas aulas 2, 3, 4 e 7. No resumo da turma, quem não acha o erro conta como "não viu: …" com o nome do erro.
+
+### Bilhete de saída
+
+Último momento de cada aula: **duas perguntas sobre o conteúdo daquela aula** (o aquecimento retoma as anteriores) e uma **autoavaliação** com placas A, B ou C: *Entendi bem e consigo explicar* · *Entendi, mas ainda erro às vezes* · *Ainda não entendi*. Se 25% ou mais disserem que ainda não entenderam, a tela sugere retomar no aquecimento da próxima aula.
+
+| Aula | Perguntas do bilhete |
+|---|---|
+| 1 | Qual é a lei? · Da saída para a entrada |
+| 2 | Qual relação é função? · Conta com decimais |
+| 3 | Qual é a lei? · Da saída para a entrada |
+| 4 | Qual é a imagem? · Qual é a lei? |
+| 5 | Qual relação é função? · Qual é a imagem? |
+| 6 | Qual é o gráfico? · Qual relação é função? |
+| 7 | Qual é o gráfico? · Da saída para a entrada |
+
+**Imprimir bilhetes** (no alto do bilhete) imprime as mesmas perguntas e a autoavaliação, **4 por folha A4**, com nome e turma, para quem preferir responder no papel. Os resultados entram no **Resumo da turma**, numa seção própria por aula, e no texto do relatório.
+
+O modelo novo **Qual relação é função?** (D02, Atividades 14 e 15) mostra cinco tabelas de A em B; os erros são: aceitar duas imagens para um *x*, aceitar *x* sem imagem, aceitar imagem fora de B e "contar só as flechas" (4 pares para 4 elementos, mas um *x* com duas imagens e outro sem nenhuma). A certa tem imagem repetida, de propósito: pode!
 
 ### Resumo da turma (para o relatório do PAE)
 
@@ -182,6 +216,20 @@ Trazidas do projeto de Relações Métricas, valem em todas as abas:
 - **Cenários salvos** (painel do professor): guardam a aba e tudo o que está nela, para abrir com um clique.
 - O **link compartilhável** leva também o passo: o produto que está na esteira (e em que engrenagem) ou o passo da inspeção.
 - **QR code** para a turma abrir no celular, com o endereço do GitHub Pages (editável no painel).
+
+## Modo apresentador (tecla `S`)
+
+Para dar aula com o notebook ligado ao projetor (tela estendida). O botão **Apresentador** abre uma **segunda janela, só para o professor**; a janela da Fábrica vai para o projetor (arraste e aperte `F`). A janela do apresentador mostra:
+
+- o **momento atual** e o pedido da barra da aula;
+- nas telas, **todos os itens**, com o **próximo clique** marcado e os que a turma ainda não viu;
+- nas **Placas A–E**, a **alternativa certa e o erro de cada letra** antes de revelar, a resolução inteira e botões **+ / −** para contar os votos ali mesmo;
+- nos **Exercícios**, a resolução completa; em **Adivinhe a regra** e na **Corrida**, a lei escondida;
+- na **Fábrica**, a **resposta esperada** (indo ou voltando) e a tabela inteira com o que vai para o refugo;
+- no **É função?**, o veredito certo;
+- a nota **Para o professor**, o **próximo momento**, o **roteiro** (toque para pular), a hora e o **tempo de aula**.
+
+Os botões grandes **◀ ▶** (e as setas, o espaço e o passador, com esta janela em primeiro plano) comandam a janela do projetor; **Cortina**, **Modo projetor** e **Tela cheia lá** também. As duas janelas conversam pelo próprio navegador, sem internet. Se o navegador bloquear a janela, permita pop-ups para o site.
 
 ## Código de cores dos textos
 
@@ -236,6 +284,8 @@ js/reps.js          tabela, diagrama de flechas e gráfico
 js/inspect.js       É função?: diagramas, tabelas, gráficos e reta vertical
 js/hinge.js         Placas A–E: perguntas-dobradiça e aquecimento (itens do Banco, erros com nome)
 js/games.js         Desafios: jogos, placar e cronômetro
+js/presenter.js     Modo apresentador, lado do projetor (manda o estado, recebe os comandos)
+js/apresentador.js  Modo apresentador, janela do professor (apresentador.html)
 js/resumo.js        Resumo da turma: acertos por descritor, erros mais escolhidos, texto e planilha
 js/empresa.js       Minha empresa: custos, faturamento, lucro e crescimento
 js/annotate.js      caneta, marca-texto e laser por cima da figura
