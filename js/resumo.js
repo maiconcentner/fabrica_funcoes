@@ -39,7 +39,8 @@
   function byDesc(rows) {
     const m = {};
     rows.forEach((r) => {
-      const d = m[r.code] || (m[r.code] = { code: r.code, n: 0, votes: 0, ok: 0, errs: {} });
+      const d = m[r.code] || (m[r.code] = { code: r.code, n: 0, votes: 0, ok: 0, errs: {}, sureWrong: 0 });
+      (r.sure || []).forEach((c, i) => { if (i !== r.ok) d.sureWrong += c; });
       d.n++;
       const tt = total(r);
       d.votes += tt;
@@ -106,7 +107,7 @@
     L.push('Resultado por descritor (do menor para o maior acerto):');
     ds.forEach((d) => {
       L.push('• ' + d.code + ' (' + (FF.hinge.DESC[d.code] || '').replace(/\.$/, '') + '): ' + d.n + ' pergunta' + (d.n > 1 ? 's' : '') + ', ' + d.votes + ' respostas, ' + d.rate + '% de acerto' +
-        (d.top ? '. Erro mais escolhido: "' + d.top.e + '" (' + d.top.p + '% das respostas).' : '.'));
+        (d.top ? '. Erro mais escolhido: "' + d.top.e + '" (' + d.top.p + '% das respostas)' : '') + (d.sureWrong ? '; ' + d.sureWrong + ' resposta' + (d.sureWrong > 1 ? 's' : '') + ' errada' + (d.sureWrong > 1 ? 's' : '') + ' dada' + (d.sureWrong > 1 ? 's' : '') + ' com certeza.' : '.'));
     });
     if (er.list.length) {
       L.push('');
@@ -185,7 +186,7 @@
         const st = status(d.rate);
         return '<tr><td><b>' + esc(d.code) + '</b><small>' + esc(FF.hinge.DESC[d.code] || '') + '</small></td><td class="num">' + d.n + '</td><td class="num">' + d.votes + '</td>' +
           '<td class="rs-rate">' + bar(d.rate, st.k) + '<b>' + d.rate + '%</b></td>' +
-          '<td>' + (d.top ? esc(d.top.e) + ' <b class="rs-p">' + d.top.p + '%</b>' : '—') + '</td><td><span class="kchip k-' + st.k + '">' + st.w + '</span></td></tr>';
+          '<td>' + (d.top ? esc(d.top.e) + ' <b class="rs-p">' + d.top.p + '%</b>' : '—') + (d.sureWrong ? '<small>💪 ' + d.sureWrong + ' erraram com certeza</small>' : '') + '</td><td><span class="kchip k-' + st.k + '">' + st.w + '</span></td></tr>';
       }).join('') + '</tbody></table>';
     // erros mais frequentes
     const er = byErr(rows);

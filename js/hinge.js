@@ -493,6 +493,7 @@
       if (!tpl.noShuffle) it.alts = shuffle(it.alts.slice()); // no erro do Zé, os passos ficam em ordem
     }
     it.counts = it.alts.map(() => 0);
+    it.sure = it.alts.map(() => 0); // quantos levantaram a placa "com certeza"
     it.uid = Date.now() + '-' + (H.uid++);
     return it;
   }
@@ -514,7 +515,12 @@
     if (!it) return;
     if (H.step < nSteps(it) - 1) H.step++;
     else if (H.i < H.list.length - 1) { H.i++; H.step = 0; H.showSolve = false; }
-    if (H.step === revealStep(cur())) record();
+    if (H.step === revealStep(cur())) {
+      record();
+      const it2 = cur();
+      const tot = it2.counts.reduce((a, b) => a + b, 0);
+      if (!it2.self && tot && !it2.coopDone && FF.games.coopVerdict) { it2.coopDone = true; FF.games.coopVerdict(Math.round((100 * it2.counts[it2.alts.findIndex((a) => a.ok)]) / tot)); }
+    }
     draw();
   }
   function prev() {
@@ -534,7 +540,7 @@
     try { all = JSON.parse(localStorage.getItem(REC_KEY) || '[]'); } catch (e) { all = []; }
     const row = { uid: it.uid, when: it.when || (it.when = new Date().toISOString()), turma: it.turma || (it.turma = FF.state.turma || ''),
       lesson: FF.state.lesson || '', src: H.exit ? 'saida' : H.warm ? 'aquec' : H.title ? 'dobradica' : 'desafio',
-      code: it.code, tpl: it.tpl, ok: it.alts.findIndex((a) => a.ok), counts: it.counts.slice(),
+      code: it.code, tpl: it.tpl, ok: it.alts.findIndex((a) => a.ok), counts: it.counts.slice(), sure: (it.sure || []).slice(),
       errs: it.alts.map((a) => (a.ok ? '' : a.e || a.why)), whys: it.alts.map((a) => (a.ok ? '' : a.why)) };
     const k = all.findIndex((r) => r.uid === it.uid);
     if (k >= 0) all[k] = row; else all.push(row);
@@ -598,10 +604,11 @@
         (st >= 1 ? '<div class="h-tally"><button class="icon-btn sm" data-act="h-dec" data-i="' + i + '" aria-label="Tirar um voto de ' + LETTERS[i] + '">−</button><button class="h-n" data-act="h-inc" data-i="' + i + '" aria-label="Mais um voto em ' + LETTERS[i] + '">' + it.counts[i] + '</button>' +
           (total ? '<span class="h-bar"><i style="width:' + pct + '%"></i></span><span class="h-pct">' + pct + '%</span>' : '') + '</div>' : '') + '</li>';
     }).join('') + '</ol>';
+    if (st >= 1) h += sureRow(it, st);
     if (st >= 2 && total) {
       const wrong = it.counts.map((c, i) => ({ c, i })).filter((x) => x.i !== okI).sort((p, q) => q.c - p.c)[0];
       const pOk = Math.round((100 * it.counts[okI]) / total);
-      h += '<p class="h-sum kbox ' + (pOk >= 50 ? 'k-ok' : 'k-warn') + '"><b>' + pOk + (it.ze ? '% acharam o erro.' : '% acertaram.') + '</b>' + (wrong && wrong.c ? (it.ze ? ' ' + zeHint(it, wrong.i, okI) : ' O erro mais escolhido foi <b>' + LETTERS[wrong.i] + '</b>: ' + esc(it.alts[wrong.i].why)) : '') + '</p>';
+      h += '<p class="h-sum kbox ' + (pOk >= 50 ? 'k-ok' : 'k-warn') + '"><b>' + pOk + (it.ze ? '% acharam o erro.' : '% acertaram.') + '</b>' + (wrong && wrong.c ? (it.ze ? ' ' + zeHint(it, wrong.i, okI) : ' O erro mais escolhido foi <b>' + LETTERS[wrong.i] + '</b>: ' + esc(it.alts[wrong.i].why)) : '') + '</p>' + sureMsg(it, okI);
     }
     const solveN = H.warm ? (H.showSolve ? it.solve.length : 0) : Math.max(0, st - 2);
     if (solveN) h += '<ol class="solve">' + it.solve.slice(0, solveN).map((s) => '<li>' + s + '</li>').join('') + '</ol>';
@@ -622,6 +629,20 @@
       paintThink(document.getElementById('h-think'));
     } else clearThink();
   }
+  /* Confiança no voto: depois das placas, "quem tem certeza, levante bem alto".
+     Errar com certeza e descobrir por quê é quando mais se aprende (hipercorreção). */
+  function sureRow(it, st) {
+    return '<div class="sure-row"><span class="sure-t" title="Peça: quem tem certeza, levante a placa bem alto">💪 Com certeza</span>' + it.alts.map((a, i) =>
+      '<span class="sv' + (st >= 2 && i === it.alts.findIndex((x) => x.ok) ? ' ok' : '') + '"><b>' + LETTERS[i] + '</b><button class="h-n sm" data-act="h-sure" data-i="' + i + '" aria-label="Mais um com certeza em ' + LETTERS[i] + '">' + it.sure[i] + '</button>' +
+      '<button class="zv-m" data-act="h-unsure" data-i="' + i + '" aria-label="Tirar um com certeza de ' + LETTERS[i] + '">−</button></span>').join('') + '</div>';
+  }
+  function sureMsg(it, okI) {
+    const wrongSure = it.sure.reduce((a, c, i) => a + (i === okI ? 0 : c), 0);
+    if (wrongSure) return '<p class="sure-msg kbox k-warn"><b>' + wrongSure + ' errara' + (wrongSure === 1 ? '' : 'm') + ' com certeza.</b> Peça que expliquem como pensaram: errar com certeza e ver por quê é quando mais se aprende.</p>';
+    if (it.sure[okI]) return '<p class="sure-msg kbox k-ok"><b>' + it.sure[okI] + ' acertaram com certeza.</b> Peça que um deles explique para a turma.</p>';
+    return '';
+  }
+
   /* Erro do Zé: o caderno dele, corrigido como a professora corrigiria (caneta vermelha) */
   const ZE_SVG = '<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="36" r="20" class="ze-skin"/><path d="M12 30c0-13 9-20 20-20s20 7 20 20c-6-4-13-6-20-6s-14 2-20 6Z" class="ze-cap"/><path d="M50 27h9" class="ze-brim"/>' +
     '<circle cx="25" cy="36" r="2.6" class="ze-eye"/><circle cx="39" cy="36" r="2.6" class="ze-eye"/><path class="ze-mouth" d="M25 46q7 5 14 0"/></svg>';
@@ -647,11 +668,13 @@
           '<button class="zv-m" data-act="h-dec" data-i="' + i + '" aria-label="Tirar um voto de ' + LETTERS[i] + '">−</button>' + (total ? '<small>' + p + '%</small>' : '') + '</span>';
       }).join('') + '</div>';
     }
+    if (st >= 1) h += sureRow(it, st);
     if (rev) {
       const pOk = total ? Math.round((100 * it.counts[okI]) / total) : null;
       const wrong = it.counts.map((c, i) => ({ c, i })).filter((x) => x.i !== okI).sort((p, q) => q.c - p.c)[0];
       h += '<div class="ze-why kbox k-warn">' + kc('warn', 'Atenção') + '<p><b>Passo ' + LETTERS[okI] + ':</b> ' + esc(it.zwhy) + '</p>' +
         (pOk != null ? '<p class="ze-res"><b>' + pOk + '% acharam o erro.</b>' + (wrong && wrong.c ? ' ' + zeHint(it, wrong.i, okI) : '') + '</p>' : '') + '</div>';
+      h += sureMsg(it, okI);
     }
     const solveN = H.warm ? (H.showSolve ? it.solve.length : 0) : Math.max(0, st - 2);
     if (solveN) h += '<ol class="solve">' + it.solve.slice(0, solveN).map((x) => '<li>' + x + '</li>').join('') + '</ol>';
@@ -724,6 +747,14 @@
       return;
     }
     if (a === 'h-resumo') { FF.resumo.open(); return; }
+    if (a === 'h-sure' || a === 'h-unsure') {
+      const i = Number(el.dataset.i);
+      it.sure[i] = Math.max(0, it.sure[i] + (a === 'h-sure' ? 1 : -1));
+      if (it.sure[i] > it.counts[i]) it.counts[i] = it.sure[i]; // quem tem certeza também votou
+      if (H.step >= revealStep(it)) record();
+      draw();
+      return;
+    }
     if (a === 'h-solve') { H.showSolve = !H.showSolve; draw(); return; }
     if (a === 'h-new') {
       if (it.self) return;

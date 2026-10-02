@@ -188,6 +188,7 @@
   let tw = null;
   const votes = {};       // voto da turma por caso
   const scored = {};      // casos já contabilizados no placar
+  const conf = {};        // certeza da turma no voto: 'alta' | 'baixa'
   let score = { ok: 0, total: 0 };
 
   function key(c) { return FF.state.iMode + ':' + c.title + ':' + (c.random ? JSON.stringify(c.pairs) : ''); }
@@ -238,6 +239,7 @@
       scored[key(c)] = true;
       score.total++;
       if ((votes[key(c)] === 'yes') === isFn(c)) score.ok++;
+      else if (conf[key(c)] === 'alta') score.sure = (score.sure || 0) + 1;
     }
     draw();
     narrate();
@@ -486,7 +488,10 @@
     const voteLine = () => {
       if (!vote) return '';
       const right = (vote === 'yes') === isFn(c);
-      return '<p class="vote-res ' + (right ? 'ok' : 'no') + '">A turma votou <b>' + (vote === 'yes' ? 'é função' : 'não é função') + '</b>: ' + (right ? 'acertou!' : 'não foi dessa vez.') + '</p>';
+      const cf = conf[key(c)];
+      return '<p class="vote-res ' + (right ? 'ok' : 'no') + '">' + (right ? '✓' : '✗') + ' A turma votou <b>' + (vote === 'yes' ? 'é função' : 'não é função') + '</b>' + (cf ? ' com ' + (cf === 'alta' ? 'muita' : 'pouca') + ' certeza' : '') + ': ' + (right ? 'acertou!' : 'não foi dessa vez.') + '</p>' +
+        (!right && cf === 'alta' ? '<p class="vote-tip">A turma errou <b>com certeza</b>: peça que alguém explique o raciocínio. Errar com certeza e ver por quê é quando mais se aprende.</p>' : '') +
+        (right && cf === 'baixa' ? '<p class="vote-tip">Acertou, mas sem certeza: vale alguém explicar de novo por que é assim.</p>' : '');
     };
     if (mode !== 'graf') {
       const an = analyze(c);
@@ -547,7 +552,9 @@
     const v = votes[key(c)];
     $('vote-yes').setAttribute('aria-pressed', v === 'yes');
     $('vote-no').setAttribute('aria-pressed', v === 'no');
-    $('vote-score').innerHTML = score.total ? 'Placar da turma: <b>' + score.ok + '</b> acerto' + (score.ok === 1 ? '' : 's') + ' em ' + score.total : 'Votem antes do veredito.';
+    $('vote-score').innerHTML = score.total ? 'Placar da turma: <b>' + score.ok + '</b> acerto' + (score.ok === 1 ? '' : 's') + ' em ' + score.total + (score.sure ? ' · erros com certeza: <b>' + score.sure + '</b>' : '') : 'Votem antes do veredito.';
+    const cf = conf[key(c)];
+    document.querySelectorAll('#vote-conf button').forEach((b) => { b.setAttribute('aria-pressed', b.dataset.c === cf); b.disabled = !v || !!scored[key(c)]; });
   }
 
   function syncBar() {
@@ -632,6 +639,13 @@
     $('insp-dots').addEventListener('click', (e) => { const b = e.target.closest('[data-i]'); if (b) go(Number(b.dataset.i)); });
     $('vote-yes').addEventListener('click', () => vote('yes'));
     $('vote-no').addEventListener('click', () => vote('no'));
+    $('vote-conf').addEventListener('click', (e) => {
+      const b = e.target.closest('button[data-c]');
+      const c = current();
+      if (!b || scored[key(c)]) return;
+      conf[key(c)] = conf[key(c)] === b.dataset.c ? undefined : b.dataset.c;
+      syncVote();
+    });
 
     const svg = $('insp-svg');
     svg.addEventListener('click', (e) => {

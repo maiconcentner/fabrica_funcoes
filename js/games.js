@@ -22,7 +22,16 @@
   }
   function saveTeams(t) { FF.set({ gTeams: JSON.stringify(t) }); renderTeams(); }
   let turn = 0;
+  /* Placar cooperativo: a turma inteira joga junta contra a máquina (ninguém fica para trás) */
+  const vs = () => FF.state.gVs.split(':').map(Number);
+  function setVs(t, m) { FF.set({ gVs: Math.max(0, t) + ':' + Math.max(0, m) }); renderTeams(); }
+  function coopPoint(turma, pts, why) {
+    const [t, m] = vs();
+    if (turma) setVs(t + pts, m); else setVs(t, m + pts);
+    toast((turma ? '+' + pts + ' para a turma' : '+' + pts + ' para a máquina') + (why ? ': ' + why : ''));
+  }
   function addPoints(i, pts, why) {
+    if (FF.state.gCoop) { coopPoint(true, pts, why); return; }
     const t = teams();
     if (!t[i]) return;
     t[i].p += pts;
@@ -30,6 +39,20 @@
     toast('+' + pts + ' para ' + t[i].n + (why ? ': ' + why : ''));
   }
   function renderTeams() {
+    document.querySelectorAll('#g-mode button').forEach((b) => b.setAttribute('aria-pressed', (b.dataset.m === '1') === FF.state.gCoop));
+    if (FF.state.gCoop) {
+      const [tp, mp] = vs();
+      const tot = Math.max(1, tp + mp);
+      $('g-teams').innerHTML = '<li class="coop"><div class="coop-side t"><span class="coop-ico" aria-hidden="true">🧑‍🤝‍🧑</span><b>Turma</b><span class="coop-pts">' + tp + '</span>' +
+        '<span class="coop-btns"><button class="icon-btn sm" data-vs="t-" aria-label="Tirar 1 ponto da turma">−</button><button class="icon-btn sm" data-vs="t+" aria-label="Dar 1 ponto à turma">+</button></span></div>' +
+        '<span class="coop-x">×</span><div class="coop-side m"><span class="coop-ico" aria-hidden="true">🤖</span><b>Máquina</b><span class="coop-pts">' + mp + '</span>' +
+        '<span class="coop-btns"><button class="icon-btn sm" data-vs="m-" aria-label="Tirar 1 ponto da máquina">−</button><button class="icon-btn sm" data-vs="m+" aria-label="Dar 1 ponto à máquina">+</button></span></div>' +
+        '<div class="coop-bar"><i style="width:' + Math.round((100 * tp) / tot) + '%"></i></div>' +
+        '<p class="note coop-note">Todos jogam juntos. Nas Placas, a turma pontua quando <b>60% ou mais</b> acertam; se não, ponto da máquina.</p></li>';
+      $('g-team-add').hidden = $('g-team-del').hidden = true;
+      return;
+    }
+    $('g-team-add').hidden = $('g-team-del').hidden = false;
     const t = teams();
     if (turn >= t.length) turn = 0;
     const best = Math.max.apply(null, t.map((x) => x.p));
@@ -190,7 +213,8 @@
       nextTurn();
     } else if (act === 'g1-reveal') {
       G1.done = true;
-      G1.msg = '<p>A lei era ' + lawHTML(G1.law, 26) + '. Ninguém pontua nesta rodada.</p>';
+      G1.msg = '<p>A lei era ' + lawHTML(G1.law, 26) + '. ' + (FF.state.gCoop ? 'Ponto da máquina.' : 'Ninguém pontua nesta rodada.') + '</p>';
+      if (FF.state.gCoop) coopPoint(false, 1, 'ninguém descobriu');
     }
     render();
   }
@@ -312,8 +336,22 @@
   }
 
   /* ---------- 4. Exercícios ---------- */
-  const G4 = { ctx: 'luz', ex: null, shown: 0 };
-  function g4New() {
+  /* Exemplos que se retiram aos poucos (fading): 1º todo resolvido, 2º pela metade (a turma completa),
+     3º só o enunciado (a turma resolve sozinha). Mesma situação e mesmo sentido nos três. */
+  const G4 = { ctx: 'luz', ex: null, shown: 0, fade: false, k: 0 };
+  const FADE = [
+    { name: 'Resolvido', tip: 'Acompanhem: o exemplo está resolvido. Avance passo a passo e peça que expliquem cada um.' },
+    { name: 'Completem', tip: 'Metade já está feita. Completem no caderno os passos que faltam; depois conferimos um por um.' },
+    { name: 'Sozinhos', tip: 'Agora sozinhos (ou em dupla): resolvam no caderno. Depois conferimos cada passo.' },
+  ];
+  const fadePre = (k, n) => (k === 1 ? Math.max(1, Math.ceil(n / 2)) : 0);
+  function g4Fade(k) {
+    const dir = G4.ex && k > 0 ? G4.ex.dir : null;
+    G4.k = k;
+    g4New(dir);
+    G4.shown = fadePre(k, g4Steps().length);
+  }
+  function g4New(forceDir) {
     const c = FF.CONTEXTS.find((k) => k.id === G4.ctx) || FF.CONTEXTS[1];
     let law, src = null, vin = c.vin;
     if (c.id === 'livre') {
@@ -335,7 +373,7 @@
     const dom = X.parseSet(c.dom);
     if (!X.inSet(dom, x)) x = Math.max(1, Math.min(dom.hi != null ? dom.hi - 1 : x, Math.abs(x)));
     const canRev = law.kind === 'expr' && law.chain && X.invertible(law.chain);
-    const dir = canRev && Math.random() < 0.5 ? 'rev' : 'fwd';
+    const dir = forceDir && (forceDir === 'fwd' || canRev) ? forceDir : canRev && Math.random() < 0.5 ? 'rev' : 'fwd';
     const r = FF.evalLaw(x, Object.assign({ dom: dom, cd: { type: 'R' } }, law));
     G4.ex = { c, law, src, x, y: r.y, dir };
     G4.shown = 0;
@@ -396,19 +434,30 @@
     let h = '<div class="game-head"><h2>Exercícios</h2><p class="note">Números novos a cada vez, com a resolução um passo por clique (setas ou passador).</p></div>';
     h += '<div class="g-row"><label for="g4-ctx">Situação</label><select id="g4-ctx" class="select">' + FF.CONTEXTS.map((c) =>
       '<option value="' + c.id + '"' + (c.id === G4.ctx ? ' selected' : '') + '>' + (c.icon ? c.icon + ' ' : '') + esc(c.id === 'livre' ? 'Sem contexto (nível ' + FF.state.gLevel + ')' : c.name) + '</option>').join('') + '</select>' +
-      '<button class="btn" data-act="new">Novo exercício</button></div>';
+      '<button class="btn" data-act="new">Novo exercício</button>' +
+      '<button class="btn btn-ghost" data-act="g4-fade" aria-pressed="' + G4.fade + '" title="Três exemplos seguidos: o 1º resolvido, o 2º pela metade, o 3º a turma faz sozinha">Exemplos que se retiram</button></div>';
+    if (G4.fade) {
+      h += '<div class="fade-steps">' + FADE.map((f, i) => '<span class="fs' + (i === G4.k ? ' cur' : i < G4.k ? ' done' : '') + '"><b>' + (i + 1) + '</b>' + f.name + '</span>').join('<span class="fs-arrow">→</span>') + '</div>' +
+        '<p class="fade-tip kbox k-do"><span class="kchip k-do">Faça</span> ' + FADE[G4.k].tip + '</p>';
+    }
     h += '<div class="ex-card kbox k-q"><p class="ex-tag"><span class="kchip k-q">Pergunta</span> ' + (e.dir === 'fwd' ? 'Da entrada para a saída' : 'Da saída para a entrada') + (e.c.book ? ' · como na ' + esc(e.c.book) : '') + '</p><p class="ex-text" id="g4-text">' + esc(g4Text()) + '</p></div>';
     const steps = g4Steps();
-    h += '<ol class="solve">' + steps.slice(0, G4.shown).map((s) => '<li>' + s + '</li>').join('') + '</ol>';
+    // no modo "se retiram", os passos que faltam aparecem como linhas em branco (a turma vê quantos são)
+    h += '<ol class="solve' + (G4.fade ? ' fading' : '') + '">' + steps.map((s, i) => (i < G4.shown ? '<li>' + s + '</li>' : G4.fade ? '<li class="blank"><span>' + (G4.k === 0 ? 'próximo passo' : 'a turma completa') + '</span></li>' : '')).join('') + '</ol>';
+    const more = G4.fade && G4.shown >= steps.length && G4.k < 2;
     h += '<div class="g-row end"><button class="btn btn-ghost" data-act="g4-copy">Copiar enunciado</button><button class="btn btn-ghost" data-act="g4-fab">Abrir na Fábrica</button>' +
-      '<button class="btn btn-ghost" data-act="g4-back"' + (G4.shown ? '' : ' disabled') + '>Voltar passo</button>' +
-      '<button class="btn" data-act="g4-step"' + (G4.shown >= steps.length ? ' disabled' : '') + '>Próximo passo (' + G4.shown + '/' + steps.length + ')</button></div>';
+      '<button class="btn btn-ghost" data-act="g4-back"' + (G4.shown > (G4.fade ? fadePre(G4.k, steps.length) : 0) ? '' : ' disabled') + '>Voltar passo</button>' +
+      (more ? '<button class="btn" data-act="g4-step">Próximo exemplo (' + (G4.k + 2) + ' de 3)</button>'
+        : '<button class="btn" data-act="g4-step"' + (G4.shown >= steps.length ? ' disabled' : '') + '>' + (G4.fade && G4.k > 0 ? 'Conferir o próximo passo' : 'Próximo passo') + ' (' + G4.shown + '/' + steps.length + ')</button>') + '</div>';
     return h;
   }
   function g4Act(act) {
     const n = g4Steps().length;
-    if (act === 'g4-step') G4.shown = Math.min(n, G4.shown + 1);
-    else if (act === 'g4-back') G4.shown = Math.max(0, G4.shown - 1);
+    if (act === 'g4-step') {
+      if (G4.fade && G4.shown >= n && G4.k < 2) g4Fade(G4.k + 1);
+      else G4.shown = Math.min(n, G4.shown + 1);
+    } else if (act === 'g4-back') G4.shown = Math.max(G4.fade ? fadePre(G4.k, n) : 0, G4.shown - 1);
+    else if (act === 'g4-fade') { G4.fade = !G4.fade; if (G4.fade) g4Fade(0); else G4.shown = 0; }
     else if (act === 'g4-copy') {
       const txt = g4Text();
       try { navigator.clipboard.writeText(txt).then(() => toast('Enunciado copiado'), () => toast('Não deu para copiar')); } catch (e) { toast('Não deu para copiar'); }
@@ -434,7 +483,7 @@
   /* ---------- Geral ---------- */
   const GAMES = {
     rule: { make: g1New, draw: g1Render, act: g1Act, has: () => G1.law,
-      help: 'Cada equipe, na sua vez, pede <b>uma</b> pista (um valor para a máquina) e pode dar um palpite da lei. Quem descobrir leva os pontos: 5 com uma pista, 4 com duas… (mínimo 1). Palpite errado passa a vez.' },
+      help: 'Com o placar "Turma × máquina", toda a turma joga junta: a descoberta conta para a turma, e revelar a lei sem ninguém acertar dá ponto à máquina. Cada equipe, na sua vez, pede <b>uma</b> pista (um valor para a máquina) e pode dar um palpite da lei. Quem descobrir leva os pontos: 5 com uma pista, 4 com duas… (mínimo 1). Palpite errado passa a vez.' },
     rev: { make: g2New, draw: g2Render, act: g2Act, has: () => G2.law,
       help: 'A lei e a saída estão à vista. As equipes calculam a entrada (desfazendo as engrenagens de trás para frente). Use o cronômetro; a primeira equipe que acertar leva 2 pontos.' },
     race: { make: g3New, draw: g3Render, act: g3Act, has: () => G3.law,
@@ -469,11 +518,11 @@
       FF.set({ gLevel: Number(b.dataset.v) });
       game().make(); render();
     }));
-    $('g-new').addEventListener('click', () => { game().make(); render(); });
+    $('g-new').addEventListener('click', () => { if (FF.state.gGame === 'ex' && G4.fade) g4Fade(0); else game().make(); render(); });
     $('g-area').addEventListener('click', (e) => {
       const b = e.target.closest('[data-act]');
       if (!b || b.disabled) return;
-      if (b.dataset.act === 'new') { game().make(); render(); return; }
+      if (b.dataset.act === 'new') { if (FF.state.gGame === 'ex' && G4.fade) g4Fade(0); else game().make(); render(); return; }
       game().act(b.dataset.act, b);
     });
     $('g-area').addEventListener('keydown', (e) => {
@@ -483,7 +532,7 @@
       if (map[id]) { e.preventDefault(); game().act(map[id]); }
     });
     $('g-area').addEventListener('change', (e) => {
-      if (e.target.id === 'g4-ctx') { G4.ctx = e.target.value; g4New(); render(); }
+      if (e.target.id === 'g4-ctx') { G4.ctx = e.target.value; if (G4.fade) g4Fade(0); else g4New(); render(); }
       if (e.target.id === 'h-turma') FF.set({ turma: e.target.value.trim().slice(0, 20) });
       if (e.target.id === 'h-tpl') { G5.tpl = e.target.value; FF.hinge.single(G5.tpl); render(); }
     });
@@ -503,7 +552,14 @@
     });
     $('g-team-add').addEventListener('click', () => { const t = teams(); if (t.length < 4) { t.push({ n: 'Equipe ' + (t.length + 1), p: 0 }); saveTeams(t); render(); } });
     $('g-team-del').addEventListener('click', () => { const t = teams(); if (t.length > 1) { t.pop(); saveTeams(t); render(); } });
-    $('g-team-zero').addEventListener('click', () => { saveTeams(teams().map((x) => ({ n: x.n, p: 0 }))); });
+    $('g-team-zero').addEventListener('click', () => { if (FF.state.gCoop) setVs(0, 0); else saveTeams(teams().map((x) => ({ n: x.n, p: 0 }))); });
+    $('g-mode').addEventListener('click', (e) => { const b = e.target.closest('button[data-m]'); if (b) { FF.set({ gCoop: b.dataset.m === '1' }); render(); } });
+    $('g-teams').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-vs]');
+      if (!b) return;
+      const [t, m] = vs(), d = b.dataset.vs;
+      setVs(t + (d === 't+' ? 1 : d === 't-' ? -1 : 0), m + (d === 'm+' ? 1 : d === 'm-' ? -1 : 0));
+    });
     $('g-clock-go').addEventListener('click', clockToggle);
     $('g-clock-reset').addEventListener('click', clockReset);
     document.querySelectorAll('#g-clock-len button').forEach((b) => b.addEventListener('click', () => { FF.set({ gClock: Number(b.dataset.v) }); clockReset(); }));
@@ -515,13 +571,15 @@
     next() { if (FF.state.gGame === 'ex') g4Act('g4-step'); else if (FF.state.gGame === 'rev') g2Act('g2-step'); else if (FF.state.gGame === 'hinge') FF.hinge.next(); },
     prev() { if (FF.state.gGame === 'ex') g4Act('g4-back'); else if (FF.state.gGame === 'hinge') FF.hinge.prev(); },
     first() {},
-    newRound() { if (FF.state.gGame === 'hinge') { FF.hinge.act('h-new'); return; } game().make(); render(); },
+    newRound() { if (FF.state.gGame === 'hinge') { FF.hinge.act('h-new'); return; } if (FF.state.gGame === 'ex' && G4.fade) g4Fade(0); else game().make(); render(); },
     atEnd() {
       if (FF.state.gGame === 'hinge') return FF.hinge.atEnd();
-      if (FF.state.gGame === 'ex') return !G4.ex || G4.shown >= g4Steps().length;
+      if (FF.state.gGame === 'ex') return !G4.ex || (G4.shown >= g4Steps().length && (!G4.fade || G4.k === 2));
       if (FF.state.gGame === 'rev') return !G2.law || G2.shown >= g2Steps().length;
       return true;
     },
+    /* Placas A–E no placar cooperativo: 60% ou mais de acerto = ponto da turma */
+    coopVerdict(pct) { if (FF.state.gCoop) coopPoint(pct >= 60, 1, pct + '% acertaram'); },
     /* Para o modo apresentador: o que só o professor deve ver (lei escondida, resolução inteira) */
     snap() {
       const g = FF.state.gGame;
@@ -532,13 +590,15 @@
       if (g === 'race' && G3.law) return { g, law: lawHTML(G3.law, 24), chain: G3.law.chain.map((x) => X.gearLabel(x)).join(' → ') };
       return { g };
     },
-    hasBack() { return (FF.state.gGame === 'ex' && G4.shown > 0) || (FF.state.gGame === 'hinge' && FF.hinge.hasBack()); },
+    hasBack() { return (FF.state.gGame === 'ex' && G4.ex && G4.shown > (G4.fade ? fadePre(G4.k, g4Steps().length) : 0)) || (FF.state.gGame === 'hinge' && FF.hinge.hasBack()); },
     /* Abre um jogo num nível, com rodada nova (aulas). Em Exercícios, a situação pode vir junto. */
     open(g, level, ctx, mo) {
       FF.set({ gGame: g, gLevel: level || FF.state.gLevel });
       if (g === 'ex' && ctx) G4.ctx = ctx;
+      if (g === 'ex') G4.fade = !!(mo && mo.fade);
       // Placas A–E numa aula: a lista de perguntas vem do momento (aquecimento ou pergunta-dobradiça)
       if (g === 'hinge' && mo && mo.items) FF.hinge.start(mo.items, { warm: mo.warm, exit: mo.exit, title: mo.title });
+      else if (g === 'ex' && G4.fade) g4Fade(0);
       else game().make();
       render();
     },

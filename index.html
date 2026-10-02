@@ -318,6 +318,7 @@
           <button class="vote vote-yes" id="vote-yes" aria-pressed="false">É função</button>
           <button class="vote vote-no" id="vote-no" aria-pressed="false">Não é função</button>
         </div>
+        <div class="conf-row" id="vote-conf" role="group" aria-label="Com que certeza a turma votou?"><span>Com que certeza?</span><button class="conf" data-c="alta">💪 Muita</button><button class="conf" data-c="baixa">🤏 Pouca</button></div>
         <p class="note" id="vote-score"></p>
       </div>
       <div class="card" id="insp-edit" hidden>
@@ -369,6 +370,7 @@
     <aside class="side">
       <div class="card">
         <h2>Placar</h2>
+        <div class="seg seg-sm g-mode" id="g-mode" role="group" aria-label="Tipo de placar"><button data-m="0">Equipes</button><button data-m="1">Turma × máquina</button></div>
         <ol class="teams" id="g-teams"></ol>
         <div class="edit-row">
           <button class="btn btn-ghost" id="g-team-add">+ Equipe</button>
