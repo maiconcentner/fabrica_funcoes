@@ -22,7 +22,16 @@
   }
   function saveTeams(t) { FF.set({ gTeams: JSON.stringify(t) }); renderTeams(); }
   let turn = 0;
+  /* Placar cooperativo: a turma inteira joga junta contra a máquina (ninguém fica para trás) */
+  const vs = () => FF.state.gVs.split(':').map(Number);
+  function setVs(t, m) { FF.set({ gVs: Math.max(0, t) + ':' + Math.max(0, m) }); renderTeams(); }
+  function coopPoint(turma, pts, why) {
+    const [t, m] = vs();
+    if (turma) setVs(t + pts, m); else setVs(t, m + pts);
+    toast((turma ? '+' + pts + ' para a turma' : '+' + pts + ' para a máquina') + (why ? ': ' + why : ''));
+  }
   function addPoints(i, pts, why) {
+    if (FF.state.gCoop) { coopPoint(true, pts, why); return; }
     const t = teams();
     if (!t[i]) return;
     t[i].p += pts;
@@ -30,6 +39,20 @@
     toast('+' + pts + ' para ' + t[i].n + (why ? ': ' + why : ''));
   }
   function renderTeams() {
+    document.querySelectorAll('#g-mode button').forEach((b) => b.setAttribute('aria-pressed', (b.dataset.m === '1') === FF.state.gCoop));
+    if (FF.state.gCoop) {
+      const [tp, mp] = vs();
+      const tot = Math.max(1, tp + mp);
+      $('g-teams').innerHTML = '<li class="coop"><div class="coop-side t"><span class="coop-ico" aria-hidden="true">🧑‍🤝‍🧑</span><b>Turma</b><span class="coop-pts">' + tp + '</span>' +
+        '<span class="coop-btns"><button class="icon-btn sm" data-vs="t-" aria-label="Tirar 1 ponto da turma">−</button><button class="icon-btn sm" data-vs="t+" aria-label="Dar 1 ponto à turma">+</button></span></div>' +
+        '<span class="coop-x">×</span><div class="coop-side m"><span class="coop-ico" aria-hidden="true">🤖</span><b>Máquina</b><span class="coop-pts">' + mp + '</span>' +
+        '<span class="coop-btns"><button class="icon-btn sm" data-vs="m-" aria-label="Tirar 1 ponto da máquina">−</button><button class="icon-btn sm" data-vs="m+" aria-label="Dar 1 ponto à máquina">+</button></span></div>' +
+        '<div class="coop-bar"><i style="width:' + Math.round((100 * tp) / tot) + '%"></i></div>' +
+        '<p class="note coop-note">Todos jogam juntos. Nas Placas, a turma pontua quando <b>60% ou mais</b> acertam; se não, ponto da máquina.</p></li>';
+      $('g-team-add').hidden = $('g-team-del').hidden = true;
+      return;
+    }
+    $('g-team-add').hidden = $('g-team-del').hidden = false;
     const t = teams();
     if (turn >= t.length) turn = 0;
     const best = Math.max.apply(null, t.map((x) => x.p));
@@ -190,7 +213,8 @@
       nextTurn();
     } else if (act === 'g1-reveal') {
       G1.done = true;
-      G1.msg = '<p>A lei era ' + lawHTML(G1.law, 26) + '. Ninguém pontua nesta rodada.</p>';
+      G1.msg = '<p>A lei era ' + lawHTML(G1.law, 26) + '. ' + (FF.state.gCoop ? 'Ponto da máquina.' : 'Ninguém pontua nesta rodada.') + '</p>';
+      if (FF.state.gCoop) coopPoint(false, 1, 'ninguém descobriu');
     }
     render();
   }
@@ -312,33 +336,86 @@
   }
 
   /* ---------- 4. Exercícios ---------- */
-  const G4 = { ctx: 'luz', ex: null, shown: 0 };
-  function g4New() {
-    const c = FF.CONTEXTS.find((k) => k.id === G4.ctx) || FF.CONTEXTS[1];
-    let law, src = null, vin = c.vin;
+  /* Exemplos que se retiram aos poucos (fading): 1º todo resolvido, 2º pela metade (a turma completa),
+     3º só o enunciado (a turma resolve sozinha). Mesma situação e mesmo sentido nos três. */
+  const G4 = { ctx: 'luz', ex: null, shown: 0, fade: false, k: 0, opts: false };
+  const FADE = [
+    { name: 'Resolvido', tip: 'Acompanhem: o exemplo está resolvido. Avance passo a passo e peça que expliquem cada um.' },
+    { name: 'Completem', tip: 'Metade já está feita. Completem no caderno os passos que faltam; depois conferimos um por um.' },
+    { name: 'Sozinhos', tip: 'Agora sozinhos (ou em dupla): resolvam no caderno. Depois conferimos cada passo.' },
+  ];
+  const fadePre = (k, n) => (k === 1 ? Math.max(1, Math.ceil(n / 2)) : 0);
+  function g4Fade(k) {
+    const dir = G4.ex && k > 0 ? G4.ex.dir : null;
+    G4.k = k;
+    g4New(dir);
+    G4.shown = fadePre(k, g4Steps().length);
+  }
+  function g4Law(c) {
     if (c.id === 'livre') {
       const r = randomLaw(FF.state.gLevel);
-      law = { kind: 'expr', ast: r.ast, chain: r.chain, vin: 'x' };
-      src = r.src;
-    } else if (typeof c.law === 'string') {
-      const ast = X.parse(c.law, vin);
-      law = { kind: 'expr', ast, chain: X.chain(ast), vin };
-      src = c.law;
-    } else {
-      law = { kind: 'piece', vin, pieces: c.law.pieces.map((p) => Object.assign({}, p, { ast: X.parse(p.src, vin) })) };
+      return { law: { kind: 'expr', ast: r.ast, chain: r.chain, vin: 'x' }, src: r.src };
     }
+    if (typeof c.law === 'string') {
+      const ast = X.parse(c.law, c.vin);
+      return { law: { kind: 'expr', ast, chain: X.chain(ast), vin: c.vin }, src: c.law };
+    }
+    return { law: { kind: 'piece', vin: c.vin, pieces: c.law.pieces.map((p) => Object.assign({}, p, { ast: X.parse(p.src, c.vin) })) }, src: null };
+  }
+  const g4Ctx = () => FF.CONTEXTS.find((k) => k.id === G4.ctx) || FF.CONTEXTS[1];
+  const canRev = (law) => law.kind === 'expr' && !!law.chain && X.invertible(law.chain);
+  /* Números do livro (como os da situação), só inteiros ou com uma casa decimal */
+  function g4Pick(c, dom) {
     const ins = c.inputs && c.inputs.length ? c.inputs : [0, 10];
-    const lo = Math.min.apply(null, ins), hi = Math.max.apply(null, ins);
-    const half = ins.some((v) => v % 1 !== 0);
-    let x = half ? Math.round((lo + Math.random() * (hi - lo + 2)) * 2) / 2 : between(Math.floor(lo), Math.ceil(hi) + Math.round((hi - lo) / 3) + 2);
-    if (c.id === 'livre') x = between(-4, 10);
-    const dom = X.parseSet(c.dom);
+    let lo = Math.min.apply(null, ins), hi = Math.max.apply(null, ins);
+    if (c.id === 'livre') { lo = -4; hi = 10; }
+    const span = c.id === 'livre' ? 0 : Math.round((hi - lo) / 3) + 2;
+    let mode = FF.state.gNums;
+    if (dom.type === 'set') return dom.vals[rnd(dom.vals.length)];
+    if (dom.integer) mode = 'int';
+    let x;
+    if (mode === 'dec') {
+      x = Math.round((lo + Math.random() * (hi - lo + span)) * 10) / 10;
+      if (x % 1 === 0) x += 0.5;
+    } else if (mode === 'livro' && ins.some((v) => v % 1 !== 0) && c.id !== 'livre') {
+      x = Math.round((lo + Math.random() * (hi - lo + 2)) * 2) / 2;
+    } else x = between(Math.floor(lo), Math.ceil(hi) + span);
     if (!X.inSet(dom, x)) x = Math.max(1, Math.min(dom.hi != null ? dom.hi - 1 : x, Math.abs(x)));
-    const canRev = law.kind === 'expr' && law.chain && X.invertible(law.chain);
-    const dir = canRev && Math.random() < 0.5 ? 'rev' : 'fwd';
-    const r = FF.evalLaw(x, Object.assign({ dom: dom, cd: { type: 'R' } }, law));
-    G4.ex = { c, law, src, x, y: r.y, dir };
+    if (!X.inSet(dom, x)) x = Math.round(x);
+    return x;
+  }
+  function g4New(forceDir) {
+    const c = g4Ctx();
+    const L = g4Law(c);
+    const dom = X.parseSet(c.dom);
+    const x = g4Pick(c, dom);
+    const dir = forceDir && (forceDir === 'fwd' || canRev(L.law)) ? forceDir : canRev(L.law) && Math.random() < 0.5 ? 'rev' : 'fwd';
+    g4Set(c, L, x, dir);
+  }
+  function g4Set(c, L, x, dir) {
+    const r = FF.evalLaw(x, Object.assign({ dom: X.parseSet(c.dom), cd: { type: 'R' } }, L.law));
+    G4.ex = { c, law: L.law, src: L.src, x, y: r.y, dir };
     G4.shown = 0;
+  }
+  /* "Montar o meu": o professor escolhe o número e o sentido (mesma lei da situação) */
+  function g4Mine() {
+    const v = X.parseNumber($('g4-val').value), dir = $('g4-dir').value;
+    const c = g4Ctx(), dom = X.parseSet(c.dom);
+    const L = G4.ex && G4.ex.c === c ? { law: G4.ex.law, src: G4.ex.src } : g4Law(c);
+    if (isNaN(v)) { $('g4-val').classList.add('invalid'); return false; }
+    if (dir === 'fwd') {
+      if (!X.inSet(dom, v)) { toast('Esse número está fora do domínio da situação'); return false; }
+      try { g4Set(c, L, v, 'fwd'); } catch (e) { toast('A máquina não aceita esse número'); return false; }
+      if (G4.ex.y == null || isNaN(G4.ex.y)) { toast('A máquina não aceita esse número'); return false; }
+      return true;
+    }
+    if (!canRev(L.law)) { toast('Nessa situação só dá para ir da entrada para a saída'); return false; }
+    let vals = [v];
+    try { L.law.chain.slice().reverse().forEach((g) => { vals = vals.flatMap((a) => [].concat(X.gearApply(g, a, true))); }); } catch (e) { vals = []; }
+    const x = vals.find((a) => X.inSet(dom, a) && close(FF.evalLaw(a, Object.assign({ dom, cd: { type: 'R' } }, L.law)).y, v));
+    if (x == null) { toast('Nenhuma entrada da situação dá essa saída'); return false; }
+    g4Set(c, L, x, 'rev');
+    return true;
   }
   function g4Text() {
     const e = G4.ex, c = e.c;
@@ -354,34 +431,88 @@
       ? 'Qual é ' + art + ' ' + c.outName + ' para ' + e.law.vin + ' = ' + fin(c, e.x) + ' (' + c.inName + ')?'
       : 'Se ' + art + ' ' + c.outName + ' foi ' + fout(c, e.y) + ', qual é o valor de ' + e.law.vin + ' (' + c.inName + unit + ')?');
   }
+  /* Etapas com nome (como nas Relações Métricas): Dados → Lei → Substituir → Calcular → (Conferir) → Resposta */
+  const STAGE = { dados: 'Dados', lei: 'Lei', subst: 'Substituir', calc: 'Calcular', conf: 'Conferir', resp: 'Resposta' };
+  const stg = (s, html) => '<span class="stg stg-' + s + '">' + STAGE[s] + '</span> ' + html;
+  /* Desfazer uma engrenagem como na álgebra: "o mesmo dos dois lados" */
+  const EQ_UNDO = {
+    add: (k) => 'Subtrair ' + f(k) + ' dos dois lados',
+    sub: (k) => 'Somar ' + f(k) + ' aos dois lados',
+    mul: (k) => 'Dividir os dois lados por ' + f(k),
+    div: (k) => 'Multiplicar os dois lados por ' + f(k),
+    rsub: () => 'Passar o termo com a incógnita para um lado sozinho',
+    rdiv: () => 'Trocar de lugar o divisor e o resultado',
+    sq: () => 'Tirar a raiz quadrada dos dois lados (±)',
+    cube: () => 'Tirar a raiz cúbica dos dois lados',
+    sqrt: () => 'Elevar os dois lados ao quadrado',
+    cbrt: () => 'Elevar os dois lados ao cubo',
+    neg: () => 'Trocar o sinal dos dois lados',
+  };
+  const par = (v) => (v < 0 ? '(' + f(v) + ')' : f(v));
+  const EQ_CALC = {
+    add: (v, k) => f(v) + ' − ' + par(k), sub: (v, k) => f(v) + ' + ' + par(k),
+    mul: (v, k) => f(v) + ' ÷ ' + par(k), div: (v, k) => f(v) + ' · ' + par(k),
+    rsub: (v, k) => f(k) + ' − ' + par(v), rdiv: (v, k) => f(k) + ' ÷ ' + par(v),
+    sq: (v) => '±√' + par(v), cube: (v) => '∛' + par(v), sqrt: (v) => par(v) + '²', cbrt: (v) => par(v) + '³', neg: (v) => '−' + par(v),
+  };
   function g4Steps() {
     const e = G4.ex, c = e.c, vin = e.law.vin;
     const outName = c.id === 'livre' ? 'f(x)' : c.vout;
+    const how = e.law.kind === 'expr' && e.law.chain ? FF.state.gHow : 'eq';
     const steps = [];
+    steps.push(stg('dados', e.dir === 'fwd'
+      ? 'Sabemos a entrada: <b>' + esc(vin + ' = ' + (c.id === 'livre' ? f(e.x) : fin(c, e.x))) + '</b>. Queremos a saída' + (c.id === 'livre' ? ' f(' + f(e.x) + ')' : ' (' + esc(c.outName) + ')') + '.'
+      : 'Sabemos a saída: <b>' + esc(outName + ' = ' + (c.id === 'livre' ? f(e.y) : fout(c, e.y))) + '</b>. Queremos a entrada ' + esc(vin) + (c.id === 'livre' ? '' : ' (' + esc(c.inName) + ')') + '.'));
     if (e.law.kind === 'piece') {
       const i = X.findPiece(e.law, e.x);
-      steps.push('A tarifa é por faixas. ' + fin(c, e.x) + ' está na faixa <b>' + esc(e.law.pieces[i].label) + '</b>: ' + FF.math.inline(e.law.pieces[i].ast, 20, vin, c.vout + ' = '));
+      steps.push(stg('lei', 'A tarifa é por faixas. ' + fin(c, e.x) + ' está na faixa <b>' + esc(e.law.pieces[i].label) + '</b>: ' + FF.math.inline(e.law.pieces[i].ast, 20, vin, c.vout + ' = ')));
       const s = X.steps(e.law.pieces[i].ast, e.x);
-      s.list.forEach((n, j) => steps.push(FF.math.inline(n, 20, vin, j === 0 ? c.vout + ' = ' : '= ')));
+      s.list.forEach((n, j) => steps.push(stg(j === 0 ? 'subst' : 'calc', FF.math.inline(n, 20, vin, j === 0 ? c.vout + ' = ' : '= '))));
     } else {
-      steps.push('A lei: ' + FF.math.inline(e.law.ast, 22, vin, outName + ' = '));
+      steps.push(stg('lei', FF.math.inline(e.law.ast, 22, vin, outName + ' = ')));
+      const chain = e.law.chain;
       if (e.dir === 'fwd') {
-        const s = X.steps(e.law.ast, e.x);
-        s.list.forEach((n, j) => steps.push((j === 0 ? 'Trocar ' + vin + ' por ' + f(e.x) + ': ' : '') + FF.math.inline(n, 22, vin, j === 0 ? (c.id === 'livre' ? 'f(' + f(e.x) + ')' : c.vout) + ' = ' : '= ')));
+        if (how !== 'gear') {
+          const s = X.steps(e.law.ast, e.x);
+          s.list.forEach((n, j) => steps.push(stg(j === 0 ? 'subst' : 'calc', (j === 0 ? 'Trocar ' + vin + ' por ' + f(e.x) + ': ' : '') + FF.math.inline(n, 22, vin, j === 0 ? (c.id === 'livre' ? 'f(' + f(e.x) + ')' : c.vout) + ' = ' : '= '))));
+        } else {
+          steps.push(stg('subst', 'Colocar ' + f(e.x) + ' na entrada da máquina.'));
+          let v = e.x;
+          chain.forEach((g) => { const r = X.gearApply(g, v); steps.push(stg('calc', '<span class="gtag">' + esc(X.gearLabel(g)) + '</span> ' + esc(X.gearSentence(g, v, r)) + '.')); v = r; });
+        }
       } else {
-        steps.push('Trocar ' + outName + ' por ' + f(e.y) + ': ' + FF.math.inline(e.law.ast, 22, vin, f(e.y) + ' = '));
-        let vals = [e.y];
-        e.law.chain.slice().reverse().forEach((g) => {
-          const before = vals;
-          vals = vals.flatMap((v) => [].concat(X.gearApply(g, v, true)));
-          steps.push('Desfazer <span class="gtag">' + esc(X.gearLabel(g)) + '</span>: ' + before.map((v) => X.gearSentence(g, v, [].concat(X.gearApply(g, v, true)), true)).join('; ') + '.');
-        });
+        steps.push(stg('subst', 'Trocar ' + outName + ' por ' + f(e.y) + ': ' + FF.math.inline(e.law.ast, 22, vin, f(e.y) + ' = ')));
+        if (how !== 'gear') {
+          let vals = [e.y];
+          for (let i = chain.length - 1; i >= 0; i--) {
+            const g = chain[i], rest = X.fromChain(chain.slice(0, i));
+            const next = vals.flatMap((v) => [].concat(X.gearApply(g, v, true)));
+            const calc = vals.map((v) => EQ_CALC[g.op](v, g.kv)).join(' ou ');
+            const res = next.map((v) => f(v)).join(' ou ');
+            steps.push(stg('calc', EQ_UNDO[g.op](g.kv) + ' (' + esc(calc) + ' = ' + esc(res) + '): ' + FF.math.inline(rest, 22, vin, res + ' = ')));
+            vals = next;
+          }
+        } else {
+          let vals = [e.y];
+          chain.slice().reverse().forEach((g) => {
+            const before = vals;
+            vals = vals.flatMap((v) => [].concat(X.gearApply(g, v, true)));
+            steps.push(stg('calc', 'Desfazer <span class="gtag">' + esc(X.gearLabel(g)) + '</span>: ' + before.map((v) => X.gearSentence(g, v, [].concat(X.gearApply(g, v, true)), true)).join('; ') + '.'));
+          });
+        }
+      }
+      if (how === 'both') {
+        // conferir nas engrenagens: a entrada atravessa a máquina e sai o valor esperado
+        let v = e.x;
+        const path = [f(v)];
+        chain.forEach((g) => { v = X.gearApply(g, v); path.push('<span class="gtag">' + esc(X.gearLabel(g)) + '</span>', f(v)); });
+        steps.push(stg('conf', 'Nas engrenagens: ' + path.join(' → ') + (close(v, e.y) ? ' ✓' : '')));
       }
     }
     const ans = e.dir === 'fwd'
       ? (c.id === 'livre' ? 'f(' + f(e.x) + ') = ' + f(e.y) : cap(c.outName) + ': ' + fout(c, e.y))
       : (c.id === 'livre' ? 'x = ' + f(e.x) : cap(c.inName) + ': ' + fin(c, e.x));
-    steps.push('<b>Resposta:</b> ' + esc(ans) + (X.isApprox(e.dir === 'fwd' ? e.y : e.x) ? ' (aproximadamente)' : '') + '.');
+    steps.push(stg('resp', esc(ans) + (X.isApprox(e.dir === 'fwd' ? e.y : e.x) ? ' (aproximadamente)' : '') + '.'));
     return steps;
   }
   function cap(s) { return s ? s[0].toUpperCase() + s.slice(1) : ''; }
@@ -391,24 +522,66 @@
     if (c.money) return 'R$ ' + (Math.round(v * 100) / 100).toFixed(2).replace('.', ',');
     return f(v) + (c.outUnit ? ' ' + c.outUnit : '');
   }
+  /* Figura do exercício: a máquina com "?" no que se pede; o valor aparece junto com a Resposta */
+  function g4Fig(done) {
+    const e = G4.ex, c = e.c, free = c.id === 'livre';
+    const vin = free ? f(e.x) : fin(c, e.x), vout = free ? f(e.y) : fout(c, e.y);
+    const xin = e.dir === 'rev' && !done ? null : vin, yout = e.dir === 'fwd' && !done ? null : vout;
+    const box = (cls, v, ask) => '<div class="mini-box ' + cls + (v == null ? ' empty ask' : done && ask ? ' found' : '') + '">' + (v == null ? '?' : esc(v)) + '</div>';
+    const law = e.law.kind === 'piece' ? '<span class="qq sm">por faixas</span>' : FF.math.inline(e.law.ast, 24, e.law.vin, (free ? 'f(x)' : c.vout) + ' = ');
+    return '<div class="mini-fab ex-fig" aria-label="Máquina do exercício">' + box('in', xin, e.dir === 'rev') + '<div class="mini-arrow">→</div>' +
+      '<div class="mini-machine"><div class="mini-law">' + law + '</div></div><div class="mini-arrow">→</div>' + box('out', yout, e.dir === 'fwd') + '</div>';
+  }
+  function seg(id, cur, opts, dis) {
+    return '<div class="seg seg-sm" id="' + id + '">' + opts.map((o) => '<button type="button" data-act="' + id + '" data-v="' + o[0] + '" aria-pressed="' + (o[0] === cur) + '"' + (dis ? ' disabled' : '') + '>' + o[1] + '</button>').join('') + '</div>';
+  }
+  function g4Opts() {
+    const e = G4.ex, chainOk = e.law.kind === 'expr' && !!e.law.chain;
+    const intOnly = (() => { const d = X.parseSet(e.c.dom); return !!d.integer || d.type === 'set'; })();
+    const howName = { eq: 'equação', gear: 'engrenagens', both: 'equação e engrenagens' }[chainOk ? FF.state.gHow : 'eq'];
+    const numName = { livro: 'números do livro', int: 'inteiros', dec: 'decimais' }[intOnly ? 'int' : FF.state.gNums];
+    return '<details class="ex-opts" id="g4-opts"' + (G4.opts ? ' open' : '') + '><summary>Opções · resolver por ' + howName + ' · ' + numName + '</summary><div class="ex-opts-body">' +
+      '<div class="g-row"><span class="olabel">Resolver por</span>' + seg('g4-how', chainOk ? FF.state.gHow : 'eq', [['eq', 'Equação'], ['gear', 'Engrenagens'], ['both', 'As duas']], !chainOk) + '</div>' +
+      '<div class="g-row"><span class="olabel">Números</span>' + seg('g4-nums', intOnly ? 'int' : FF.state.gNums, [['livro', 'Do livro'], ['int', 'Inteiros'], ['dec', 'Decimais']], intOnly) + '</div>' +
+      '<div class="g-row"><span class="olabel">Montar o meu</span><select id="g4-dir" class="select"><option value="fwd">Dou a entrada (' + esc(e.law.vin) + ')</option>' +
+      (canRev(e.law) ? '<option value="rev">Dou a saída</option>' : '') + '</select><input type="text" id="g4-val" inputmode="decimal" placeholder="número" aria-label="Número do exercício">' +
+      '<button class="btn" data-act="g4-mine">Usar</button></div></div></details>';
+  }
   function g4Render() {
     const e = G4.ex;
     let h = '<div class="game-head"><h2>Exercícios</h2><p class="note">Números novos a cada vez, com a resolução um passo por clique (setas ou passador).</p></div>';
     h += '<div class="g-row"><label for="g4-ctx">Situação</label><select id="g4-ctx" class="select">' + FF.CONTEXTS.map((c) =>
       '<option value="' + c.id + '"' + (c.id === G4.ctx ? ' selected' : '') + '>' + (c.icon ? c.icon + ' ' : '') + esc(c.id === 'livre' ? 'Sem contexto (nível ' + FF.state.gLevel + ')' : c.name) + '</option>').join('') + '</select>' +
-      '<button class="btn" data-act="new">Novo exercício</button></div>';
-    h += '<div class="ex-card kbox k-q"><p class="ex-tag"><span class="kchip k-q">Pergunta</span> ' + (e.dir === 'fwd' ? 'Da entrada para a saída' : 'Da saída para a entrada') + (e.c.book ? ' · como na ' + esc(e.c.book) : '') + '</p><p class="ex-text" id="g4-text">' + esc(g4Text()) + '</p></div>';
+      '<button class="btn" data-act="new">Novo exercício</button>' +
+      '<button class="btn btn-ghost" data-act="g4-fade" aria-pressed="' + G4.fade + '" title="Três exemplos seguidos: o 1º resolvido, o 2º pela metade, o 3º a turma faz sozinha">Exemplos que se retiram</button></div>';
+    h += g4Opts();
+    if (G4.fade) {
+      h += '<div class="fade-steps">' + FADE.map((f, i) => '<span class="fs' + (i === G4.k ? ' cur' : i < G4.k ? ' done' : '') + '"><b>' + (i + 1) + '</b>' + f.name + '</span>').join('<span class="fs-arrow">→</span>') + '</div>' +
+        '<p class="fade-tip kbox k-do"><span class="kchip k-do">Faça</span> ' + FADE[G4.k].tip + '</p>';
+    }
     const steps = g4Steps();
-    h += '<ol class="solve">' + steps.slice(0, G4.shown).map((s) => '<li>' + s + '</li>').join('') + '</ol>';
+    h += '<div class="ex-card kbox k-q"><p class="ex-tag"><span class="kchip k-q">Pergunta</span> ' + (e.dir === 'fwd' ? 'Da entrada para a saída' : 'Da saída para a entrada') + (e.c.book ? ' · como na ' + esc(e.c.book) : '') + '</p><p class="ex-text" id="g4-text">' + esc(g4Text()) + '</p>' + g4Fig(G4.shown >= steps.length) + '</div>';
+    // no modo "se retiram", os passos que faltam aparecem como linhas em branco (a turma vê quantos são)
+    h += '<ol class="solve' + (G4.fade ? ' fading' : '') + '">' + steps.map((s, i) => (i < G4.shown ? '<li>' + s + '</li>' : G4.fade ? '<li class="blank"><span>' + (G4.k === 0 ? 'próximo passo' : 'a turma completa') + '</span></li>' : '')).join('') + '</ol>';
+    const more = G4.fade && G4.shown >= steps.length && G4.k < 2;
     h += '<div class="g-row end"><button class="btn btn-ghost" data-act="g4-copy">Copiar enunciado</button><button class="btn btn-ghost" data-act="g4-fab">Abrir na Fábrica</button>' +
-      '<button class="btn btn-ghost" data-act="g4-back"' + (G4.shown ? '' : ' disabled') + '>Voltar passo</button>' +
-      '<button class="btn" data-act="g4-step"' + (G4.shown >= steps.length ? ' disabled' : '') + '>Próximo passo (' + G4.shown + '/' + steps.length + ')</button></div>';
+      '<button class="btn btn-ghost" data-act="g4-back"' + (G4.shown > (G4.fade ? fadePre(G4.k, steps.length) : 0) ? '' : ' disabled') + '>Voltar passo</button>' +
+      (more ? '<button class="btn" data-act="g4-step">Próximo exemplo (' + (G4.k + 2) + ' de 3)</button>'
+        : '<button class="btn" data-act="g4-step"' + (G4.shown >= steps.length ? ' disabled' : '') + '>' + (G4.fade && G4.k > 0 ? 'Conferir o próximo passo' : 'Próximo passo') + ' (' + G4.shown + '/' + steps.length + ')</button>') + '</div>';
     return h;
   }
-  function g4Act(act) {
+  /* Ao trocar o jeito de resolver, o número de passos muda: mantém a parte já feita no modo "se retiram" */
+  function g4Reset() { G4.shown = G4.fade ? fadePre(G4.k, g4Steps().length) : 0; }
+  function g4Act(act, el) {
     const n = g4Steps().length;
-    if (act === 'g4-step') G4.shown = Math.min(n, G4.shown + 1);
-    else if (act === 'g4-back') G4.shown = Math.max(0, G4.shown - 1);
+    if (act === 'g4-step') {
+      if (G4.fade && G4.shown >= n && G4.k < 2) g4Fade(G4.k + 1);
+      else G4.shown = Math.min(n, G4.shown + 1);
+    } else if (act === 'g4-back') G4.shown = Math.max(G4.fade ? fadePre(G4.k, n) : 0, G4.shown - 1);
+    else if (act === 'g4-fade') { G4.fade = !G4.fade; if (G4.fade) g4Fade(0); else G4.shown = 0; }
+    else if (act === 'g4-how') { FF.set({ gHow: el.dataset.v }); g4Reset(); }
+    else if (act === 'g4-nums') { FF.set({ gNums: el.dataset.v }); if (G4.fade) g4Fade(G4.k); else g4New(); }
+    else if (act === 'g4-mine') { if (!g4Mine()) return; g4Reset(); }
     else if (act === 'g4-copy') {
       const txt = g4Text();
       try { navigator.clipboard.writeText(txt).then(() => toast('Enunciado copiado'), () => toast('Não deu para copiar')); } catch (e) { toast('Não deu para copiar'); }
@@ -434,7 +607,7 @@
   /* ---------- Geral ---------- */
   const GAMES = {
     rule: { make: g1New, draw: g1Render, act: g1Act, has: () => G1.law,
-      help: 'Cada equipe, na sua vez, pede <b>uma</b> pista (um valor para a máquina) e pode dar um palpite da lei. Quem descobrir leva os pontos: 5 com uma pista, 4 com duas… (mínimo 1). Palpite errado passa a vez.' },
+      help: 'Com o placar "Turma × máquina", toda a turma joga junta: a descoberta conta para a turma, e revelar a lei sem ninguém acertar dá ponto à máquina. Cada equipe, na sua vez, pede <b>uma</b> pista (um valor para a máquina) e pode dar um palpite da lei. Quem descobrir leva os pontos: 5 com uma pista, 4 com duas… (mínimo 1). Palpite errado passa a vez.' },
     rev: { make: g2New, draw: g2Render, act: g2Act, has: () => G2.law,
       help: 'A lei e a saída estão à vista. As equipes calculam a entrada (desfazendo as engrenagens de trás para frente). Use o cronômetro; a primeira equipe que acertar leva 2 pontos.' },
     race: { make: g3New, draw: g3Render, act: g3Act, has: () => G3.law,
@@ -469,24 +642,25 @@
       FF.set({ gLevel: Number(b.dataset.v) });
       game().make(); render();
     }));
-    $('g-new').addEventListener('click', () => { game().make(); render(); });
+    $('g-new').addEventListener('click', () => { if (FF.state.gGame === 'ex' && G4.fade) g4Fade(0); else game().make(); render(); });
     $('g-area').addEventListener('click', (e) => {
       const b = e.target.closest('[data-act]');
       if (!b || b.disabled) return;
-      if (b.dataset.act === 'new') { game().make(); render(); return; }
+      if (b.dataset.act === 'new') { if (FF.state.gGame === 'ex' && G4.fade) g4Fade(0); else game().make(); render(); return; }
       game().act(b.dataset.act, b);
     });
     $('g-area').addEventListener('keydown', (e) => {
       if (e.key !== 'Enter') return;
       const id = e.target.id;
-      const map = { 'g1-x': 'g1-ask', 'g1-guess': 'g1-guess', 'g3-k': 'g3-add' };
+      const map = { 'g1-x': 'g1-ask', 'g1-guess': 'g1-guess', 'g3-k': 'g3-add', 'g4-val': 'g4-mine' };
       if (map[id]) { e.preventDefault(); game().act(map[id]); }
     });
     $('g-area').addEventListener('change', (e) => {
-      if (e.target.id === 'g4-ctx') { G4.ctx = e.target.value; g4New(); render(); }
+      if (e.target.id === 'g4-ctx') { G4.ctx = e.target.value; if (G4.fade) g4Fade(0); else g4New(); render(); }
       if (e.target.id === 'h-turma') FF.set({ turma: e.target.value.trim().slice(0, 20) });
       if (e.target.id === 'h-tpl') { G5.tpl = e.target.value; FF.hinge.single(G5.tpl); render(); }
     });
+    $('g-area').addEventListener('toggle', (e) => { if (e.target.id === 'g4-opts') G4.opts = e.target.open; }, true);
     $('g-teams').addEventListener('click', (e) => {
       const inc = e.target.closest('[data-inc]'), dec = e.target.closest('[data-dec]');
       const t = teams();
@@ -503,7 +677,14 @@
     });
     $('g-team-add').addEventListener('click', () => { const t = teams(); if (t.length < 4) { t.push({ n: 'Equipe ' + (t.length + 1), p: 0 }); saveTeams(t); render(); } });
     $('g-team-del').addEventListener('click', () => { const t = teams(); if (t.length > 1) { t.pop(); saveTeams(t); render(); } });
-    $('g-team-zero').addEventListener('click', () => { saveTeams(teams().map((x) => ({ n: x.n, p: 0 }))); });
+    $('g-team-zero').addEventListener('click', () => { if (FF.state.gCoop) setVs(0, 0); else saveTeams(teams().map((x) => ({ n: x.n, p: 0 }))); });
+    $('g-mode').addEventListener('click', (e) => { const b = e.target.closest('button[data-m]'); if (b) { FF.set({ gCoop: b.dataset.m === '1' }); render(); } });
+    $('g-teams').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-vs]');
+      if (!b) return;
+      const [t, m] = vs(), d = b.dataset.vs;
+      setVs(t + (d === 't+' ? 1 : d === 't-' ? -1 : 0), m + (d === 'm+' ? 1 : d === 'm-' ? -1 : 0));
+    });
     $('g-clock-go').addEventListener('click', clockToggle);
     $('g-clock-reset').addEventListener('click', clockReset);
     document.querySelectorAll('#g-clock-len button').forEach((b) => b.addEventListener('click', () => { FF.set({ gClock: Number(b.dataset.v) }); clockReset(); }));
@@ -515,13 +696,15 @@
     next() { if (FF.state.gGame === 'ex') g4Act('g4-step'); else if (FF.state.gGame === 'rev') g2Act('g2-step'); else if (FF.state.gGame === 'hinge') FF.hinge.next(); },
     prev() { if (FF.state.gGame === 'ex') g4Act('g4-back'); else if (FF.state.gGame === 'hinge') FF.hinge.prev(); },
     first() {},
-    newRound() { if (FF.state.gGame === 'hinge') { FF.hinge.act('h-new'); return; } game().make(); render(); },
+    newRound() { if (FF.state.gGame === 'hinge') { FF.hinge.act('h-new'); return; } if (FF.state.gGame === 'ex' && G4.fade) g4Fade(0); else game().make(); render(); },
     atEnd() {
       if (FF.state.gGame === 'hinge') return FF.hinge.atEnd();
-      if (FF.state.gGame === 'ex') return !G4.ex || G4.shown >= g4Steps().length;
+      if (FF.state.gGame === 'ex') return !G4.ex || (G4.shown >= g4Steps().length && (!G4.fade || G4.k === 2));
       if (FF.state.gGame === 'rev') return !G2.law || G2.shown >= g2Steps().length;
       return true;
     },
+    /* Placas A–E no placar cooperativo: 60% ou mais de acerto = ponto da turma */
+    coopVerdict(pct) { if (FF.state.gCoop) coopPoint(pct >= 60, 1, pct + '% acertaram'); },
     /* Para o modo apresentador: o que só o professor deve ver (lei escondida, resolução inteira) */
     snap() {
       const g = FF.state.gGame;
@@ -532,13 +715,15 @@
       if (g === 'race' && G3.law) return { g, law: lawHTML(G3.law, 24), chain: G3.law.chain.map((x) => X.gearLabel(x)).join(' → ') };
       return { g };
     },
-    hasBack() { return (FF.state.gGame === 'ex' && G4.shown > 0) || (FF.state.gGame === 'hinge' && FF.hinge.hasBack()); },
+    hasBack() { return (FF.state.gGame === 'ex' && G4.ex && G4.shown > (G4.fade ? fadePre(G4.k, g4Steps().length) : 0)) || (FF.state.gGame === 'hinge' && FF.hinge.hasBack()); },
     /* Abre um jogo num nível, com rodada nova (aulas). Em Exercícios, a situação pode vir junto. */
     open(g, level, ctx, mo) {
       FF.set({ gGame: g, gLevel: level || FF.state.gLevel });
       if (g === 'ex' && ctx) G4.ctx = ctx;
+      if (g === 'ex') G4.fade = !!(mo && mo.fade);
       // Placas A–E numa aula: a lista de perguntas vem do momento (aquecimento ou pergunta-dobradiça)
       if (g === 'hinge' && mo && mo.items) FF.hinge.start(mo.items, { warm: mo.warm, exit: mo.exit, title: mo.title });
+      else if (g === 'ex' && G4.fade) g4Fade(0);
       else game().make();
       render();
     },

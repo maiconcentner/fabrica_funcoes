@@ -180,6 +180,23 @@ Está nos Desafios (Placas A–E, tipos "O erro do Zé") e nas aulas 2, 3, 4 e 7
 
 O modelo novo **Qual relação é função?** (D02, Atividades 14 e 15) mostra cinco tabelas de A em B; os erros são: aceitar duas imagens para um *x*, aceitar *x* sem imagem, aceitar imagem fora de B e "contar só as flechas" (4 pares para 4 elementos, mas um *x* com duas imagens e outro sem nenhuma). A certa tem imagem repetida, de propósito: pode!
 
+### Confiança no voto, placar cooperativo e exemplos que se retiram
+
+- **Confiança no voto.** No *É função?*, depois do voto, a turma diz **com que certeza** (💪 muita / 🤏 pouca). Se errar com muita certeza, o veredito sugere pedir que expliquem o raciocínio: errar com certeza e ver por quê é quando mais se aprende (efeito de hipercorreção). Nas **Placas A–E**, a faixa **💪 Com certeza** conta, por letra, quem levantou a placa bem alto; ao revelar aparece quantos **erraram com certeza**, e isso entra no resumo da turma.
+- **Placar cooperativo.** No Placar dos Desafios, **Turma × máquina**: todos jogam juntos. Nas Placas, a turma pontua quando 60% ou mais acertam (se não, ponto da máquina); nos outros jogos, o que as equipes ganhariam vai para a turma, e revelar a lei sem ninguém acertar dá ponto à máquina. Bom para turmas em que a competição afasta quem tem mais dificuldade.
+- **Exemplos que se retiram aos poucos.** Nos Exercícios, o botão **Exemplos que se retiram** faz uma série de três, na mesma situação e no mesmo sentido: **1 · Resolvido** (passo a passo), **2 · Completem** (metade pronta, a turma completa o resto, com as linhas em branco à vista) e **3 · Sozinhos** (só o enunciado; depois confere-se passo a passo). A revisão da Aula 7 usa esse formato.
+- **Sem depender só de vermelho e verde.** No *É função?*, além da cor, cada marcação tem um padrão: faixa contínua (passa), listrada (reprova) e pontilhada (fora do domínio); flechas que reprovam tracejadas; pontos de corte que reprovam como anel vazado.
+
+### Exercícios: o que veio das Relações Métricas e da Unidade 9
+
+- **Figura com "?" no que se pede.** O enunciado traz a máquina da situação: a entrada, a lei e a saída. O que a pergunta pede aparece como **?** tracejado; o valor surge no lugar dele junto com a Resposta.
+- **Etapas com nome.** Cada passo da resolução tem uma etiqueta: **Dados → Lei → Substituir → Calcular → (Conferir) → Resposta**. A turma aprende a sequência, não só a conta.
+- **Resolver por** (em *Opções*): **Equação** (substituir e calcular; da saída para a entrada, isolar a incógnita fazendo o mesmo dos dois lados), **Engrenagens** (aplicar ou desfazer cada engrenagem) ou **As duas** (a equação e, no fim, a conferência nas engrenagens com ✓).
+- **Números**: do livro (parecidos com os da atividade), só **inteiros** ou com **decimais**. Situações com domínio ℕ (vendas) ficam sempre com inteiros.
+- **Montar o meu**: o professor escolhe o sentido (dou a entrada / dou a saída) e digita o número. Números fora do domínio, ou saídas que nenhuma entrada produz, são recusados com um aviso.
+
+As opções ficam guardadas. Também foi corrigida a lei da máquina em *Que produto entrou?*, que aparecia espremida no ícone da engrenagem.
+
 ### Resumo da turma (para o relatório do PAE)
 
 Cada pergunta com votos contados fica guardada neste navegador, com a **turma** (escrita no alto da pergunta: 9º A, 9º B…), a data, a aula e o **nome do erro** de cada alternativa. O botão **Resumo da turma** (no alto das Placas A–E ou no painel do professor) mostra:

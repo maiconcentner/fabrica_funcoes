@@ -16,6 +16,10 @@
     gLevel: 1,          // nível dos desafios (1 a 3)
     gTeams: '',         // equipes e pontos (JSON)
     gClock: 60,         // segundos do cronômetro
+    gCoop: false,       // placar cooperativo: a turma inteira contra a máquina
+    gVs: '0:0',         // pontos da turma : pontos da máquina
+    gHow: 'eq',         // exercícios: resolver por 'eq' (equação) | 'gear' (engrenagens) | 'both'
+    gNums: 'livro',     // exercícios: números 'livro' | 'int' | 'dec'
     emp: '',            // Minha empresa (JSON)
     ctx: 'livre',
     law: '2x + 1',      // lei digitada (vazio quando a situação tem lei por faixas)
@@ -85,6 +89,10 @@
     if (!['rule', 'rev', 'race', 'ex', 'hinge'].includes(s.gGame)) s.gGame = 'rule';
     s.gLevel = clamp(Math.round(Number(s.gLevel) || 1), 1, 3);
     s.gTeams = String(s.gTeams || '');
+    s.gCoop = !!s.gCoop;
+    s.gVs = /^\d+:\d+$/.test(String(s.gVs)) ? String(s.gVs) : '0:0';
+    if (!['eq', 'gear', 'both'].includes(s.gHow)) s.gHow = 'eq';
+    if (!['livro', 'int', 'dec'].includes(s.gNums)) s.gNums = 'livro';
     s.gClock = [30, 60, 90, 120, 180].includes(Number(s.gClock)) ? Number(s.gClock) : 60;
     if (!['diag', 'tab', 'graf'].includes(s.iMode)) s.iMode = 'diag';
     s.iCase = Math.max(0, Math.round(Number(s.iCase) || 0));
