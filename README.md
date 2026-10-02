@@ -187,6 +187,16 @@ O modelo novo **Qual relação é função?** (D02, Atividades 14 e 15) mostra c
 - **Exemplos que se retiram aos poucos.** Nos Exercícios, o botão **Exemplos que se retiram** faz uma série de três, na mesma situação e no mesmo sentido: **1 · Resolvido** (passo a passo), **2 · Completem** (metade pronta, a turma completa o resto, com as linhas em branco à vista) e **3 · Sozinhos** (só o enunciado; depois confere-se passo a passo). A revisão da Aula 7 usa esse formato.
 - **Sem depender só de vermelho e verde.** No *É função?*, além da cor, cada marcação tem um padrão: faixa contínua (passa), listrada (reprova) e pontilhada (fora do domínio); flechas que reprovam tracejadas; pontos de corte que reprovam como anel vazado.
 
+### Exercícios: o que veio das Relações Métricas e da Unidade 9
+
+- **Figura com "?" no que se pede.** O enunciado traz a máquina da situação: a entrada, a lei e a saída. O que a pergunta pede aparece como **?** tracejado; o valor surge no lugar dele junto com a Resposta.
+- **Etapas com nome.** Cada passo da resolução tem uma etiqueta: **Dados → Lei → Substituir → Calcular → (Conferir) → Resposta**. A turma aprende a sequência, não só a conta.
+- **Resolver por** (em *Opções*): **Equação** (substituir e calcular; da saída para a entrada, isolar a incógnita fazendo o mesmo dos dois lados), **Engrenagens** (aplicar ou desfazer cada engrenagem) ou **As duas** (a equação e, no fim, a conferência nas engrenagens com ✓).
+- **Números**: do livro (parecidos com os da atividade), só **inteiros** ou com **decimais**. Situações com domínio ℕ (vendas) ficam sempre com inteiros.
+- **Montar o meu**: o professor escolhe o sentido (dou a entrada / dou a saída) e digita o número. Números fora do domínio, ou saídas que nenhuma entrada produz, são recusados com um aviso.
+
+As opções ficam guardadas. Também foi corrigida a lei da máquina em *Que produto entrou?*, que aparecia espremida no ícone da engrenagem.
+
 ### Resumo da turma (para o relatório do PAE)
 
 Cada pergunta com votos contados fica guardada neste navegador, com a **turma** (escrita no alto da pergunta: 9º A, 9º B…), a data, a aula e o **nome do erro** de cada alternativa. O botão **Resumo da turma** (no alto das Placas A–E ou no painel do professor) mostra:

@@ -705,7 +705,7 @@ kbd {
   display: flex; align-items: center; gap: 12px; padding: 14px 22px; border-radius: 14px;
   background: var(--sign); color: var(--sign-ink); min-width: 220px; justify-content: center;
 }
-.mini-machine svg { width: 42px; height: 42px; opacity: 0.85; }
+.mini-machine > svg { width: 42px; height: 42px; opacity: 0.85; }
 .mini-machine.dark { background: var(--ink); color: var(--surface); }
 .mini-law .qq { font-family: var(--font-math); font-style: italic; font-size: 2rem; }
 .mini-law .mx-inline { color: inherit; }
@@ -1652,3 +1652,33 @@ html.proj .coop-pts { font-size: 3rem; }
 .solve li.blank { min-height: 2em; border-bottom: 2px dashed color-mix(in srgb, var(--okk-line) 55%, transparent); }
 .solve li.blank span { font-size: 0.8rem; color: var(--muted); font-style: italic; }
 .solve:has(> li.blank:first-child)::before { content: "✎ Resolução"; }
+
+/* ===== Exercícios: figura, etapas com nome e opções (aprendizados das Relações Métricas e da Unidade 9) ===== */
+.ex-fig { justify-content: flex-start; padding: 12px 0 2px; gap: 10px; }
+.ex-fig .mini-machine { min-width: 0; padding: 10px 16px; }
+.ex-fig .mini-box { font-size: 1.5rem; min-width: 70px; }
+.ex-fig .mini-box.ask { opacity: 1; border-width: 3px; animation: askpulse 1.6s ease-in-out 2; }
+.ex-fig .mini-box.found { box-shadow: 0 0 0 4px var(--okk-line); }
+.ex-fig .qq.sm { font-size: 1.2rem; }
+@keyframes askpulse { 50% { transform: scale(1.08); } }
+@media (prefers-reduced-motion: reduce) { .ex-fig .mini-box.ask { animation: none; } }
+.stg {
+  display: inline-block; min-width: 6.4em; text-align: center; margin-right: 4px; padding: 1px 8px; border-radius: 999px;
+  font-size: 0.72em; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; vertical-align: 0.15em;
+  border: 1.5px solid; background: var(--surface);
+}
+.stg-dados { color: var(--idea); border-color: var(--idea-line); }
+.stg-lei { color: var(--do); border-color: var(--do-line); }
+.stg-subst { color: var(--q); border-color: var(--q-line); }
+.stg-calc { color: var(--ink); border-color: var(--line); }
+.stg-conf { color: var(--idea); border-color: var(--idea-line); border-style: dashed; }
+.stg-resp { color: #fff; background: var(--okk-line); border-color: var(--okk-line); }
+.ex-opts { border: 1px solid var(--line); border-radius: 10px; padding: 6px 12px; }
+.ex-opts summary { cursor: pointer; font-weight: 700; color: var(--muted); font-size: 0.92rem; }
+.ex-opts-body { display: flex; flex-direction: column; gap: 8px; padding: 8px 0 4px; }
+.ex-opts .olabel { font-weight: 700; min-width: 8.5em; }
+.ex-opts .select { flex: 0 1 220px; min-width: 150px; }
+#g4-val { max-width: 140px; flex: 0 1 140px; }
+html.proj .ex-fig .mini-box { font-size: 2rem; }
+html.proj .ex-opts:not([open]) { padding: 2px 10px; }
+@media (max-width: 700px) { .ex-fig { justify-content: center; } .ex-opts .olabel { min-width: 0; width: 100%; } }
